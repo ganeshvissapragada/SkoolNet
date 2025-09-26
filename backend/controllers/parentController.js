@@ -183,3 +183,149 @@ exports.getScholarshipDetailsForParent = async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 };
+// =================== MEAL SYSTEM - PARENT VIEW ===================
+
+exports.getDailyMealPlan = async (req, res) => {
+  try {
+    const { date } = req.query;
+    const queryDate = date || new Date().toISOString().split('T')[0];
+    
+    const mealPlan = await MealPlan.findOne({
+      where: { date: queryDate },
+      attributes: ['id', 'date', 'meal_name', 'description', 'items', 'nutritional_info', 'allergens', 'meal_type', 'special_notes']
+    });
+
+    if (!mealPlan) {
+      return res.status(404).json({ message: 'No meal plan found for this date' });
+    }
+
+    res.json(mealPlan);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+exports.getChildMealConsumption = async (req, res) => {
+  try {
+    const parentId = req.user.userId;
+    
+    // Get parent's children
+    const children = await Student.findAll({
+      where: { parent_id: parentId },
+      attributes: ['id', 'name', 'class', 'section']
+    });
+
+    if (children.length === 0) {
+      return res.json({ message: 'No children found', consumptions: [] });
+    }
+
+    const childIds = children.map(child => child.id);
+    const { date, week } = req.query;
+    
+    let mealPlanWhere = {};
+    if (date) {
+      mealPlanWhere.date = date;
+    } else if (week) {
+      const startOfWeek = new Date();
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(endOfWeek.getDate() + 6);
+      
+      mealPlanWhere.date = {
+        [Op.between]: [startOfWeek.toISOString().split('T')[0], endOfWeek.toISOString().split('T')[0]]
+      };
+    } else {
+      // Default to current week
+      const startOfWeek = new Date();
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(endOfWeek.getDate() + 6);
+      
+      mealPlanWhere.date = {
+        [Op.between]: [startOfWeek.toISOString().split('T')[0], endOfWeek.toISOString().split('T')[0]]
+      };
+    }
+
+    const consumptions = await MealConsumption.findAll({
+      where: { student_id: { [Op.in]: childIds } },
+      include: [
+        {
+          model: MealPlan,
+          as: 'meal_plan',
+          where: mealPlanWhere,
+          attributes: ['id', 'date', 'meal_name', 'meal_type']
+        },
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['id', 'name', 'class', 'section']
+        }
+      ],
+      order: [['consumed_at', 'DESC']]
+    });
+
+    res.json({ children, consumptions });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+exports.submitMealFeedback = async (req, res) => {
+  try {
+    const parentId = req.user.userId;
+    const { mealPlanId, studentId, rating, feedback, aspects, isAnonymous } = req.body;
+
+    if (!mealPlanId || !rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        message: 'Valid meal plan ID and rating (1-5) are required'
+      });
+    }
+
+    // Verify parent has access to this student
+    const student = await Student.findOne({
+      where: { id: studentId, parent_id: parentId }
+    });
+
+    if (!student) {
+      return res.status(403).json({ message: 'Access denied to this student' });
+    }
+
+    const MealFeedback = require('../models/mongo/mealFeedback');
+    
+    // Check if feedback already exists
+    const existingFeedback = await MealFeedback.findOne({
+      mealPlanId: parseInt(mealPlanId),
+      studentId: parseInt(studentId),
+      parentId: parentId,
+      feedbackType: 'parent'
+    });
+
+    if (existingFeedback) {
+      // Update existing feedback
+      existingFeedback.rating = rating;
+      existingFeedback.feedback = feedback || '';
+      existingFeedback.aspects = aspects || {};
+      existingFeedback.isAnonymous = isAnonymous || false;
+      await existingFeedback.save();
+      
+      res.json({ message: 'Feedback updated successfully', feedback: existingFeedback });
+    } else {
+      // Create new feedback
+      const newFeedback = new MealFeedback({
+        mealPlanId: parseInt(mealPlanId),
+        studentId: parseInt(studentId),
+        parentId: parentId,
+        rating,
+        feedback: feedback || '',
+        aspects: aspects || {},
+        feedbackType: 'parent',
+        isAnonymous: isAnonymous || false
+      });
+
+      await newFeedback.save();
+      res.status(201).json({ message: 'Feedback submitted successfully', feedback: newFeedback });
+    }
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};

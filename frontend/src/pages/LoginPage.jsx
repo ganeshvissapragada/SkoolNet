@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 export default function LoginPage() {
   const { login } = useContext(AuthContext);
   const nav = useNavigate();
-  const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('Admin@123');
+  const [email, setEmail] = useState('alice@student.com');
+  const [password, setPassword] = useState('student123');
   const [error, setError] = useState('');
 
   const submit = async (e) => {

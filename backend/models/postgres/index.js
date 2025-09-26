@@ -1,6 +1,11 @@
 const sequelize = require('../../config/postgres');
 const { DataTypes } = require('sequelize');
 
+// Import meal system models
+const MealPlan = require('./mealPlan');
+const InventoryItem = require('./inventoryItem');
+const MealConsumption = require('./mealConsumption');
+
 const User = sequelize.define('User', {
   name: DataTypes.STRING,
   email: { type: DataTypes.STRING, unique: true, allowNull: false },
@@ -181,6 +186,18 @@ Student.hasMany(PTM, { as: 'meetings', foreignKey: 'student_id' });
 Scholarship.belongsTo(User, { as: 'creator', foreignKey: 'created_by' });
 User.hasMany(Scholarship, { as: 'created_scholarships', foreignKey: 'created_by' });
 
+// Meal system associations
+MealPlan.belongsTo(User, { as: 'creator', foreignKey: 'created_by' });
+User.hasMany(MealPlan, { as: 'created_meal_plans', foreignKey: 'created_by' });
+
+MealConsumption.belongsTo(MealPlan, { as: 'meal_plan', foreignKey: 'meal_plan_id' });
+MealConsumption.belongsTo(Student, { as: 'student', foreignKey: 'student_id' });
+MealConsumption.belongsTo(User, { as: 'marked_by_user', foreignKey: 'marked_by' });
+
+MealPlan.hasMany(MealConsumption, { as: 'consumptions', foreignKey: 'meal_plan_id' });
+Student.hasMany(MealConsumption, { as: 'meal_consumptions', foreignKey: 'student_id' });
+User.hasMany(MealConsumption, { as: 'marked_consumptions', foreignKey: 'marked_by' });
+
 module.exports = {
   sequelize,
   User,
@@ -188,5 +205,8 @@ module.exports = {
   Class,
   Subject,
   PTM,
-  Scholarship
+  Scholarship,
+  MealPlan,
+  InventoryItem,
+  MealConsumption
 };

@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
-const { User, Student, Scholarship } = require('../models/postgres');
+const { User, Student, Scholarship, MealPlan, InventoryItem, MealConsumption } = require('../models/postgres');
+const { Op } = require('sequelize');
 
 exports.createUser = async (req, res) => {
   try {
@@ -239,6 +240,231 @@ exports.toggleScholarshipStatus = async (req, res) => {
     });
 
     res.json(updatedScholarship);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+// =================== MEAL SYSTEM MANAGEMENT ===================
+
+// Meal Plan Management
+exports.createMealPlan = async (req, res) => {
+  try {
+    const {
+      date,
+      meal_name,
+      description,
+      items,
+      nutritional_info,
+      allergens,
+      meal_type,
+      total_quantity_planned,
+      cost_per_meal,
+      special_notes
+    } = req.body;
+
+    if (!date || !meal_name || !items || !total_quantity_planned || !cost_per_meal) {
+      return res.status(400).json({
+        message: 'Date, meal name, items, quantity, and cost are required'
+      });
+    }
+
+    const existingPlan = await MealPlan.findOne({
+      where: { date, meal_type: meal_type || 'lunch' }
+    });
+
+    if (existingPlan) {
+      return res.status(400).json({
+        message: `Meal plan already exists for ${date} (${meal_type || 'lunch'})`
+      });
+    }
+
+    // Ensure we have a valid user ID (JWT payload stores it as 'id')
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'User authentication required' });
+    }
+
+    const mealPlan = await MealPlan.create({
+      date,
+      meal_name,
+      description,
+      items: Array.isArray(items) ? items : [items],
+      nutritional_info: nutritional_info || {},
+      allergens: allergens || [],
+      meal_type: meal_type || 'lunch',
+      total_quantity_planned: parseInt(total_quantity_planned),
+      cost_per_meal: parseFloat(cost_per_meal),
+      created_by: userId,
+      special_notes
+    });
+
+    const mealPlanWithCreator = await MealPlan.findByPk(mealPlan.id, {
+      include: [{ model: User, as: 'creator', attributes: ['id', 'name', 'email'] }]
+    });
+
+    res.status(201).json(mealPlanWithCreator);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+exports.getMealPlans = async (req, res) => {
+  try {
+    const { date, status } = req.query;
+    let whereClause = {};
+
+    if (date) {
+      whereClause.date = date;
+    }
+
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const mealPlans = await MealPlan.findAll({
+      where: whereClause,
+      include: [
+        { model: User, as: 'creator', attributes: ['id', 'name', 'email'] }
+      ],
+      order: [['date', 'DESC'], ['meal_type', 'ASC']]
+    });
+
+    res.json(mealPlans);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+exports.getMealDashboard = async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const todaysMeal = await MealPlan.findOne({
+      where: { date: today },
+      include: [{ model: User, as: 'creator', attributes: ['id', 'name'] }]
+    });
+
+    let consumptionStats = { totalServed: 0, consumedCount: 0, notConsumedCount: 0 };
+    if (todaysMeal) {
+      const consumptions = await MealConsumption.findAll({
+        where: { meal_plan_id: todaysMeal.id }
+      });
+      
+      consumptionStats = {
+        totalServed: consumptions.length,
+        consumedCount: consumptions.filter(c => c.status === 'consumed').length,
+        partialCount: consumptions.filter(c => c.status === 'partial').length,
+        notConsumedCount: consumptions.filter(c => c.status === 'not_consumed').length,
+        absentCount: consumptions.filter(c => c.status === 'absent').length
+      };
+    }
+
+    const lowStockItems = await InventoryItem.findAll({
+      where: {
+        [Op.or]: [
+          { status: 'low_stock' },
+          { status: 'out_of_stock' }
+        ]
+      },
+      limit: 10
+    });
+
+    res.json({
+      todaysMeal,
+      consumptionStats,
+      lowStockItems,
+      alertsCount: lowStockItems.length
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+// Get meal feedback for a specific meal plan
+exports.getMealFeedback = async (req, res) => {
+  try {
+    const { mealPlanId } = req.params;
+    const MealFeedback = require('../models/mongo/mealFeedback');
+    
+    const feedbacks = await MealFeedback.find({ mealPlanId })
+      .sort({ createdAt: -1 });
+    
+    // Calculate statistics
+    const stats = {
+      totalFeedbacks: feedbacks.length,
+      averageRating: feedbacks.length > 0 ? 
+        feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length : 0,
+      aspectAverages: {
+        taste: feedbacks.length > 0 ? 
+          feedbacks.reduce((sum, f) => sum + (f.aspects.taste || 0), 0) / feedbacks.length : 0,
+        hygiene: feedbacks.length > 0 ? 
+          feedbacks.reduce((sum, f) => sum + (f.aspects.hygiene || 0), 0) / feedbacks.length : 0,
+        quantity: feedbacks.length > 0 ? 
+          feedbacks.reduce((sum, f) => sum + (f.aspects.quantity || 0), 0) / feedbacks.length : 0,
+        variety: feedbacks.length > 0 ? 
+          feedbacks.reduce((sum, f) => sum + (f.aspects.variety || 0), 0) / feedbacks.length : 0
+      },
+      ratingDistribution: {
+        1: feedbacks.filter(f => f.rating === 1).length,
+        2: feedbacks.filter(f => f.rating === 2).length,
+        3: feedbacks.filter(f => f.rating === 3).length,
+        4: feedbacks.filter(f => f.rating === 4).length,
+        5: feedbacks.filter(f => f.rating === 5).length
+      }
+    };
+    
+    res.json({
+      feedbacks,
+      stats
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+// Get all meal feedback with analytics
+exports.getAllMealFeedback = async (req, res) => {
+  try {
+    const MealFeedback = require('../models/mongo/mealFeedback');
+    const { MealPlan } = require('../models/postgres');
+    
+    const feedbacks = await MealFeedback.find()
+      .sort({ createdAt: -1 })
+      .limit(100); // Limit for performance
+    
+    // Get meal plan names for context
+    const mealPlanIds = [...new Set(feedbacks.map(f => f.mealPlanId))];
+    const mealPlans = await MealPlan.findAll({
+      where: { id: mealPlanIds },
+      attributes: ['id', 'meal_name', 'date']
+    });
+    
+    const mealPlanMap = {};
+    mealPlans.forEach(plan => {
+      mealPlanMap[plan.id] = plan;
+    });
+    
+    // Add meal plan info to feedbacks
+    const enrichedFeedbacks = feedbacks.map(feedback => ({
+      ...feedback.toObject(),
+      mealPlan: mealPlanMap[feedback.mealPlanId]
+    }));
+    
+    // Overall statistics
+    const overallStats = {
+      totalFeedbacks: feedbacks.length,
+      averageRating: feedbacks.length > 0 ? 
+        feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length : 0,
+      feedbackByType: {
+        student: feedbacks.filter(f => f.feedbackType === 'student').length,
+        parent: feedbacks.filter(f => f.feedbackType === 'parent').length
+      }
+    };
+    
+    res.json({
+      feedbacks: enrichedFeedbacks,
+      stats: overallStats
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

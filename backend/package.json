@@ -9,7 +9,11 @@
     "seed": "node scripts/seedAdmin.js",
     "create-ptm-table": "node scripts/createPTMTable.js",
     "seed-ptm-data": "node scripts/seedPTMData.js",
-    "seed-scholarships": "node scripts/seedScholarshipData.js"
+    "seed-scholarships": "node scripts/seedScholarshipData.js",
+    "seed-meals": "node scripts/seedMealData.js",
+    "seed-mongo-feedback": "node scripts/seedMongoFeedback.js",
+    "seed-students-parents": "node scripts/seedStudentsAndParents.js",
+    "test-platform": "node scripts/testPlatform.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

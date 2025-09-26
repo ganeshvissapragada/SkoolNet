@@ -31,6 +31,34 @@ export default function AdminDashboard() {
   const [scholarships, setScholarships] = useState([]);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  
+  // Meal System State
+  const [mealForm, setMealForm] = useState({
+    date: new Date().toISOString().split('T')[0],
+    meal_name: '',
+    description: '',
+    items: [''],
+    nutritional_info: {
+      calories: '',
+      protein: '',
+      carbohydrates: '',
+      fat: '',
+      fiber: '',
+      vitamins: ''
+    },
+    allergens: [''],
+    meal_type: 'lunch',
+    total_quantity_planned: '',
+    cost_per_meal: '',
+    special_notes: ''
+  });
+  const [mealPlans, setMealPlans] = useState([]);
+  const [mealDashboard, setMealDashboard] = useState({
+    todaysMeal: null,
+    consumptionStats: {},
+    lowStockItems: [],
+    alertsCount: 0
+  });
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -132,9 +160,119 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadMealDashboard = async () => {
+    try {
+      const res = await api.get('/admin/meal-dashboard');
+      setMealDashboard(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load meal dashboard');
+    }
+  };
+
+  const loadMealPlans = async () => {
+    try {
+      const res = await api.get('/admin/meal-plans');
+      setMealPlans(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load meal plans');
+    }
+  };
+
+  const submitMealPlan = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const payload = {
+        ...mealForm,
+        items: mealForm.items.filter(item => item.trim() !== ''),
+        allergens: mealForm.allergens.filter(allergen => allergen.trim() !== ''),
+        total_quantity_planned: parseInt(mealForm.total_quantity_planned),
+        cost_per_meal: parseFloat(mealForm.cost_per_meal)
+      };
+      
+      const res = await api.post('/admin/meal-plans', payload);
+      setResult(res.data);
+      setMealForm({
+        date: new Date().toISOString().split('T')[0],
+        meal_name: '',
+        description: '',
+        items: [''],
+        nutritional_info: {
+          calories: '',
+          protein: '',
+          carbohydrates: '',
+          fat: '',
+          fiber: '',
+          vitamins: ''
+        },
+        allergens: [''],
+        meal_type: 'lunch',
+        total_quantity_planned: '',
+        cost_per_meal: '',
+        special_notes: ''
+      });
+      loadMealPlans();
+      loadMealDashboard();
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to create meal plan');
+    }
+  };
+
+  const onMealFormChange = (e) => {
+    const { name, value } = e.target;
+    if (name.startsWith('nutritional_info.')) {
+      const key = name.split('.')[1];
+      setMealForm(prev => ({
+        ...prev,
+        nutritional_info: { ...prev.nutritional_info, [key]: value }
+      }));
+    } else {
+      setMealForm(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const addMealItem = () => {
+    setMealForm(prev => ({ ...prev, items: [...prev.items, ''] }));
+  };
+
+  const removeMealItem = (index) => {
+    setMealForm(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateMealItem = (index, value) => {
+    setMealForm(prev => ({
+      ...prev,
+      items: prev.items.map((item, i) => i === index ? value : item)
+    }));
+  };
+
+  const addAllergen = () => {
+    setMealForm(prev => ({ ...prev, allergens: [...prev.allergens, ''] }));
+  };
+
+  const removeAllergen = (index) => {
+    setMealForm(prev => ({
+      ...prev,
+      allergens: prev.allergens.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateAllergen = (index, value) => {
+    setMealForm(prev => ({
+      ...prev,
+      allergens: prev.allergens.map((allergen, i) => i === index ? value : allergen)
+    }));
+  };
+
   useEffect(() => {
     if (activeTab === 'scholarships') {
       fetchScholarships();
+    } else if (activeTab === 'meals') {
+      loadMealDashboard();
+      loadMealPlans();
     }
   }, [activeTab]);
 
@@ -171,6 +309,7 @@ export default function AdminDashboard() {
           onClick={() => setActiveTab('scholarships')}
           style={{
             padding: '10px 20px',
+            marginRight: '10px',
             border: 'none',
             backgroundColor: activeTab === 'scholarships' ? '#007bff' : '#f8f9fa',
             color: activeTab === 'scholarships' ? 'white' : '#000',
@@ -179,6 +318,19 @@ export default function AdminDashboard() {
           }}
         >
           Scholarship Management
+        </button>
+        <button 
+          onClick={() => setActiveTab('meals')}
+          style={{
+            padding: '10px 20px',
+            border: 'none',
+            backgroundColor: activeTab === 'meals' ? '#007bff' : '#f8f9fa',
+            color: activeTab === 'meals' ? 'white' : '#000',
+            cursor: 'pointer',
+            borderRadius: '4px 4px 0 0'
+          }}
+        >
+          🍽️ Meal System
         </button>
       </div>
 
@@ -536,6 +688,388 @@ export default function AdminDashboard() {
                 );
               })
             )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'meals' && (
+        <div>
+          {/* Meal Dashboard Overview */}
+          <div style={{ marginBottom: 32 }}>
+            <h3>🍽️ Meal System Dashboard</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
+              <div style={{ 
+                padding: 16, 
+                border: '1px solid #ddd', 
+                borderRadius: 8, 
+                backgroundColor: '#f8f9fa' 
+              }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#007bff' }}>📅 Today's Meal</h4>
+                {mealDashboard.todaysMeal ? (
+                  <div>
+                    <strong>{mealDashboard.todaysMeal.meal_name}</strong>
+                    <div style={{ fontSize: '0.9em', color: '#666', marginTop: 4 }}>
+                      Type: {mealDashboard.todaysMeal.meal_type}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ color: '#666' }}>No meal planned for today</div>
+                )}
+              </div>
+              
+              <div style={{ 
+                padding: 16, 
+                border: '1px solid #ddd', 
+                borderRadius: 8, 
+                backgroundColor: '#f8f9fa' 
+              }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#28a745' }}>📊 Today's Stats</h4>
+                <div style={{ fontSize: '0.9em' }}>
+                  <div>Meals Served: {mealDashboard.consumptionStats.totalServed || 0}</div>
+                  <div>Consumed: {mealDashboard.consumptionStats.consumedCount || 0}</div>
+                  <div>Not Consumed: {mealDashboard.consumptionStats.notConsumedCount || 0}</div>
+                </div>
+              </div>
+              
+              <div style={{ 
+                padding: 16, 
+                border: '1px solid #ddd', 
+                borderRadius: 8, 
+                backgroundColor: mealDashboard.alertsCount > 0 ? '#fff3cd' : '#f8f9fa'
+              }}>
+                <h4 style={{ margin: '0 0 8px 0', color: mealDashboard.alertsCount > 0 ? '#856404' : '#dc3545' }}>
+                  🚨 Inventory Alerts
+                </h4>
+                <div style={{ fontSize: '0.9em' }}>
+                  {mealDashboard.alertsCount > 0 ? (
+                    <div>
+                      <strong>{mealDashboard.alertsCount}</strong> low stock items
+                      <div style={{ marginTop: 4 }}>
+                        {mealDashboard.lowStockItems.slice(0, 3).map(item => (
+                          <div key={item.id} style={{ fontSize: '0.8em', color: '#666' }}>
+                            • {item.item_name}: {item.current_stock} {item.unit}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ color: '#28a745' }}>All items well stocked</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Create New Meal Plan */}
+          <div style={{ marginBottom: 32 }}>
+            <h3>➕ Create New Meal Plan</h3>
+            <form onSubmit={submitMealPlan} style={{ 
+              maxWidth: 800, 
+              padding: 20, 
+              border: '1px solid #ddd', 
+              borderRadius: 8, 
+              backgroundColor: '#fff' 
+            }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Meal Name *</label>
+                  <input 
+                    name="meal_name" 
+                    value={mealForm.meal_name} 
+                    onChange={onMealFormChange} 
+                    style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }} 
+                    required 
+                    placeholder="e.g. Vegetarian Thali"
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Date *</label>
+                  <input 
+                    name="date" 
+                    type="date" 
+                    value={mealForm.date} 
+                    onChange={onMealFormChange} 
+                    style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Meal Type</label>
+                  <select 
+                    name="meal_type" 
+                    value={mealForm.meal_type} 
+                    onChange={onMealFormChange} 
+                    style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+                  >
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="snack">Snack</option>
+                    <option value="dinner">Dinner</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Cost per Meal (₹) *</label>
+                  <input 
+                    name="cost_per_meal" 
+                    type="number" 
+                    step="0.01" 
+                    value={mealForm.cost_per_meal} 
+                    onChange={onMealFormChange} 
+                    style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }} 
+                    required
+                    placeholder="35.50"
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Total Quantity Planned *</label>
+                <input 
+                  name="total_quantity_planned" 
+                  type="number" 
+                  value={mealForm.total_quantity_planned} 
+                  onChange={onMealFormChange} 
+                  style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }} 
+                  required
+                  placeholder="250"
+                />
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Description</label>
+                <textarea 
+                  name="description" 
+                  value={mealForm.description} 
+                  onChange={onMealFormChange} 
+                  style={{ width: '100%', padding: 8, height: 60, border: '1px solid #ccc', borderRadius: 4 }} 
+                  placeholder="Brief description of the meal..."
+                />
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Meal Items</label>
+                {mealForm.items.map((item, index) => (
+                  <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                    <input 
+                      value={item}
+                      onChange={(e) => updateMealItem(index, e.target.value)}
+                      style={{ flex: 1, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+                      placeholder="e.g. Steamed Rice"
+                    />
+                    {mealForm.items.length > 1 && (
+                      <button 
+                        type="button"
+                        onClick={() => removeMealItem(index)}
+                        style={{ padding: 8, backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: 4 }}
+                      >
+                        ❌
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button 
+                  type="button"
+                  onClick={addMealItem}
+                  style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: 4 }}
+                >
+                  ➕ Add Item
+                </button>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Nutritional Information</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                  <input 
+                    name="nutritional_info.calories" 
+                    type="number" 
+                    value={mealForm.nutritional_info.calories} 
+                    onChange={onMealFormChange} 
+                    style={{ padding: 6, border: '1px solid #ccc', borderRadius: 4 }} 
+                    placeholder="Calories"
+                  />
+                  <input 
+                    name="nutritional_info.protein" 
+                    type="number" 
+                    value={mealForm.nutritional_info.protein} 
+                    onChange={onMealFormChange} 
+                    style={{ padding: 6, border: '1px solid #ccc', borderRadius: 4 }} 
+                    placeholder="Protein (g)"
+                  />
+                  <input 
+                    name="nutritional_info.carbohydrates" 
+                    type="number" 
+                    value={mealForm.nutritional_info.carbohydrates} 
+                    onChange={onMealFormChange} 
+                    style={{ padding: 6, border: '1px solid #ccc', borderRadius: 4 }} 
+                    placeholder="Carbs (g)"
+                  />
+                  <input 
+                    name="nutritional_info.fat" 
+                    type="number" 
+                    value={mealForm.nutritional_info.fat} 
+                    onChange={onMealFormChange} 
+                    style={{ padding: 6, border: '1px solid #ccc', borderRadius: 4 }} 
+                    placeholder="Fat (g)"
+                  />
+                  <input 
+                    name="nutritional_info.fiber" 
+                    type="number" 
+                    value={mealForm.nutritional_info.fiber} 
+                    onChange={onMealFormChange} 
+                    style={{ padding: 6, border: '1px solid #ccc', borderRadius: 4 }} 
+                    placeholder="Fiber (g)"
+                  />
+                  <input 
+                    name="nutritional_info.vitamins" 
+                    value={mealForm.nutritional_info.vitamins} 
+                    onChange={onMealFormChange} 
+                    style={{ padding: 6, border: '1px solid #ccc', borderRadius: 4 }} 
+                    placeholder="Vitamins"
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Allergens</label>
+                {mealForm.allergens.map((allergen, index) => (
+                  <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                    <input 
+                      value={allergen}
+                      onChange={(e) => updateAllergen(index, e.target.value)}
+                      style={{ flex: 1, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+                      placeholder="e.g. Gluten, Dairy"
+                    />
+                    {mealForm.allergens.length > 1 && (
+                      <button 
+                        type="button"
+                        onClick={() => removeAllergen(index)}
+                        style={{ padding: 8, backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: 4 }}
+                      >
+                        ❌
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button 
+                  type="button"
+                  onClick={addAllergen}
+                  style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: 4 }}
+                >
+                  ⚠️ Add Allergen
+                </button>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Special Notes</label>
+                <textarea 
+                  name="special_notes" 
+                  value={mealForm.special_notes} 
+                  onChange={onMealFormChange} 
+                  style={{ width: '100%', padding: 8, height: 60, border: '1px solid #ccc', borderRadius: 4 }} 
+                  placeholder="Any special instructions or notes..."
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}
+              >
+                ✨ Create Meal Plan
+              </button>
+            </form>
+          </div>
+
+          {/* Existing Meal Plans */}
+          <div>
+            <h3>📋 Existing Meal Plans</h3>
+            <div style={{ maxHeight: 400, overflowY: 'auto', border: '1px solid #ddd', borderRadius: 8 }}>
+              {mealPlans.length === 0 ? (
+                <div style={{ padding: 20, textAlign: 'center', color: '#666' }}>
+                  No meal plans created yet. Create your first meal plan above!
+                </div>
+              ) : (
+                mealPlans.map(meal => (
+                  <div key={meal.id} style={{
+                    border: '1px solid #eee',
+                    padding: 16,
+                    margin: 8,
+                    borderRadius: 8,
+                    backgroundColor: '#fff'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>
+                          🍽️ {meal.meal_name}
+                          <span style={{
+                            marginLeft: 8,
+                            padding: '2px 8px',
+                            borderRadius: 12,
+                            fontSize: '0.8em',
+                            backgroundColor: meal.meal_type === 'lunch' ? '#e3f2fd' :
+                                           meal.meal_type === 'breakfast' ? '#fff3e0' :
+                                           meal.meal_type === 'dinner' ? '#f3e5f5' : '#e8f5e8',
+                            color: '#666'
+                          }}>
+                            {meal.meal_type.toUpperCase()}
+                          </span>
+                        </h4>
+                        <div style={{ marginBottom: 8 }}>
+                          <strong>📅 Date:</strong> {new Date(meal.date).toLocaleDateString()}
+                        </div>
+                        <div style={{ marginBottom: 8 }}>
+                          <strong>👥 Quantity:</strong> {meal.total_quantity_planned} servings
+                        </div>
+                        <div style={{ marginBottom: 8 }}>
+                          <strong>💰 Cost:</strong> ₹{parseFloat(meal.cost_per_meal).toLocaleString('en-IN')} per meal
+                        </div>
+                        {meal.items && meal.items.length > 0 && (
+                          <div style={{ marginBottom: 8 }}>
+                            <strong>🥘 Items:</strong> {meal.items.join(', ')}
+                          </div>
+                        )}
+                        {meal.nutritional_info && (
+                          <div style={{ marginBottom: 8 }}>
+                            <strong>📊 Nutrition:</strong> {meal.nutritional_info.calories} cal
+                            {meal.nutritional_info.protein && `, ${meal.nutritional_info.protein}g protein`}
+                            {meal.nutritional_info.carbohydrates && `, ${meal.nutritional_info.carbohydrates}g carbs`}
+                          </div>
+                        )}
+                        {meal.allergens && meal.allergens.length > 0 && (
+                          <div style={{ marginBottom: 8 }}>
+                            <strong>⚠️ Allergens:</strong> {meal.allergens.join(', ')}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: 12,
+                          fontSize: '0.8em',
+                          backgroundColor: meal.status === 'planned' ? '#fff3cd' :
+                                         meal.status === 'prepared' ? '#cff4fc' :
+                                         meal.status === 'served' ? '#d1ecf1' : '#d4edda',
+                          color: '#495057'
+                        }}>
+                          {meal.status?.toUpperCase() || 'PLANNED'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       )}

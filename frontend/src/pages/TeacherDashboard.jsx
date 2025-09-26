@@ -16,6 +16,9 @@ export default function TeacherDashboard() {
   });
   const [students, setStudents] = useState([]);
   const [ptms, setPtms] = useState([]);
+  const [mealPlans, setMealPlans] = useState([]);
+  const [selectedMealPlan, setSelectedMealPlan] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState([]);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('attendance');
@@ -97,6 +100,43 @@ export default function TeacherDashboard() {
     }
   };
 
+  const fetchMealPlans = async () => {
+    try {
+      const res = await api.get('/teacher/meal-plans/today');
+      setMealPlans(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load meal plans');
+    }
+  };
+
+  const markMealConsumption = async (e) => {
+    e.preventDefault();
+    if (!selectedMealPlan || selectedStudents.length === 0) {
+      setError('Please select a meal plan and at least one student');
+      return;
+    }
+
+    try {
+      const res = await api.post('/teacher/meal-consumption', {
+        meal_plan_id: selectedMealPlan,
+        student_ids: selectedStudents,
+        notes: 'Marked by teacher'
+      });
+      setResult(res.data);
+      setSelectedStudents([]);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to mark meal consumption');
+    }
+  };
+
+  const toggleStudentSelection = (studentId) => {
+    setSelectedStudents(prev => 
+      prev.includes(studentId) 
+        ? prev.filter(id => id !== studentId)
+        : [...prev, studentId]
+    );
+  };
+
   const handleStudentChange = (e) => {
     const studentId = e.target.value;
     const selectedStudent = students.find(s => s.id === parseInt(studentId));
@@ -111,6 +151,10 @@ export default function TeacherDashboard() {
     if (activeTab === 'ptm') {
       fetchStudents();
       fetchPTMs();
+    }
+    if (activeTab === 'meals') {
+      fetchStudents();
+      fetchMealPlans();
     }
   }, [activeTab]);
 
@@ -152,6 +196,7 @@ export default function TeacherDashboard() {
           onClick={() => setActiveTab('ptm')}
           style={{
             padding: '10px 20px',
+            marginRight: '10px',
             border: 'none',
             backgroundColor: activeTab === 'ptm' ? '#007bff' : '#f8f9fa',
             color: activeTab === 'ptm' ? 'white' : '#000',
@@ -160,6 +205,19 @@ export default function TeacherDashboard() {
           }}
         >
           Parent-Teacher Meetings
+        </button>
+        <button 
+          onClick={() => setActiveTab('meals')}
+          style={{
+            padding: '10px 20px',
+            border: 'none',
+            backgroundColor: activeTab === 'meals' ? '#007bff' : '#f8f9fa',
+            color: activeTab === 'meals' ? 'white' : '#000',
+            cursor: 'pointer',
+            borderRadius: '4px 4px 0 0'
+          }}
+        >
+          Meal Management
         </button>
       </div>
 
@@ -366,6 +424,71 @@ export default function TeacherDashboard() {
               ))
             )}
           </div>
+        </div>
+      )}
+
+      {activeTab === 'meals' && (
+        <div>
+          <h3>Today's Meal Plans</h3>
+          <div style={{ maxWidth: 500, marginBottom: 24 }}>
+            {mealPlans.length === 0 ? (
+              <p>No meal plans available for today</p>
+            ) : (
+              mealPlans.map(meal => (
+                <div key={meal.id} style={{
+                  border: '1px solid #ddd',
+                  padding: 16,
+                  marginBottom: 8,
+                  borderRadius: 4,
+                  backgroundColor: '#f8f9fa'
+                }}>
+                  <strong>{meal.name}</strong><br/>
+                  <span style={{ fontSize: '0.9em', color: '#555' }}>{meal.description}</span><br/>
+                  <strong>Ingredients:</strong> {meal.ingredients.join(', ')}<br/>
+                  <strong>Allergens:</strong> {meal.allergens.length > 0 ? meal.allergens.join(', ') : 'None'}<br/>
+                  <strong>Dietary Info:</strong> {meal.dietaryInfo}<br/>
+                  <strong>Calories:</strong> {meal.calories} kcal
+                </div>
+              ))
+            )}
+          </div>
+
+          <h3>Mark Meal Consumption</h3>
+          <form onSubmit={markMealConsumption} style={{ maxWidth: 500 }}>
+            <select
+              value={selectedMealPlan}
+              onChange={(e) => setSelectedMealPlan(e.target.value)}
+              style={{ width: '100%', marginBottom: 8 }}
+              required
+            >
+              <option value="">Select Meal Plan</option>
+              {mealPlans.map(meal => (
+                <option key={meal.id} value={meal.id}>
+                  {meal.name} - {meal.calories} kcal
+                </option>
+              ))}
+            </select>
+
+            <div style={{ marginBottom: 16 }}>
+              <strong>Select Students:</strong>
+              {students.map(student => (
+                <div key={student.id} style={{ marginBottom: 8 }}>
+                  <input
+                    type="checkbox"
+                    id={`student-${student.id}`}
+                    checked={selectedStudents.includes(student.id)}
+                    onChange={() => toggleStudentSelection(student.id)}
+                    style={{ marginRight: 8 }}
+                  />
+                  <label htmlFor={`student-${student.id}`}>
+                    {student.name} (Class: {student.class} {student.section})
+                  </label>
+                </div>
+              ))}
+            </div>
+            
+            <button type="submit">Mark Consumption</button>
+          </form>
         </div>
       )}
 
