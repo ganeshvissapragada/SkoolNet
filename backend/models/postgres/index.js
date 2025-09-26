@@ -89,9 +89,9 @@ const PTM = sequelize.define('PTM', {
   timestamps: true
 });
 
-// Define associations
+// Define associations - Student-User relationships
 Student.belongsTo(User, { as: 'parent', foreignKey: 'parent_id' });
-Student.belongsTo(User, { as: 'user', foreignKey: 'user_id' });
+Student.belongsTo(User, { as: 'student_user', foreignKey: 'user_id' });
 User.hasMany(Student, { as: 'children', foreignKey: 'parent_id' });
 User.hasOne(Student, { as: 'studentRecord', foreignKey: 'user_id' });
 

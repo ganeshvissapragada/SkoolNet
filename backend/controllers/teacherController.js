@@ -184,97 +184,60 @@ exports.getStudentsForPTM = async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 };
-// =================== MEAL CONSUMPTION TRACKING ===================
 
-exports.markMealConsumption = async (req, res) => {
+// =================== STUDENT MANAGEMENT ===================
+
+exports.getStudentsByClass = async (req, res) => {
   try {
-    const { mealPlanId, consumptions } = req.body;
+    const { class: selectedClass, section } = req.query;
     
-    if (!mealPlanId || !Array.isArray(consumptions)) {
-      return res.status(400).json({
-        message: 'Meal plan ID and consumptions array are required'
-      });
+    // Build where condition based on provided parameters
+    const whereCondition = {};
+    if (selectedClass) {
+      whereCondition.class = selectedClass;
     }
-
-    // Verify meal plan exists
-    const mealPlan = await MealPlan.findByPk(mealPlanId);
-    if (!mealPlan) {
-      return res.status(404).json({ message: 'Meal plan not found' });
+    if (section) {
+      whereCondition.section = section;
     }
-
-    const results = [];
-    for (const consumption of consumptions) {
-      const { student_id, quantity_consumed, status, notes } = consumption;
-      
-      // Check if consumption already exists
-      const existingConsumption = await MealConsumption.findOne({
-        where: { meal_plan_id: mealPlanId, student_id }
-      });
-
-      if (existingConsumption) {
-        // Update existing consumption
-        await existingConsumption.update({
-          quantity_consumed: parseFloat(quantity_consumed) || 1.0,
-          status: status || 'consumed',
-          notes,
-          marked_by: req.user.userId
-        });
-        results.push(existingConsumption);
-      } else {
-        // Create new consumption record
-        const newConsumption = await MealConsumption.create({
-          meal_plan_id: mealPlanId,
-          student_id,
-          quantity_consumed: parseFloat(quantity_consumed) || 1.0,
-          status: status || 'consumed',
-          notes,
-          marked_by: req.user.userId
-        });
-        results.push(newConsumption);
-      }
-    }
-
-    res.json({ 
-      message: 'Meal consumption marked successfully',
-      consumptions: results
-    });
-  } catch (e) {
-    res.status(500).json({ message: e.message });
-  }
-};
-
-exports.getTodaysMeal = async (req, res) => {
-  try {
-    const today = new Date().toISOString().split('T')[0];
     
-    const todaysMeal = await MealPlan.findOne({
-      where: { date: today },
-      include: [
-        { model: User, as: 'creator', attributes: ['id', 'name'] }
-      ]
-    });
-
-    if (!todaysMeal) {
-      return res.status(404).json({ message: 'No meal plan for today' });
-    }
-
-    // Get students for teacher's class (if applicable)
     const students = await Student.findAll({
-      attributes: ['id', 'name', 'class', 'section']
+      where: whereCondition,
+      include: [
+        { 
+          model: User, 
+          as: 'student_user', 
+          attributes: ['id', 'name', 'email'],
+          required: false 
+        }
+      ],
+      attributes: ['id', 'name', 'class', 'section', 'user_id'],
+      order: [['class', 'ASC'], ['section', 'ASC'], ['name', 'ASC']]
     });
 
-    // Get existing consumption records for today's meal
-    const consumptions = await MealConsumption.findAll({
-      where: { meal_plan_id: todaysMeal.id },
-      include: [
-        { model: Student, as: 'student', attributes: ['id', 'name', 'class', 'section'] }
-      ]
-    });
+    // Group students by class and section for easier frontend handling
+    const groupedStudents = students.reduce((acc, student) => {
+      const key = `${student.class}-${student.section}`;
+      if (!acc[key]) {
+        acc[key] = {
+          class: student.class,
+          section: student.section,
+          students: []
+        };
+      }
+      acc[key].students.push({
+        id: student.id,
+        name: student.name,
+        user_id: student.user_id,
+        user: student.student_user
+      });
+      return acc;
+    }, {});
 
     res.json({
-      mealPlan: todaysMeal,
-      students,
-      consumptions
+      students: students,
+      grouped: Object.values(groupedStudents),
+      classes: [...new Set(students.map(s => s.class))].sort(),
+      sections: [...new Set(students.map(s => s.section))].sort()
     });
   } catch (e) {
     res.status(500).json({ message: e.message });

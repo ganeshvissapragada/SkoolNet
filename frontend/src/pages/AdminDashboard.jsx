@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const [scholarships, setScholarships] = useState([]);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [users, setUsers] = useState([]);
   
   // Meal System State
   const [mealForm, setMealForm] = useState({
@@ -78,7 +79,26 @@ export default function AdminDashboard() {
       const payload = { ...form };
       if (payload.role !== 'student') delete payload.student;
       const res = await api.post('/admin/users', payload);
-      setResult(res.data);
+      
+      // Show success message instead of raw JSON
+      setResult({
+        success: true,
+        message: `✅ ${res.data.user.role.charAt(0).toUpperCase() + res.data.user.role.slice(1)} "${res.data.user.name}" created successfully!`,
+        user: res.data.user,
+        student: res.data.student
+      });
+      
+      // Clear form after successful creation
+      setForm({
+        name: '',
+        email: '',
+        password: '',
+        role: 'teacher',
+        student: { class: '', section: '', parent_id: '' }
+      });
+      
+      // Reload users list
+      loadUsers();
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to create user');
     }
@@ -191,6 +211,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadUsers = async () => {
+    try {
+      const res = await api.get('/admin/users');
+      setUsers(res.data);
+    } catch (err) {
+      console.error('Failed to load users:', err);
+      setError('Failed to load users');
+    }
+  };
+
   const submitMealPlan = async (e) => {
     e.preventDefault();
     setError('');
@@ -286,6 +316,8 @@ export default function AdminDashboard() {
     } else if (activeTab === 'meals') {
       loadMealDashboard();
       loadMealPlans();
+    } else if (activeTab === 'users') {
+      loadUsers();
     }
   }, [activeTab]);
 
@@ -350,6 +382,25 @@ export default function AdminDashboard() {
       {activeTab === 'users' && (
         <div>
           <h3>Create New User</h3>
+          
+          {/* Information Box */}
+          <div style={{
+            backgroundColor: '#e3f2fd',
+            border: '1px solid #2196f3',
+            borderRadius: 8,
+            padding: 16,
+            marginBottom: 24,
+            maxWidth: 500
+          }}>
+            <h4 style={{ margin: '0 0 8px 0', color: '#1976d2' }}>📋 How User Creation Works:</h4>
+            <ul style={{ margin: 0, paddingLeft: 20 }}>
+              <li><strong>ID System:</strong> Each user gets an auto-generated ID number (not email)</li>
+              <li><strong>Parents:</strong> Create parent users first</li>
+              <li><strong>Students:</strong> Link to existing parents using the dropdown</li>
+              <li><strong>Teachers/Admins:</strong> No additional linking required</li>
+            </ul>
+          </div>
+
           <form onSubmit={submit} style={{ maxWidth: 500 }}>
             <label>Name</label>
             <input name="name" value={form.name} onChange={onChange} style={{ width: '100%', marginBottom: 8 }} />
@@ -372,13 +423,91 @@ export default function AdminDashboard() {
                 <input name="student.class" value={form.student.class} onChange={onChange} style={{ width: '100%', marginBottom: 8 }} />
                 <label>Section</label>
                 <input name="student.section" value={form.student.section} onChange={onChange} style={{ width: '100%', marginBottom: 8 }} />
-                <label>Parent ID</label>
-                <input name="student.parent_id" value={form.student.parent_id} onChange={onChange} style={{ width: '100%', marginBottom: 8 }} />
+                <label>Parent (Select from existing parents)</label>
+                <select 
+                  name="student.parent_id" 
+                  value={form.student.parent_id} 
+                  onChange={onChange} 
+                  style={{ width: '100%', marginBottom: 8, padding: 8 }}
+                >
+                  <option value="">Select a parent...</option>
+                  {users.filter(user => user.role === 'parent').map(parent => (
+                    <option key={parent.id} value={parent.id}>
+                      {parent.name} (ID: {parent.id}) - {parent.email}
+                    </option>
+                  ))}
+                </select>
+                <div style={{ fontSize: '0.8em', color: '#666', marginBottom: 8 }}>
+                  💡 If parent doesn't exist, create the parent user first, then create the student.
+                </div>
               </div>
             )}
 
             <button type="submit">Create User</button>
           </form>
+
+          {/* Existing Users List */}
+          <div style={{ marginTop: 32 }}>
+            <h3>📋 Existing Users</h3>
+            <div style={{ maxWidth: 800 }}>
+              {users.length === 0 ? (
+                <div style={{ padding: 16, backgroundColor: '#f8f9fa', borderRadius: 8, color: '#666' }}>
+                  No users found. Create some users above!
+                </div>
+              ) : (
+                <div>
+                  {['admin', 'parent', 'teacher', 'student'].map(role => {
+                    const roleUsers = users.filter(user => user.role === role);
+                    if (roleUsers.length === 0) return null;
+                    
+                    return (
+                      <div key={role} style={{ marginBottom: 24 }}>
+                        <h4 style={{ 
+                          color: role === 'admin' ? '#dc3545' : 
+                                 role === 'parent' ? '#28a745' : 
+                                 role === 'teacher' ? '#007bff' : '#6f42c1',
+                          marginBottom: 12 
+                        }}>
+                          {role === 'admin' ? '👑' : 
+                           role === 'parent' ? '👨‍👩‍👧‍👦' : 
+                           role === 'teacher' ? '👩‍🏫' : '👧👦'} {role.toUpperCase()}S ({roleUsers.length})
+                        </h4>
+                        <div style={{ display: 'grid', gap: 8 }}>
+                          {roleUsers.map(user => (
+                            <div key={user.id} style={{
+                              padding: 12,
+                              backgroundColor: '#fff',
+                              border: '1px solid #e9ecef',
+                              borderRadius: 8,
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center'
+                            }}>
+                              <div>
+                                <strong>{user.name}</strong>
+                                <div style={{ fontSize: '0.9em', color: '#666' }}>
+                                  📧 {user.email}
+                                </div>
+                              </div>
+                              <div style={{
+                                backgroundColor: '#e9ecef',
+                                padding: '4px 8px',
+                                borderRadius: 12,
+                                fontSize: '0.8em',
+                                fontFamily: 'monospace'
+                              }}>
+                                ID: {user.id}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -1213,9 +1342,30 @@ export default function AdminDashboard() {
       )}
 
       {result && (
-        <pre style={{ background: '#f6f8fa', padding: 16, marginTop: 16, borderRadius: 4, fontSize: '0.9em' }}>
-          {JSON.stringify(result, null, 2)}
-        </pre>
+        <div style={{
+          color: result.success ? '#155724' : '#721c24',
+          backgroundColor: result.success ? '#d4edda' : '#f8d7da',
+          border: result.success ? '1px solid #c3e6cb' : '1px solid #f5c6cb',
+          borderRadius: 4,
+          padding: 12,
+          marginTop: 16
+        }}>
+          {result.success ? (
+            <div>
+              <strong>{result.message}</strong>
+              {result.student && (
+                <div style={{ marginTop: 8, fontSize: '0.9em' }}>
+                  📚 Student Details: Class {result.student.class}, Section {result.student.section}
+                  {result.student.parent_id && ` (Parent ID: ${result.student.parent_id})`}
+                </div>
+              )}
+            </div>
+          ) : (
+            <pre style={{ background: 'transparent', padding: 0, margin: 0, fontSize: '0.9em' }}>
+              {JSON.stringify(result, null, 2)}
+            </pre>
+          )}
+        </div>
       )}
     </div>
   );

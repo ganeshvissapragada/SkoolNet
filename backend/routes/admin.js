@@ -2,6 +2,7 @@ const router = require('express').Router();
 const auth = require('../middleware/auth');
 const { 
   createUser,
+  getUsers,
   createScholarship,
   getScholarships,
   getScholarshipById,
@@ -16,6 +17,7 @@ const {
 } = require('../controllers/adminController');
 
 router.post('/users', auth(['admin']), createUser);
+router.get('/users', auth(['admin']), getUsers);
 
 // Scholarship routes
 router.post('/scholarships', auth(['admin']), createScholarship);

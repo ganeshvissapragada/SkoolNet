@@ -18,7 +18,8 @@ exports.createUser = async (req, res) => {
         name,
         class: cls || null,
         section: section || null,
-        parent_id: parent_id || null
+        parent_id: parent_id || null,
+        user_id: created.id  // Link student to user account
       });
     }
     res.status(201).json({ user: { id: created.id, name, email, role }, student: studentRow });
@@ -26,6 +27,19 @@ exports.createUser = async (req, res) => {
     if (e.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).json({ message: 'Email already exists' });
     }
+    res.status(500).json({ message: e.message });
+  }
+};
+
+// Get all users for admin management
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'name', 'email', 'role', 'createdAt'],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(users);
+  } catch (e) {
     res.status(500).json({ message: e.message });
   }
 };

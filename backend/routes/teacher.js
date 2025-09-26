@@ -7,8 +7,7 @@ const {
   getTeacherPTMs, 
   updatePTMStatus,
   getStudentsForPTM,
-  markMealConsumption,
-  getTodaysMeal 
+  getStudentsByClass
 } = require('../controllers/teacherController');
 
 router.post('/attendance', auth(['teacher']), addAttendance);
@@ -20,8 +19,7 @@ router.get('/ptms', auth(['teacher']), getTeacherPTMs);
 router.put('/ptm/:ptmId/status', auth(['teacher']), updatePTMStatus);
 router.get('/students-for-ptm', auth(['teacher']), getStudentsForPTM);
 
-// Meal system routes
-router.post('/meal-consumption', auth(['teacher']), markMealConsumption);
-router.get('/todays-meal', auth(['teacher']), getTodaysMeal);
+// Student management routes
+router.get('/students-by-class', auth(['teacher']), getStudentsByClass);
 
 module.exports = router;

@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/api.js';
 
 export default function TeacherDashboard() {
+  // Class and Section Management
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedSection, setSelectedSection] = useState('');
+  const [availableClasses] = useState(['6', '7', '8', '9', '10']);
+  const [availableSections] = useState(['A', 'B']);
+  
+  // Student Data
+  const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  
+  // Form States
   const [attendance, setAttendance] = useState({ studentId: '', date: '', status: 'Present' });
   const [marks, setMarks] = useState({ studentId: '', subjectId: '', marksObtained: '', totalMarks: '', examType: 'Unit Test', date: '' });
   const [ptm, setPtm] = useState({
@@ -14,11 +25,9 @@ export default function TeacherDashboard() {
     agenda: '',
     location: ''
   });
-  const [students, setStudents] = useState([]);
+  
+  // Other States
   const [ptms, setPtms] = useState([]);
-  const [mealPlans, setMealPlans] = useState([]);
-  const [selectedMealPlan, setSelectedMealPlan] = useState('');
-  const [selectedStudents, setSelectedStudents] = useState([]);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('attendance');
@@ -28,7 +37,21 @@ export default function TeacherDashboard() {
     setError('');
     try {
       const res = await api.post('/teacher/attendance', attendance);
-      setResult(res.data);
+      
+      // Find the student name for the success message
+      const selectedStudent = filteredStudents.find(s => s.id === parseInt(attendance.studentId));
+      const studentName = selectedStudent ? selectedStudent.name : `Student ID ${attendance.studentId}`;
+      
+      // Show success message instead of raw JSON
+      setResult({
+        success: true,
+        message: `✅ Attendance marked successfully for ${studentName}!`,
+        details: `Status: ${attendance.status} | Date: ${new Date(attendance.date).toLocaleDateString()}`,
+        data: res.data
+      });
+      
+      // Clear form after successful submission
+      setAttendance({ studentId: '', date: '', status: 'Present' });
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to save attendance');
     }
@@ -44,7 +67,22 @@ export default function TeacherDashboard() {
         totalMarks: Number(marks.totalMarks)
       };
       const res = await api.post('/teacher/marks', payload);
-      setResult(res.data);
+      
+      // Find the student name for the success message
+      const selectedStudent = filteredStudents.find(s => s.id === parseInt(marks.studentId));
+      const studentName = selectedStudent ? selectedStudent.name : `Student ID ${marks.studentId}`;
+      const percentage = payload.totalMarks > 0 ? ((payload.marksObtained / payload.totalMarks) * 100).toFixed(1) : 0;
+      
+      // Show success message instead of raw JSON
+      setResult({
+        success: true,
+        message: `✅ Marks saved successfully for ${studentName}!`,
+        details: `Score: ${payload.marksObtained}/${payload.totalMarks} (${percentage}%) | Subject ID: ${payload.subjectId} | Exam: ${payload.examType}`,
+        data: res.data
+      });
+      
+      // Clear form after successful submission
+      setMarks({ studentId: '', subjectId: '', marksObtained: '', totalMarks: '', examType: 'Unit Test', date: '' });
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to save marks');
     }
@@ -52,12 +90,32 @@ export default function TeacherDashboard() {
 
   const fetchStudents = async () => {
     try {
-      const res = await api.get('/teacher/students-for-ptm');
-      setStudents(res.data);
+      const res = await api.get('/teacher/students-by-class');
+      setStudents(res.data.students || []);
+      filterStudents(res.data.students || []);
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to fetch students');
     }
   };
+
+  const filterStudents = (studentList = students) => {
+    let filtered = studentList;
+    
+    if (selectedClass) {
+      filtered = filtered.filter(student => student.class === selectedClass);
+    }
+    
+    if (selectedSection) {
+      filtered = filtered.filter(student => student.section === selectedSection);
+    }
+    
+    setFilteredStudents(filtered);
+  };
+
+  // Update filtered students when class or section changes
+  useEffect(() => {
+    filterStudents();
+  }, [selectedClass, selectedSection, students]);
 
   const fetchPTMs = async () => {
     try {
@@ -73,7 +131,20 @@ export default function TeacherDashboard() {
     setError('');
     try {
       const res = await api.post('/teacher/ptm', ptm);
-      setResult(res.data);
+      
+      // Find the student name for the success message
+      const selectedStudent = filteredStudents.find(s => s.id === parseInt(ptm.student_id));
+      const studentName = selectedStudent ? selectedStudent.name : `Student ID ${ptm.student_id}`;
+      const meetingDateTime = `${new Date(ptm.meeting_date).toLocaleDateString()} at ${ptm.meeting_time}`;
+      
+      // Show success message instead of raw JSON
+      setResult({
+        success: true,
+        message: `✅ PTM scheduled successfully with ${studentName}'s parent!`,
+        details: `Meeting: ${meetingDateTime} | Duration: ${ptm.duration} minutes | Reason: ${ptm.reason}`,
+        data: res.data
+      });
+      
       setPtm({
         parent_id: '',
         student_id: '',
@@ -93,48 +164,19 @@ export default function TeacherDashboard() {
   const updatePTMStatus = async (ptmId, status) => {
     try {
       const res = await api.put(`/teacher/ptm/${ptmId}/status`, { status });
-      setResult(res.data);
+      
+      // Show success message for status update
+      setResult({
+        success: true,
+        message: `✅ PTM status updated to "${status}" successfully!`,
+        details: `Meeting ID: ${ptmId}`,
+        data: res.data
+      });
+      
       fetchPTMs();
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to update PTM status');
     }
-  };
-
-  const fetchMealPlans = async () => {
-    try {
-      const res = await api.get('/teacher/meal-plans/today');
-      setMealPlans(res.data);
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load meal plans');
-    }
-  };
-
-  const markMealConsumption = async (e) => {
-    e.preventDefault();
-    if (!selectedMealPlan || selectedStudents.length === 0) {
-      setError('Please select a meal plan and at least one student');
-      return;
-    }
-
-    try {
-      const res = await api.post('/teacher/meal-consumption', {
-        meal_plan_id: selectedMealPlan,
-        student_ids: selectedStudents,
-        notes: 'Marked by teacher'
-      });
-      setResult(res.data);
-      setSelectedStudents([]);
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to mark meal consumption');
-    }
-  };
-
-  const toggleStudentSelection = (studentId) => {
-    setSelectedStudents(prev => 
-      prev.includes(studentId) 
-        ? prev.filter(id => id !== studentId)
-        : [...prev, studentId]
-    );
   };
 
   const handleStudentChange = (e) => {
@@ -148,13 +190,10 @@ export default function TeacherDashboard() {
   };
 
   useEffect(() => {
+    fetchStudents(); // Always fetch students when component mounts
+    
     if (activeTab === 'ptm') {
-      fetchStudents();
       fetchPTMs();
-    }
-    if (activeTab === 'meals') {
-      fetchStudents();
-      fetchMealPlans();
     }
   }, [activeTab]);
 
@@ -206,91 +245,224 @@ export default function TeacherDashboard() {
         >
           Parent-Teacher Meetings
         </button>
-        <button 
-          onClick={() => setActiveTab('meals')}
-          style={{
-            padding: '10px 20px',
-            border: 'none',
-            backgroundColor: activeTab === 'meals' ? '#007bff' : '#f8f9fa',
-            color: activeTab === 'meals' ? 'white' : '#000',
-            cursor: 'pointer',
-            borderRadius: '4px 4px 0 0'
-          }}
-        >
-          Meal Management
-        </button>
       </div>
 
       {activeTab === 'attendance' && (
         <div>
-          <h3>Add Attendance</h3>
+          <h3>📋 Take Attendance</h3>
+          
+          {/* Class and Section Selection */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: 16, 
+            maxWidth: 500, 
+            marginBottom: 20,
+            padding: 16,
+            backgroundColor: '#f8f9fa',
+            borderRadius: 8
+          }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Class</label>
+              <select
+                value={selectedClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
+                style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+              >
+                <option value="">Select Class</option>
+                {availableClasses.map(cls => (
+                  <option key={cls} value={cls}>Class {cls}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Section</label>
+              <select
+                value={selectedSection}
+                onChange={(e) => setSelectedSection(e.target.value)}
+                style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+              >
+                <option value="">Select Section</option>
+                {availableSections.map(sec => (
+                  <option key={sec} value={sec}>Section {sec}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <form onSubmit={submitAttendance} style={{ maxWidth: 500 }}>
-            <input
-              placeholder="Student ID"
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Student</label>
+            <select
               value={attendance.studentId}
               onChange={(e) => setAttendance((a) => ({ ...a, studentId: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
-            />
+              style={{ width: '100%', marginBottom: 8, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+            >
+              <option value="">Select Student</option>
+              {filteredStudents.map(student => (
+                <option key={student.id} value={student.id}>
+                  {student.name} (Class {student.class}-{student.section})
+                </option>
+              ))}
+            </select>
+            
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Date</label>
             <input
               type="date"
               value={attendance.date}
               onChange={(e) => setAttendance((a) => ({ ...a, date: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
+              style={{ width: '100%', marginBottom: 8, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
             />
+            
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Status</label>
             <select
               value={attendance.status}
               onChange={(e) => setAttendance((a) => ({ ...a, status: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
+              style={{ width: '100%', marginBottom: 16, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
             >
               <option value="Present">Present</option>
               <option value="Absent">Absent</option>
             </select>
-            <button type="submit">Save Attendance</button>
+            
+            <button 
+              type="submit"
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              ✅ Mark Attendance
+            </button>
           </form>
         </div>
       )}
 
       {activeTab === 'marks' && (
         <div>
-          <h3>Add Marks</h3>
+          <h3>📊 Add Marks</h3>
+          
+          {/* Class and Section Selection */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: 16, 
+            maxWidth: 500, 
+            marginBottom: 20,
+            padding: 16,
+            backgroundColor: '#f8f9fa',
+            borderRadius: 8
+          }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Class</label>
+              <select
+                value={selectedClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
+                style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+              >
+                <option value="">Select Class</option>
+                {availableClasses.map(cls => (
+                  <option key={cls} value={cls}>Class {cls}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Section</label>
+              <select
+                value={selectedSection}
+                onChange={(e) => setSelectedSection(e.target.value)}
+                style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+              >
+                <option value="">Select Section</option>
+                {availableSections.map(sec => (
+                  <option key={sec} value={sec}>Section {sec}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <form onSubmit={submitMarks} style={{ maxWidth: 500 }}>
-            <input
-              placeholder="Student ID"
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Student</label>
+            <select
               value={marks.studentId}
               onChange={(e) => setMarks((m) => ({ ...m, studentId: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
-            />
+              style={{ width: '100%', marginBottom: 8, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+            >
+              <option value="">Select Student</option>
+              {filteredStudents.map(student => (
+                <option key={student.id} value={student.id}>
+                  {student.name} (Class {student.class}-{student.section})
+                </option>
+              ))}
+            </select>
+            
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Subject ID</label>
             <input
-              placeholder="Subject ID"
+              placeholder="Subject ID (e.g., 1 for Math, 2 for Science)"
               value={marks.subjectId}
               onChange={(e) => setMarks((m) => ({ ...m, subjectId: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
+              style={{ width: '100%', marginBottom: 8, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
             />
-            <input
-              placeholder="Marks Obtained"
-              value={marks.marksObtained}
-              onChange={(e) => setMarks((m) => ({ ...m, marksObtained: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
-            />
-            <input
-              placeholder="Total Marks"
-              value={marks.totalMarks}
-              onChange={(e) => setMarks((m) => ({ ...m, totalMarks: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
-            />
-            <input
-              placeholder="Exam Type"
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 8 }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Marks Obtained</label>
+                <input
+                  type="number"
+                  placeholder="85"
+                  value={marks.marksObtained}
+                  onChange={(e) => setMarks((m) => ({ ...m, marksObtained: e.target.value }))}
+                  style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Total Marks</label>
+                <input
+                  type="number"
+                  placeholder="100"
+                  value={marks.totalMarks}
+                  onChange={(e) => setMarks((m) => ({ ...m, totalMarks: e.target.value }))}
+                  style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+                />
+              </div>
+            </div>
+            
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Exam Type</label>
+            <select
               value={marks.examType}
               onChange={(e) => setMarks((m) => ({ ...m, examType: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
-            />
+              style={{ width: '100%', marginBottom: 8, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+            >
+              <option value="Unit Test">Unit Test</option>
+              <option value="Mid Term">Mid Term</option>
+              <option value="Final Exam">Final Exam</option>
+              <option value="Assignment">Assignment</option>
+              <option value="Project">Project</option>
+            </select>
+            
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Date</label>
             <input
               type="date"
               value={marks.date}
               onChange={(e) => setMarks((m) => ({ ...m, date: e.target.value }))}
-              style={{ width: '100%', marginBottom: 8 }}
+              style={{ width: '100%', marginBottom: 16, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
             />
-            <button type="submit">Save Marks</button>
+            
+            <button 
+              type="submit"
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              📊 Save Marks
+            </button>
           </form>
         </div>
       )}
@@ -427,76 +599,43 @@ export default function TeacherDashboard() {
         </div>
       )}
 
-      {activeTab === 'meals' && (
-        <div>
-          <h3>Today's Meal Plans</h3>
-          <div style={{ maxWidth: 500, marginBottom: 24 }}>
-            {mealPlans.length === 0 ? (
-              <p>No meal plans available for today</p>
-            ) : (
-              mealPlans.map(meal => (
-                <div key={meal.id} style={{
-                  border: '1px solid #ddd',
-                  padding: 16,
-                  marginBottom: 8,
-                  borderRadius: 4,
-                  backgroundColor: '#f8f9fa'
-                }}>
-                  <strong>{meal.name}</strong><br/>
-                  <span style={{ fontSize: '0.9em', color: '#555' }}>{meal.description}</span><br/>
-                  <strong>Ingredients:</strong> {meal.ingredients.join(', ')}<br/>
-                  <strong>Allergens:</strong> {meal.allergens.length > 0 ? meal.allergens.join(', ') : 'None'}<br/>
-                  <strong>Dietary Info:</strong> {meal.dietaryInfo}<br/>
-                  <strong>Calories:</strong> {meal.calories} kcal
-                </div>
-              ))
-            )}
-          </div>
-
-          <h3>Mark Meal Consumption</h3>
-          <form onSubmit={markMealConsumption} style={{ maxWidth: 500 }}>
-            <select
-              value={selectedMealPlan}
-              onChange={(e) => setSelectedMealPlan(e.target.value)}
-              style={{ width: '100%', marginBottom: 8 }}
-              required
-            >
-              <option value="">Select Meal Plan</option>
-              {mealPlans.map(meal => (
-                <option key={meal.id} value={meal.id}>
-                  {meal.name} - {meal.calories} kcal
-                </option>
-              ))}
-            </select>
-
-            <div style={{ marginBottom: 16 }}>
-              <strong>Select Students:</strong>
-              {students.map(student => (
-                <div key={student.id} style={{ marginBottom: 8 }}>
-                  <input
-                    type="checkbox"
-                    id={`student-${student.id}`}
-                    checked={selectedStudents.includes(student.id)}
-                    onChange={() => toggleStudentSelection(student.id)}
-                    style={{ marginRight: 8 }}
-                  />
-                  <label htmlFor={`student-${student.id}`}>
-                    {student.name} (Class: {student.class} {student.section})
-                  </label>
-                </div>
-              ))}
-            </div>
-            
-            <button type="submit">Mark Consumption</button>
-          </form>
+      {error && (
+        <div style={{
+          color: '#721c24',
+          backgroundColor: '#f8d7da',
+          border: '1px solid #f5c6cb',
+          borderRadius: 4,
+          padding: 12,
+          marginTop: 16
+        }}>
+          {error}
         </div>
       )}
 
-      {error && <div style={{ color: 'red', marginTop: 12 }}>{error}</div>}
       {result && (
-        <pre style={{ background: '#f6f8fa', padding: 16, marginTop: 16 }}>
-          {JSON.stringify(result, null, 2)}
-        </pre>
+        <div style={{
+          color: result.success ? '#155724' : '#721c24',
+          backgroundColor: result.success ? '#d4edda' : '#f8d7da',
+          border: result.success ? '1px solid #c3e6cb' : '1px solid #f5c6cb',
+          borderRadius: 4,
+          padding: 12,
+          marginTop: 16
+        }}>
+          {result.success ? (
+            <div>
+              <strong>{result.message}</strong>
+              {result.details && (
+                <div style={{ marginTop: 8, fontSize: '0.9em' }}>
+                  {result.details}
+                </div>
+              )}
+            </div>
+          ) : (
+            <pre style={{ background: 'transparent', padding: 0, margin: 0, fontSize: '0.9em' }}>
+              {JSON.stringify(result, null, 2)}
+            </pre>
+          )}
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const connectMongo = require('./config/mongo');
 const { sequelize } = require('./models/postgres');
@@ -20,6 +21,14 @@ app.use('/admin', adminRoutes);
 app.use('/teacher', teacherRoutes);
 app.use('/parent', parentRoutes);
 app.use('/student', studentRoutes);
+
+// Serve static files from React build (for production)
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Catch-all handler: send back React's index.html file for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 
