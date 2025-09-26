@@ -27,13 +27,166 @@ const Student = sequelize.define('Student', {
   parent_id: { type: DataTypes.INTEGER, allowNull: true }
 });
 
+const PTM = sequelize.define('PTM', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  teacher_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  parent_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  student_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  meeting_date: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  meeting_time: {
+    type: DataTypes.TIME,
+    allowNull: false
+  },
+  duration: {
+    type: DataTypes.INTEGER,
+    defaultValue: 30
+  },
+  reason: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  agenda: {
+    type: DataTypes.TEXT
+  },
+  status: {
+    type: DataTypes.ENUM('scheduled', 'confirmed', 'completed', 'cancelled'),
+    defaultValue: 'scheduled'
+  },
+  location: {
+    type: DataTypes.STRING
+  },
+  notes: {
+    type: DataTypes.TEXT
+  },
+  created_by: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  }
+}, {
+  tableName: 'ptms',
+  timestamps: true
+});
+
+// Define associations
 Student.belongsTo(User, { as: 'parent', foreignKey: 'parent_id' });
 User.hasMany(Student, { as: 'children', foreignKey: 'parent_id' });
+
+const Scholarship = sequelize.define('Scholarship', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT
+  },
+  eligibility_criteria: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  scholarship_amount: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
+  currency: {
+    type: DataTypes.STRING,
+    defaultValue: 'INR'
+  },
+  benefits: {
+    type: DataTypes.TEXT
+  },
+  required_documents: {
+    type: DataTypes.JSON,
+    allowNull: false
+  },
+  application_deadline: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  contact_person: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  contact_email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isEmail: true
+    }
+  },
+  contact_phone: {
+    type: DataTypes.STRING
+  },
+  department: {
+    type: DataTypes.STRING
+  },
+  status: {
+    type: DataTypes.ENUM('active', 'inactive', 'expired'),
+    defaultValue: 'active'
+  },
+  created_by: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  application_start_date: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  max_applications: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  scholarship_type: {
+    type: DataTypes.ENUM('merit', 'need_based', 'sports', 'arts', 'minority', 'other'),
+    defaultValue: 'merit'
+  },
+  class_eligibility: {
+    type: DataTypes.JSON
+  }
+}, {
+  tableName: 'scholarships',
+  timestamps: true
+});
+
+// PTM associations - use unique aliases for PTM-specific relationships  
+PTM.belongsTo(User, { as: 'teacher', foreignKey: 'teacher_id' });
+PTM.belongsTo(User, { as: 'ptm_parent', foreignKey: 'parent_id' });
+PTM.belongsTo(Student, { as: 'student', foreignKey: 'student_id' });
+
+User.hasMany(PTM, { as: 'teacher_meetings', foreignKey: 'teacher_id' });
+User.hasMany(PTM, { as: 'parent_meetings', foreignKey: 'parent_id' });
+Student.hasMany(PTM, { as: 'meetings', foreignKey: 'student_id' });
+
+// Scholarship associations
+Scholarship.belongsTo(User, { as: 'creator', foreignKey: 'created_by' });
+User.hasMany(Scholarship, { as: 'created_scholarships', foreignKey: 'created_by' });
 
 module.exports = {
   sequelize,
   User,
   Student,
   Class,
-  Subject
+  Subject,
+  PTM,
+  Scholarship
 };

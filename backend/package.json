@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "seed": "node scripts/seedAdmin.js"
+    "seed": "node scripts/seedAdmin.js",
+    "create-ptm-table": "node scripts/createPTMTable.js",
+    "seed-ptm-data": "node scripts/seedPTMData.js",
+    "seed-scholarships": "node scripts/seedScholarshipData.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
