@@ -1,4 +1,5 @@
-const { Student, PTM, User, Scholarship } = require('../models/postgres');
+const { Student, PTM, User, Scholarship, MealPlan, MealConsumption } = require('../models/postgres');
+const { Op } = require('sequelize');
 const Attendance = require('../models/mongo/attendance');
 const Marks = require('../models/mongo/marks');
 
@@ -207,7 +208,7 @@ exports.getDailyMealPlan = async (req, res) => {
 
 exports.getChildMealConsumption = async (req, res) => {
   try {
-    const parentId = req.user.userId;
+    const parentId = req.user.id;
     
     // Get parent's children
     const children = await Student.findAll({
@@ -272,7 +273,7 @@ exports.getChildMealConsumption = async (req, res) => {
 
 exports.submitMealFeedback = async (req, res) => {
   try {
-    const parentId = req.user.userId;
+    const parentId = req.user.id;
     const { mealPlanId, studentId, rating, feedback, aspects, isAnonymous } = req.body;
 
     if (!mealPlanId || !rating || rating < 1 || rating > 5) {

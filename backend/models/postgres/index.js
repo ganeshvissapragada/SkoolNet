@@ -29,7 +29,8 @@ const Student = sequelize.define('Student', {
   name: DataTypes.STRING,
   class: DataTypes.STRING,
   section: DataTypes.STRING,
-  parent_id: { type: DataTypes.INTEGER, allowNull: true }
+  parent_id: { type: DataTypes.INTEGER, allowNull: true },
+  user_id: { type: DataTypes.INTEGER, allowNull: true }
 });
 
 const PTM = sequelize.define('PTM', {
@@ -90,7 +91,9 @@ const PTM = sequelize.define('PTM', {
 
 // Define associations
 Student.belongsTo(User, { as: 'parent', foreignKey: 'parent_id' });
+Student.belongsTo(User, { as: 'user', foreignKey: 'user_id' });
 User.hasMany(Student, { as: 'children', foreignKey: 'parent_id' });
+User.hasOne(Student, { as: 'studentRecord', foreignKey: 'user_id' });
 
 const Scholarship = sequelize.define('Scholarship', {
   id: {

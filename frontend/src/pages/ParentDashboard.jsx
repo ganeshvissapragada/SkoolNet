@@ -10,6 +10,7 @@ export default function ParentDashboard() {
   const [scholarships, setScholarships] = useState([]);
   const [mealPlans, setMealPlans] = useState([]);
   const [mealConsumption, setMealConsumption] = useState([]);
+  const [studentInfo, setStudentInfo] = useState(null);
   const [activeTab, setActiveTab] = useState('attendance');
   const [error, setError] = useState('');
 
@@ -65,8 +66,8 @@ export default function ParentDashboard() {
 
   const loadMealPlans = async () => {
     try {
-      const res = await api.get('/parent/meal-plans');
-      setMealPlans(res.data);
+      const res = await api.get('/parent/daily-meal-plan');
+      setMealPlans(res.data ? [res.data] : []);
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load meal plans');
     }
@@ -74,22 +75,35 @@ export default function ParentDashboard() {
 
   const loadMealConsumption = async () => {
     try {
-      const res = await api.get(`/parent/meal-consumption/${userId}`);
-      setMealConsumption(res.data);
+      const res = await api.get('/parent/child-meal-consumption');
+      // The API returns { children: [...], consumptions: [...] }
+      if (res.data.children && res.data.children.length > 0) {
+        setStudentInfo(res.data.children[0]); // Use the first child for now
+      }
+      setMealConsumption(res.data.consumptions || []);
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load meal consumption');
     }
   };
 
   const submitMealFeedback = async (mealPlanId, rating, comments) => {
+    if (!studentInfo?.id) {
+      setError('Student information not available');
+      return;
+    }
+    
     try {
       await api.post('/parent/meal-feedback', {
-        meal_plan_id: mealPlanId,
-        student_id: userId,
+        mealPlanId: mealPlanId,
+        studentId: studentInfo.id,
         rating,
-        comments
+        feedback: comments,
+        aspects: {},
+        isAnonymous: false
       });
       alert('Feedback submitted successfully!');
+      // Refresh meal data after successful submission
+      loadMealConsumption();
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to submit feedback');
     }

@@ -4,6 +4,30 @@ const MealFeedback = require('../models/mongo/mealFeedback');
 const { Scholarship, User, Student, MealPlan, MealConsumption, sequelize } = require('../models/postgres');
 const { Op } = require('sequelize');
 
+// Helper function to get student record from user ID
+const getStudentFromUserId = async (userId) => {
+  console.log('🔍 Looking for student with user_id:', userId);
+  
+  // Now we have proper user_id linking, so this should work directly
+  const student = await Student.findOne({
+    where: { user_id: userId },
+    include: [{
+      model: User,
+      as: 'user',
+      attributes: ['id', 'name', 'email']
+    }]
+  });
+
+  console.log('📍 Student found:', student ? {
+    id: student.id,
+    name: student.name,
+    class: student.class,
+    user_id: student.user_id
+  } : 'null');
+
+  return student;
+};
+
 exports.getAttendance = async (req, res) => {
   try {
     const studentId = Number(req.params.studentId);
@@ -124,24 +148,14 @@ exports.getDailyMealPlan = async (req, res) => {
 
 exports.getMyMealConsumption = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = parseInt(req.params.studentId); // This is actually the user ID from frontend
     
-    // Get student record - first try by user ID, then try finding student record linked to this user
-    let student = await Student.findOne({
-      where: { id: userId },
-      attributes: ['id', 'name', 'class', 'section']
-    });
-
-    // If not found by direct ID, try finding by looking up user in Students table
-    if (!student) {
-      const user = await User.findByPk(userId);
-      if (user && user.role === 'student') {
-        // Find student record by matching email or create one
-        student = await Student.findOne({
-          attributes: ['id', 'name', 'class', 'section']
-        });
-      }
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID required' });
     }
+    
+    // Get student record using the helper function that looks up by user_id
+    const student = await getStudentFromUserId(userId);
 
     if (!student) {
       return res.status(404).json({ message: 'Student record not found' });
@@ -194,19 +208,17 @@ exports.getMyMealConsumption = async (req, res) => {
 
 exports.submitMealFeedback = async (req, res) => {
   try {
-    const studentUserId = req.user.userId;
+    const userId = parseInt(req.params.studentId); // This is actually the user ID from frontend
     const { mealPlanId, rating, feedback, aspects, isAnonymous } = req.body;
 
-    if (!mealPlanId || !rating || rating < 1 || rating > 5) {
+    if (!userId || !mealPlanId || !rating || rating < 1 || rating > 5) {
       return res.status(400).json({
-        message: 'Valid meal plan ID and rating (1-5) are required'
+        message: 'Valid user ID, meal plan ID and rating (1-5) are required'
       });
     }
 
-    // Get student record
-    const student = await Student.findOne({
-      where: { parent_id: studentUserId }
-    });
+    // Get student record using the helper function that looks up by user_id
+    const student = await getStudentFromUserId(userId);
 
     if (!student) {
       return res.status(404).json({ message: 'Student record not found' });

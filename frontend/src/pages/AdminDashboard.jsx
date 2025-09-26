@@ -53,6 +53,7 @@ export default function AdminDashboard() {
     special_notes: ''
   });
   const [mealPlans, setMealPlans] = useState([]);
+  const [mealFeedbacks, setMealFeedbacks] = useState({});
   const [mealDashboard, setMealDashboard] = useState({
     todaysMeal: null,
     consumptionStats: {},
@@ -175,6 +176,18 @@ export default function AdminDashboard() {
       setMealPlans(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load meal plans');
+    }
+  };
+
+  const loadMealFeedback = async (mealPlanId) => {
+    try {
+      const res = await api.get(`/admin/meal-feedback/${mealPlanId}`);
+      setMealFeedbacks(prev => ({
+        ...prev,
+        [mealPlanId]: res.data
+      }));
+    } catch (err) {
+      console.error('Failed to load meal feedback:', err);
     }
   };
 
@@ -1052,7 +1065,7 @@ export default function AdminDashboard() {
                           </div>
                         )}
                       </div>
-                      <div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
                         <span style={{
                           padding: '4px 8px',
                           borderRadius: 12,
@@ -1064,8 +1077,120 @@ export default function AdminDashboard() {
                         }}>
                           {meal.status?.toUpperCase() || 'PLANNED'}
                         </span>
+                        <button
+                          onClick={() => loadMealFeedback(meal.id)}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: '#17a2b8',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 4,
+                            fontSize: '0.8em',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          📊 View Feedback
+                        </button>
                       </div>
                     </div>
+
+                    {/* Meal Feedback Section */}
+                    {mealFeedbacks[meal.id] && (
+                      <div style={{
+                        marginTop: 16,
+                        padding: 16,
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: 8,
+                        border: '1px solid #e9ecef'
+                      }}>
+                        <h5 style={{ margin: '0 0 12px 0', color: '#495057' }}>📝 Parent & Student Feedback</h5>
+                        
+                        {/* Feedback Statistics */}
+                        <div style={{ marginBottom: 16 }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12 }}>
+                            <div style={{ textAlign: 'center', padding: 8, backgroundColor: '#fff', borderRadius: 4 }}>
+                              <div style={{ fontSize: '1.2em', fontWeight: 'bold', color: '#28a745' }}>
+                                {mealFeedbacks[meal.id].stats.averageRating.toFixed(1)}⭐
+                              </div>
+                              <div style={{ fontSize: '0.8em', color: '#666' }}>Average Rating</div>
+                            </div>
+                            <div style={{ textAlign: 'center', padding: 8, backgroundColor: '#fff', borderRadius: 4 }}>
+                              <div style={{ fontSize: '1.2em', fontWeight: 'bold', color: '#007bff' }}>
+                                {mealFeedbacks[meal.id].stats.totalFeedbacks}
+                              </div>
+                              <div style={{ fontSize: '0.8em', color: '#666' }}>Total Reviews</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Rating Distribution */}
+                        <div style={{ marginBottom: 16 }}>
+                          <strong style={{ fontSize: '0.9em', color: '#495057' }}>Rating Distribution:</strong>
+                          <div style={{ marginTop: 8 }}>
+                            {[5, 4, 3, 2, 1].map(rating => (
+                              <div key={rating} style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+                                <span style={{ width: '30px', fontSize: '0.8em' }}>{rating}⭐</span>
+                                <div style={{
+                                  flex: 1,
+                                  height: '16px',
+                                  backgroundColor: '#e9ecef',
+                                  borderRadius: 8,
+                                  marginRight: 8,
+                                  overflow: 'hidden'
+                                }}>
+                                  <div style={{
+                                    height: '100%',
+                                    width: `${mealFeedbacks[meal.id].stats.totalFeedbacks > 0 ? 
+                                      (mealFeedbacks[meal.id].stats.ratingDistribution[rating] / mealFeedbacks[meal.id].stats.totalFeedbacks) * 100 : 0}%`,
+                                    backgroundColor: '#28a745',
+                                    borderRadius: 8
+                                  }}></div>
+                                </div>
+                                <span style={{ fontSize: '0.8em', color: '#666', width: '30px' }}>
+                                  {mealFeedbacks[meal.id].stats.ratingDistribution[rating]}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Individual Feedback Comments */}
+                        {mealFeedbacks[meal.id].feedbacks.length > 0 && (
+                          <div>
+                            <strong style={{ fontSize: '0.9em', color: '#495057' }}>Recent Comments:</strong>
+                            <div style={{ marginTop: 8, maxHeight: '200px', overflowY: 'auto' }}>
+                              {mealFeedbacks[meal.id].feedbacks
+                                .filter(feedback => feedback.feedback && feedback.feedback.trim())
+                                .slice(0, 5)
+                                .map((feedback, idx) => (
+                                <div key={idx} style={{
+                                  padding: 8,
+                                  backgroundColor: '#fff',
+                                  borderRadius: 4,
+                                  marginBottom: 8,
+                                  border: '1px solid #e9ecef'
+                                }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontSize: '0.8em', marginBottom: 4 }}>
+                                        <span style={{ fontWeight: 'bold' }}>{feedback.rating}⭐</span>
+                                        <span style={{ marginLeft: 8, color: '#666' }}>
+                                          {feedback.feedbackType === 'parent' ? '👨‍👩‍👧‍👦 Parent' : '👧👦 Student'}
+                                        </span>
+                                      </div>
+                                      <div style={{ fontSize: '0.9em' }}>{feedback.feedback}</div>
+                                    </div>
+                                    <div style={{ fontSize: '0.7em', color: '#999' }}>
+                                      {new Date(feedback.createdAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))
               )}

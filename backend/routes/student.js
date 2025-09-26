@@ -19,7 +19,7 @@ router.get('/scholarships/:scholarshipId', auth(['student']), getScholarshipDeta
 
 // Meal system routes
 router.get('/daily-meal-plan', auth(['student']), getDailyMealPlan);
-router.get('/my-meal-consumption', auth(['student']), getMyMealConsumption);
-router.post('/meal-feedback', auth(['student']), submitMealFeedback);
+router.get('/my-meal-consumption/:studentId', auth(['student']), getMyMealConsumption);
+router.post('/meal-feedback/:studentId', auth(['student']), submitMealFeedback);
 
 module.exports = router;

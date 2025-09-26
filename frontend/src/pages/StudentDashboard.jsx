@@ -50,7 +50,7 @@ export default function StudentDashboard() {
 
   const loadMealConsumption = async () => {
     try {
-      const res = await api.get('/student/my-meal-consumption');
+      const res = await api.get(`/student/my-meal-consumption/${userId}`);
       // The API returns { student: {...}, consumptions: [...] }
       setMealConsumption(res.data.consumptions || []);
     } catch (err) {
@@ -60,11 +60,12 @@ export default function StudentDashboard() {
 
   const submitMealFeedback = async (mealPlanId, rating, comments) => {
     try {
-      await api.post('/student/meal-feedback', {
-        meal_plan_id: mealPlanId,
-        student_id: userId,
+      await api.post(`/student/meal-feedback/${userId}`, {
+        mealPlanId: mealPlanId,
         rating,
-        comments
+        feedback: comments,
+        aspects: {},
+        isAnonymous: false
       });
       alert('Feedback submitted successfully!');
     } catch (err) {
