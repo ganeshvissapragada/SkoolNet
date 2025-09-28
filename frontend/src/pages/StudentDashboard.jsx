@@ -13,6 +13,7 @@ export default function StudentDashboard() {
   const [error, setError] = useState('');
 
   const loadAttendance = async () => {
+    setError(''); // Clear any previous errors
     try {
       const res = await api.get(`/student/attendance/${userId}`);
       setAttendance(res.data);
@@ -22,6 +23,7 @@ export default function StudentDashboard() {
   };
 
   const loadMarks = async () => {
+    setError(''); // Clear any previous errors
     try {
       const res = await api.get(`/student/marks/${userId}`);
       setMarks(res.data);
@@ -179,7 +181,41 @@ export default function StudentDashboard() {
           {attendance && (
             <>
               <h3>My Attendance Records</h3>
-              <pre style={{ background: '#f6f8fa', padding: 16 }}>{JSON.stringify(attendance, null, 2)}</pre>
+              {attendance.length === 0 ? (
+                <p style={{ padding: 16, background: '#f8f9fa', borderRadius: 4, color: '#6c757d' }}>
+                  No attendance records found.
+                </p>
+              ) : (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  {attendance.map((record, index) => (
+                    <div key={record._id || index} style={{
+                      border: '1px solid #ddd',
+                      padding: 12,
+                      marginBottom: 8,
+                      borderRadius: 4,
+                      backgroundColor: record.status === 'Present' ? '#e7f5e7' : '#fde7e7'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <strong>Date:</strong> {new Date(record.date).toLocaleDateString()}<br/>
+                          <strong>Status:</strong> <span style={{
+                            padding: '2px 6px',
+                            borderRadius: 3,
+                            fontSize: '0.85em',
+                            backgroundColor: record.status === 'Present' ? '#d4edda' : '#f8d7da',
+                            color: record.status === 'Present' ? '#155724' : '#721c24'
+                          }}>
+                            {record.status}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.8em', color: '#6c757d' }}>
+                          {record.status === 'Present' ? '✅' : '❌'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -202,7 +238,59 @@ export default function StudentDashboard() {
           {marks && (
             <>
               <h3>My Marks Records</h3>
-              <pre style={{ background: '#f6f8fa', padding: 16 }}>{JSON.stringify(marks, null, 2)}</pre>
+              {marks.length === 0 ? (
+                <p style={{ padding: 16, background: '#f8f9fa', borderRadius: 4, color: '#6c757d' }}>
+                  No marks records found.
+                </p>
+              ) : (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  {marks.map((record, index) => {
+                    const percentage = record.totalMarks > 0 ? ((record.marksObtained / record.totalMarks) * 100).toFixed(1) : 0;
+                    const grade = percentage >= 90 ? 'A+' : 
+                                  percentage >= 80 ? 'A' : 
+                                  percentage >= 70 ? 'B+' : 
+                                  percentage >= 60 ? 'B' : 
+                                  percentage >= 50 ? 'C' : 'F';
+                    
+                    return (
+                      <div key={record._id || index} style={{
+                        border: '1px solid #ddd',
+                        padding: 12,
+                        marginBottom: 8,
+                        borderRadius: 4,
+                        backgroundColor: percentage >= 60 ? '#e7f5e7' : percentage >= 40 ? '#fff3cd' : '#fde7e7'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div>
+                            <strong>Subject ID:</strong> {record.subjectId}<br/>
+                            <strong>Exam Type:</strong> {record.examType}<br/>
+                            <strong>Date:</strong> {new Date(record.date).toLocaleDateString()}<br/>
+                            <strong>Score:</strong> {record.marksObtained}/{record.totalMarks}
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ 
+                              fontSize: '1.2em', 
+                              fontWeight: 'bold',
+                              color: percentage >= 60 ? '#155724' : percentage >= 40 ? '#856404' : '#721c24'
+                            }}>
+                              {percentage}%
+                            </div>
+                            <div style={{
+                              padding: '2px 8px',
+                              borderRadius: 3,
+                              fontSize: '0.8em',
+                              backgroundColor: percentage >= 60 ? '#d4edda' : percentage >= 40 ? '#fff3cd' : '#f8d7da',
+                              color: percentage >= 60 ? '#155724' : percentage >= 40 ? '#856404' : '#721c24'
+                            }}>
+                              Grade: {grade}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </>
           )}
         </div>

@@ -13,7 +13,7 @@ const getStudentFromUserId = async (userId) => {
     where: { user_id: userId },
     include: [{
       model: User,
-      as: 'user',
+      as: 'student_user',
       attributes: ['id', 'name', 'email']
     }]
   });
@@ -30,9 +30,17 @@ const getStudentFromUserId = async (userId) => {
 
 exports.getAttendance = async (req, res) => {
   try {
-    const studentId = Number(req.params.studentId);
-    if (!studentId) return res.status(400).json({ message: 'studentId required' });
-    const items = await Attendance.find({ studentId }).sort({ date: -1 });
+    const userId = Number(req.params.studentId); // This is actually user ID from frontend
+    if (!userId) return res.status(400).json({ message: 'userId required' });
+    
+    // Get student record using user ID
+    const student = await getStudentFromUserId(userId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student record not found' });
+    }
+    
+    // Now use the student's postgres ID for MongoDB query
+    const items = await Attendance.find({ studentId: student.id }).sort({ date: -1 });
     res.json(items);
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -41,9 +49,17 @@ exports.getAttendance = async (req, res) => {
 
 exports.getMarks = async (req, res) => {
   try {
-    const studentId = Number(req.params.studentId);
-    if (!studentId) return res.status(400).json({ message: 'studentId required' });
-    const items = await Marks.find({ studentId }).sort({ date: -1 });
+    const userId = Number(req.params.studentId); // This is actually user ID from frontend
+    if (!userId) return res.status(400).json({ message: 'userId required' });
+    
+    // Get student record using user ID
+    const student = await getStudentFromUserId(userId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student record not found' });
+    }
+    
+    // Now use the student's postgres ID for MongoDB query
+    const items = await Marks.find({ studentId: student.id }).sort({ date: -1 });
     res.json(items);
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -57,12 +73,12 @@ exports.getActiveScholarships = async (req, res) => {
     
     // Find the student record to get their class
     const studentRecord = await Student.findOne({
+      where: { user_id: studentUserId },
       include: [
         {
           model: User,
-          as: 'parent',
-          where: { id: studentUserId },
-          required: false
+          as: 'student_user',
+          attributes: ['id', 'name', 'email']
         }
       ]
     });

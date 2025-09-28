@@ -208,9 +208,15 @@ exports.getStudentsByClass = async (req, res) => {
           as: 'student_user', 
           attributes: ['id', 'name', 'email'],
           required: false 
+        },
+        { 
+          model: User, 
+          as: 'parent', 
+          attributes: ['id', 'name', 'email'],
+          required: false 
         }
       ],
-      attributes: ['id', 'name', 'class', 'section', 'user_id'],
+      attributes: ['id', 'name', 'class', 'section', 'user_id', 'parent_id'],
       order: [['class', 'ASC'], ['section', 'ASC'], ['name', 'ASC']]
     });
 
@@ -228,7 +234,9 @@ exports.getStudentsByClass = async (req, res) => {
         id: student.id,
         name: student.name,
         user_id: student.user_id,
-        user: student.student_user
+        parent_id: student.parent_id,
+        user: student.student_user,
+        parent: student.parent
       });
       return acc;
     }, {});
