@@ -30,15 +30,21 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 (async () => {
   try {
-    await connectMongo();
+    // Try to connect to MongoDB, but don't fail if it's not available
+    try {
+      await connectMongo();
+    } catch (mongoErr) {
+      console.warn('MongoDB connection failed, continuing without MongoDB:', mongoErr.message);
+    }
+    
     if (process.env.NODE_ENV !== 'production') {
       await sequelize.sync();
     }
-    app.listen(PORT, () => console.log(`Backend listening on :${PORT}`));
+    app.listen(PORT, '0.0.0.0', () => console.log(`Backend listening on :${PORT} (all interfaces)`));
   } catch (err) {
     console.error('Startup error:', err);
     process.exit(1);
