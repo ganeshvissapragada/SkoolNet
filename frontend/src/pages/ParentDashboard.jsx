@@ -7,6 +7,9 @@ import ptmIcon from '../assets/icons/ptm.png';
 import scholarshipsIcon from '../assets/icons/scholarships.png';
 import mealsIcon from '../assets/icons/meals.png';
 import assignmentsIcon from '../assets/icons/assignments.png';
+import parentIcon from '../assets/icons/parents.png';
+import searchIcon from '../assets/icons/searchbar.png';
+import translateIcon from '../assets/icons/translate_8779198.png';
 
 export default function ParentDashboard() {
   const { userId } = useContext(AuthContext);
@@ -22,6 +25,8 @@ export default function ParentDashboard() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [error, setError] = useState('');
   const [language, setLanguage] = useState('telugu'); // 'telugu' or 'english'
+  const [showSearch, setShowSearch] = useState(false); // For search toggle
+  const [searchQuery, setSearchQuery] = useState(''); // For search functionality
 
   // Language translations
   const translations = {
@@ -202,14 +207,14 @@ export default function ParentDashboard() {
       fontSize: '16px'
     },
     header: {
-      backgroundColor: '#2c3e50',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       color: 'white',
-      padding: '15px 20px',
+      padding: '20px 20px',
       textAlign: 'center',
       position: 'sticky',
       top: 0,
       zIndex: 1000,
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+      boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
     },
     backButton: {
       position: 'absolute',
@@ -224,35 +229,35 @@ export default function ParentDashboard() {
       padding: '10px'
     },
     cardContainer: {
-      padding: '20px',
+      padding: '24px',
       display: 'grid',
       gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '16px',
-      maxWidth: '480px',
+      gap: '20px',
+      maxWidth: '600px',
       margin: '0 auto'
     },
     card: {
       backgroundColor: 'white',
-      borderRadius: '12px',
-      padding: '16px 12px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      borderRadius: '16px',
+      padding: '24px 20px',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       textAlign: 'center',
       border: '1px solid #e1e8ed',
-      minHeight: '120px',
+      minHeight: '160px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center'
     },
     cardIcon: {
-      fontSize: '32px',
-      marginBottom: '8px',
+      fontSize: '48px',
+      marginBottom: '12px',
       display: 'block'
     },
     cardTitle: {
-      fontSize: '14px',
+      fontSize: '16px',
       fontWeight: '600',
       marginBottom: '4px',
       color: '#2c3e50',
@@ -322,43 +327,78 @@ export default function ParentDashboard() {
     }
   ];
 
-  const renderDashboard = () => (
-    <div style={mobileStyles.cardContainer}>
-      {cards.map(card => (
-        <div
-          key={card.id}
-          style={{
-            ...mobileStyles.card,
-            borderLeft: `5px solid ${card.color}`
-          }}
-          onClick={() => {
-            setSelectedCard(card);
-            setCurrentView(card.id);
-            card.loadData();
-          }}
-        >
-          <div style={{...mobileStyles.cardIcon, color: card.color}}>
-            {typeof card.icon === 'string' && (card.icon.includes('.png') || card.icon.includes('.svg')) ? (
-              <img 
-                src={card.icon} 
-                alt={card.title}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  objectFit: 'contain'
-                }}
-              />
-            ) : (
-              card.icon
-            )}
+  const renderDashboard = () => {
+    // Filter cards based on search query
+    const filteredCards = cards.filter(card => 
+      card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      card.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+      <div style={mobileStyles.cardContainer}>
+        {searchQuery && (
+          <div style={{
+            gridColumn: '1 / -1',
+            textAlign: 'center',
+            padding: '10px',
+            fontSize: '14px',
+            color: '#666',
+            marginBottom: '10px'
+          }}>
+            {language === 'english' ? `Showing ${filteredCards.length} results for "${searchQuery}"` : `"${searchQuery}" కోసం ${filteredCards.length} ఫలితాలు`}
           </div>
-          <div style={mobileStyles.cardTitle}>
-            {card.title}
+        )}
+        
+        {filteredCards.length === 0 ? (
+          <div style={{
+            gridColumn: '1 / -1',
+            textAlign: 'center',
+            padding: '40px',
+            color: '#666'
+          }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+            <div>{language === 'english' ? 'No results found' : 'ఫలితాలు లేవు'}</div>
           </div>
-        </div>
-      ))}
-    </div>
-  );
+        ) : (
+          filteredCards.map(card => (
+            <div
+              key={card.id}
+              style={{
+                ...mobileStyles.card,
+                borderLeft: `5px solid ${card.color}`
+              }}
+              onClick={() => {
+                setSelectedCard(card);
+                setCurrentView(card.id);
+                setShowSearch(false); // Hide search when navigating
+                setSearchQuery(''); // Clear search
+                card.loadData();
+              }}
+            >
+              <div style={{...mobileStyles.cardIcon, color: card.color}}>
+                {typeof card.icon === 'string' && (card.icon.includes('.png') || card.icon.includes('.svg')) ? (
+                  <img 
+                    src={card.icon} 
+                    alt={card.title}
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      objectFit: 'contain'
+                    }}
+                  />
+                ) : (
+                  card.icon
+                )}
+              </div>
+              <div style={mobileStyles.cardTitle}>
+                {card.title}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    );
+  };
 
   const renderAttendanceDetails = () => (
     <div style={mobileStyles.detailsContainer}>
@@ -1032,45 +1072,152 @@ export default function ParentDashboard() {
     <div style={mobileStyles.container}>
       <div style={mobileStyles.header}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          {/* Left side - Parent icon and name */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {currentView !== 'dashboard' && (
               <button 
-                style={mobileStyles.backButton}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '8px'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 onClick={() => {
                   setCurrentView('dashboard');
                   setSelectedCard(null);
                   setError('');
+                  setShowSearch(false);
+                  setSearchQuery('');
                 }}
               >
                 ← {texts.backToDashboard}
               </button>
             )}
-            <h1 style={{ margin: currentView !== 'dashboard' ? '0 0 0 10px' : '0', fontSize: '22px' }}>
-              {currentView === 'dashboard' ? `${texts.myChild} ${texts.dashboard}` : selectedCard?.title}
-            </h1>
+            
+            {currentView === 'dashboard' && (
+              <>
+                {/* Parent Icon */}
+                <img 
+                  src={parentIcon} 
+                  alt="Parent"
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    objectFit: 'cover'
+                  }}
+                />
+                
+                {/* Parent Name */}
+                <div>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    color: 'white'
+                  }}>
+                    {language === 'english' ? 'Michael Smith' : 'మైఖేల్ స్మిత్'}
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: 'rgba(255,255,255,0.8)'
+                  }}>
+                    {language === 'english' ? 'Parent' : 'తల్లిదండ్రులు'}
+                  </div>
+                </div>
+              </>
+            )}
+            
+            {currentView !== 'dashboard' && (
+              <h1 style={{ margin: '0', fontSize: '20px', color: 'white' }}>
+                {selectedCard?.title}
+              </h1>
+            )}
           </div>
           
-          {/* Language Switch Button */}
-          <button
-            style={{
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              border: 'none',
-              padding: '8px 12px',
-              borderRadius: '20px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              minWidth: '70px',
-              transition: 'background-color 0.3s'
-            }}
-            onClick={() => setLanguage(language === 'telugu' ? 'english' : 'telugu')}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#45a049'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#4CAF50'}
-          >
-            {texts.languageSwitch}
-          </button>
+          {/* Right side - Search and Translate icons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Search Icon */}
+            <button
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '8px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              onClick={() => setShowSearch(!showSearch)}
+            >
+              <img 
+                src={searchIcon} 
+                alt="Search"
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  objectFit: 'contain'
+                }}
+              />
+            </button>
+            
+            {/* Translate Icon */}
+            <button
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '8px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              onClick={() => setLanguage(language === 'telugu' ? 'english' : 'telugu')}
+            >
+              <img 
+                src={translateIcon} 
+                alt="Translate"
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  objectFit: 'contain'
+                }}
+              />
+            </button>
+          </div>
         </div>
+        
+        {/* Search Bar - Shows when search is clicked */}
+        {showSearch && (
+          <div style={{
+            marginTop: '15px',
+            position: 'relative'
+          }}>
+            <input
+              type="text"
+              placeholder={language === 'english' ? 'Search features...' : 'ఫీచర్లను వెతకండి...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '16px',
+                backgroundColor: 'rgba(255,255,255,0.9)',
+                color: '#333',
+                boxSizing: 'border-box'
+              }}
+              autoFocus
+            />
+          </div>
+        )}
       </div>
 
       {error && (
