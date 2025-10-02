@@ -10,6 +10,7 @@ export default function ParentDashboard() {
   const [scholarships, setScholarships] = useState([]);
   const [mealPlans, setMealPlans] = useState([]);
   const [mealConsumption, setMealConsumption] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const [studentInfo, setStudentInfo] = useState(null);
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or specific feature
   const [selectedCard, setSelectedCard] = useState(null);
@@ -25,6 +26,7 @@ export default function ParentDashboard() {
       ptm: 'తల్లిదండ్రుల సమావేశం',
       scholarships: 'స్కాలర్‌షిప్‌లు', 
       meals: 'భోజనం',
+      assignments: 'గృహపాఠాలు',
       myChild: 'నా పిల్లవాడు',
       backToDashboard: 'డాష్‌బోర్డ్‌కు తిరిగి వెళ్లు',
       viewDetails: 'వివరాలు చూడండి',
@@ -52,6 +54,7 @@ export default function ParentDashboard() {
       ptm: 'Parent-Teacher Meeting',
       scholarships: 'Scholarships',
       meals: 'Meals',
+      assignments: 'Assignments',
       myChild: 'My Child',
       backToDashboard: 'Back to Dashboard',
       viewDetails: 'View Details',
@@ -140,6 +143,17 @@ export default function ParentDashboard() {
       setMealConsumption(res.data.consumptions || []);
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load meal consumption');
+    }
+  };
+
+  const loadAssignments = async () => {
+    setError('');
+    try {
+      const res = await api.get('/parent/assignments');
+      setAssignments(res.data.assignments || []);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load assignments');
+      setAssignments([]);
     }
   };
 
@@ -284,6 +298,14 @@ export default function ParentDashboard() {
       description: 'రోజువారీ భోజన ప్రణాళిక మరియు పోషకాహారాన్ని చూడండి',
       color: '#27ae60',
       loadData: () => {loadMealPlans(); loadMealConsumption();}
+    },
+    {
+      id: 'assignments',
+      icon: '📋',
+      title: texts.assignments,
+      description: 'మీ పిల్లవాడి గృహపాఠాలు మరియు సమర్పణలను చూడండి',
+      color: '#8e44ad',
+      loadData: loadAssignments
     }
   ];
 
@@ -829,6 +851,172 @@ export default function ParentDashboard() {
     </div>
   );
 
+  const renderAssignmentsDetails = () => (
+    <div style={mobileStyles.detailsContainer}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '15px',
+        padding: '20px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+        marginBottom: '20px'
+      }}>
+        <h3 style={{color: '#2c3e50', marginBottom: '20px', textAlign: 'center'}}>
+          📋 {language === 'telugu' ? 'పిల్లవాడి గృహపాఠాలు' : 'Child\'s Assignments'}
+        </h3>
+        
+        {!assignments || assignments.length === 0 ? (
+          <div style={{textAlign: 'center', padding: '40px'}}>
+            <div style={{fontSize: '48px', marginBottom: '20px'}}>📭</div>
+            <div style={{color: '#7f8c8d', marginBottom: '20px'}}>
+              {language === 'telugu' ? 'గృహపాఠాలు కనుగొనబడలేదు' : 'No assignments found'}
+            </div>
+            <button
+              onClick={loadAssignments}
+              style={{
+                padding: '15px 30px',
+                backgroundColor: '#8e44ad',
+                color: 'white',
+                border: 'none',
+                borderRadius: '25px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              {language === 'telugu' ? 'గృహపాఠాలను రిఫ్రెష్ చేయండి' : 'Refresh Assignments'}
+            </button>
+          </div>
+        ) : (
+          <div>
+            {assignments.map(assignment => (
+              <div key={assignment.id} style={{
+                backgroundColor: '#fff',
+                border: '2px solid #8e44ad',
+                borderRadius: '12px',
+                padding: '15px',
+                marginBottom: '15px'
+              }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+                  <div style={{fontSize: '18px', fontWeight: 'bold', color: '#8e44ad'}}>
+                    📋 {assignment.title}
+                  </div>
+                  <div style={{
+                    padding: '4px 12px',
+                    borderRadius: '15px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    backgroundColor: assignment.submission_status === 'submitted' ? '#d4edda' : assignment.submission_status === 'graded' ? '#cce5ff' : '#fff3cd',
+                    color: assignment.submission_status === 'submitted' ? '#155724' : assignment.submission_status === 'graded' ? '#004085' : '#856404'
+                  }}>
+                    {language === 'telugu' ? 
+                      (assignment.submission_status === 'submitted' ? 'సమర్పించబడింది' : 
+                       assignment.submission_status === 'graded' ? 'గ్రేడ్ ఇవ్వబడింది' : 
+                       assignment.submission_status === 'pending' ? 'వేచి ఉంది' : assignment.submission_status) :
+                      assignment.submission_status
+                    }
+                  </div>
+                </div>
+                
+                {assignment.student && (
+                  <div style={{marginBottom: '10px'}}>
+                    <div style={{color: '#7f8c8d', fontSize: '14px'}}>
+                      {language === 'telugu' ? 'విద్యార్థి' : 'Student'}
+                    </div>
+                    <div style={{fontWeight: 'bold'}}>{assignment.student.name} - {assignment.student.class}</div>
+                  </div>
+                )}
+                
+                <div style={{marginBottom: '10px'}}>
+                  <div style={{color: '#7f8c8d', fontSize: '14px'}}>
+                    {language === 'telugu' ? 'వివరణ' : 'Description'}
+                  </div>
+                  <div>{assignment.description}</div>
+                </div>
+                
+                <div style={{marginBottom: '10px'}}>
+                  <div style={{color: '#7f8c8d', fontSize: '14px'}}>
+                    {language === 'telugu' ? 'గడువు తేదీ' : 'Due Date'}
+                  </div>
+                  <div style={{fontWeight: 'bold', color: '#c0392b'}}>
+                    {new Date(assignment.due_date).toLocaleDateString()}
+                  </div>
+                </div>
+                
+                <div style={{marginBottom: '10px'}}>
+                  <div style={{color: '#7f8c8d', fontSize: '14px'}}>
+                    {language === 'telugu' ? 'రకం' : 'Type'}
+                  </div>
+                  <div>{assignment.assignment_type}</div>
+                </div>
+                
+                {assignment.submitted_at && (
+                  <div style={{marginBottom: '10px'}}>
+                    <div style={{color: '#7f8c8d', fontSize: '14px'}}>
+                      {language === 'telugu' ? 'సమర్పించిన తేదీ' : 'Submitted On'}
+                    </div>
+                    <div style={{color: '#27ae60', fontWeight: 'bold'}}>
+                      {new Date(assignment.submitted_at).toLocaleString()}
+                      {assignment.is_late && (
+                        <span style={{color: '#e74c3c', marginLeft: '10px'}}>
+                          ({language === 'telugu' ? 'ఆలస్యంగా' : 'Late'})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {assignment.marks_obtained !== null && assignment.marks_obtained !== undefined && (
+                  <div style={{
+                    backgroundColor: '#e8f5e8',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    marginTop: '10px'
+                  }}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <div style={{fontSize: '16px', fontWeight: 'bold', color: '#27ae60'}}>
+                        {language === 'telugu' ? 'మార్కులు పొందారు' : 'Marks Obtained'}: {assignment.marks_obtained}/{assignment.max_marks}
+                      </div>
+                      <div style={{
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        color: assignment.marks_obtained >= (assignment.max_marks * 0.7) ? '#27ae60' : 
+                               assignment.marks_obtained >= (assignment.max_marks * 0.5) ? '#f39c12' : '#e74c3c'
+                      }}>
+                        {Math.round((assignment.marks_obtained / assignment.max_marks) * 100)}%
+                      </div>
+                    </div>
+                    {assignment.feedback && (
+                      <div style={{marginTop: '8px'}}>
+                        <div style={{color: '#7f8c8d', fontSize: '14px'}}>
+                          {language === 'telugu' ? 'టీచర్ అభిప్రాయం' : 'Teacher Feedback'}
+                        </div>
+                        <div style={{fontStyle: 'italic', color: '#2c3e50'}}>{assignment.feedback}</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {assignment.submission_status === 'pending' && (
+                  <div style={{
+                    backgroundColor: '#fff3cd',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    marginTop: '10px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{color: '#856404', fontSize: '14px'}}>
+                      {language === 'telugu' ? 'గృహపాఠం ఇంకా సమర్పించబడలేదు' : 'Assignment not yet submitted'}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div style={mobileStyles.container}>
       <div style={mobileStyles.header}>
@@ -894,6 +1082,7 @@ export default function ParentDashboard() {
       {currentView === 'ptm' && renderPTMDetails()}
       {currentView === 'scholarships' && renderScholarshipsDetails()}
       {currentView === 'meals' && renderMealsDetails()}
+      {currentView === 'assignments' && renderAssignmentsDetails()}
     </div>
   );
 }

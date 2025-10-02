@@ -10,7 +10,9 @@ const {
   getScholarshipDetailsForParent,
   getDailyMealPlan,
   getChildMealConsumption,
-  submitMealFeedback
+  submitMealFeedback,
+  getChildAssignments,
+  getSpecificChildAssignments
 } = require('../controllers/parentController');
 
 router.get('/attendance/child/:parentId', auth(['parent']), getChildAttendance);
@@ -29,5 +31,9 @@ router.get('/scholarships/:scholarshipId', auth(['parent']), getScholarshipDetai
 router.get('/daily-meal-plan', auth(['parent']), getDailyMealPlan);
 router.get('/child-meal-consumption', auth(['parent']), getChildMealConsumption);
 router.post('/meal-feedback', auth(['parent']), submitMealFeedback);
+
+// Assignment routes
+router.get('/assignments', auth(['parent']), getChildAssignments);
+router.get('/child/:childId/assignments', auth(['parent']), getSpecificChildAssignments);
 
 module.exports = router;

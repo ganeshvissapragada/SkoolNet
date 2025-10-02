@@ -7,7 +7,14 @@ const {
   getTeacherPTMs, 
   updatePTMStatus,
   getStudentsForPTM,
-  getStudentsByClass
+  getStudentsByClass,
+  createAssignment,
+  getMyAssignments,
+  getAssignmentById,
+  updateAssignment,
+  gradeSubmission,
+  requestResubmission,
+  getClassesAndSubjects
 } = require('../controllers/teacherController');
 
 router.post('/attendance', auth(['teacher']), addAttendance);
@@ -21,5 +28,14 @@ router.get('/students-for-ptm', auth(['teacher']), getStudentsForPTM);
 
 // Student management routes
 router.get('/students-by-class', auth(['teacher']), getStudentsByClass);
+
+// Assignment routes
+router.post('/assignments', auth(['teacher']), createAssignment);
+router.get('/assignments', auth(['teacher']), getMyAssignments);
+router.get('/assignments/:id', auth(['teacher']), getAssignmentById);
+router.put('/assignments/:id', auth(['teacher']), updateAssignment);
+router.put('/submissions/:submissionId/grade', auth(['teacher']), gradeSubmission);
+router.put('/submissions/:submissionId/request-resubmission', auth(['teacher']), requestResubmission);
+router.get('/classes-subjects', auth(['teacher']), getClassesAndSubjects);
 
 module.exports = router;

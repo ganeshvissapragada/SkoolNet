@@ -6,6 +6,10 @@ const MealPlan = require('./mealPlan');
 const InventoryItem = require('./inventoryItem');
 const MealConsumption = require('./mealConsumption');
 
+// Import assignment models
+const Assignment = require('./assignment');
+const AssignmentSubmission = require('./assignmentSubmission');
+
 const User = sequelize.define('User', {
   name: DataTypes.STRING,
   email: { type: DataTypes.STRING, unique: true, allowNull: false },
@@ -201,6 +205,27 @@ MealPlan.hasMany(MealConsumption, { as: 'consumptions', foreignKey: 'meal_plan_i
 Student.hasMany(MealConsumption, { as: 'meal_consumptions', foreignKey: 'student_id' });
 User.hasMany(MealConsumption, { as: 'marked_consumptions', foreignKey: 'marked_by' });
 
+// Assignment associations
+Assignment.belongsTo(User, { as: 'teacher', foreignKey: 'teacher_id' });
+Assignment.belongsTo(User, { as: 'creator', foreignKey: 'created_by' });
+Assignment.belongsTo(Class, { as: 'class', foreignKey: 'class_id' });
+Assignment.belongsTo(Subject, { as: 'subject', foreignKey: 'subject_id' });
+
+User.hasMany(Assignment, { as: 'assigned_assignments', foreignKey: 'teacher_id' });
+User.hasMany(Assignment, { as: 'created_assignments', foreignKey: 'created_by' });
+Class.hasMany(Assignment, { as: 'assignments', foreignKey: 'class_id' });
+Subject.hasMany(Assignment, { as: 'assignments', foreignKey: 'subject_id' });
+
+AssignmentSubmission.belongsTo(Assignment, { as: 'assignment', foreignKey: 'assignment_id' });
+AssignmentSubmission.belongsTo(Student, { as: 'student', foreignKey: 'student_id' });
+AssignmentSubmission.belongsTo(User, { as: 'submitted_by_user', foreignKey: 'submitted_by' });
+AssignmentSubmission.belongsTo(User, { as: 'graded_by_user', foreignKey: 'graded_by' });
+
+Assignment.hasMany(AssignmentSubmission, { as: 'submissions', foreignKey: 'assignment_id' });
+Student.hasMany(AssignmentSubmission, { as: 'submissions', foreignKey: 'student_id' });
+User.hasMany(AssignmentSubmission, { as: 'submitted_assignments', foreignKey: 'submitted_by' });
+User.hasMany(AssignmentSubmission, { as: 'graded_submissions', foreignKey: 'graded_by' });
+
 module.exports = {
   sequelize,
   User,
@@ -211,5 +236,7 @@ module.exports = {
   Scholarship,
   MealPlan,
   InventoryItem,
-  MealConsumption
+  MealConsumption,
+  Assignment,
+  AssignmentSubmission
 };

@@ -1,4 +1,4 @@
-const { Student, PTM, User, Scholarship, MealPlan, MealConsumption } = require('../models/postgres');
+const { Student, PTM, User, Scholarship, MealPlan, MealConsumption, Assignment, AssignmentSubmission, Class, Subject } = require('../models/postgres');
 const { Op } = require('sequelize');
 const Attendance = require('../models/mongo/attendance');
 const Marks = require('../models/mongo/marks');
@@ -328,5 +328,176 @@ exports.submitMealFeedback = async (req, res) => {
     }
   } catch (e) {
     res.status(500).json({ message: e.message });
+  }
+};
+
+// Assignment Management for Parents
+
+// Get assignments for parent's child
+exports.getChildAssignments = async (req, res) => {
+  try {
+    const parentId = req.user.id;
+
+    // Get parent's children
+    const children = await Student.findAll({
+      where: { parent_id: parentId },
+      include: [
+        { model: User, as: 'student_user', attributes: ['id', 'name'] }
+      ]
+    });
+
+    if (!children || children.length === 0) {
+      return res.status(404).json({ message: 'No children found for this parent' });
+    }
+
+    // Get assignments for all children
+    const allAssignments = [];
+    
+    for (const child of children) {
+      const assignments = await Assignment.findAll({
+        where: { 
+          status: 'published',
+          '$class.class_name$': child.class
+        },
+        include: [
+          { model: Class, as: 'class' },
+          { model: Subject, as: 'subject' },
+          { model: User, as: 'teacher', attributes: ['id', 'name'] },
+          { 
+            model: AssignmentSubmission, 
+            as: 'submissions',
+            where: { student_id: child.id },
+            required: false,
+            include: [
+              { model: User, as: 'submitted_by_user', attributes: ['id', 'name'] }
+            ]
+          }
+        ],
+        order: [['due_date', 'ASC']]
+      });
+
+      // Add student info and submission status to each assignment
+      const assignmentsWithStatus = assignments.map(assignment => {
+        const submission = assignment.submissions && assignment.submissions.length > 0 
+          ? assignment.submissions[0] 
+          : null;
+        
+        return {
+          ...assignment.toJSON(),
+          student: {
+            id: child.id,
+            name: child.name,
+            class: child.class,
+            section: child.section
+          },
+          submission_status: submission ? submission.status : 'pending',
+          submitted_at: submission ? submission.submission_date : null,
+          is_late: submission ? submission.is_late : false,
+          marks_obtained: submission ? submission.marks_obtained : null,
+          feedback: submission ? submission.feedback : null,
+          grade: submission ? submission.grade : null
+        };
+      });
+
+      allAssignments.push(...assignmentsWithStatus);
+    }
+
+    // Sort all assignments by due date
+    allAssignments.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+
+    res.json({ 
+      assignments: allAssignments,
+      children: children.map(child => ({
+        id: child.id,
+        name: child.name,
+        class: child.class,
+        section: child.section
+      }))
+    });
+  } catch (error) {
+    console.error('Get child assignments error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get assignments for a specific child
+exports.getSpecificChildAssignments = async (req, res) => {
+  try {
+    const parentId = req.user.id;
+    const { childId } = req.params;
+
+    // Verify the child belongs to this parent
+    const child = await Student.findOne({
+      where: { 
+        id: childId, 
+        parent_id: parentId 
+      },
+      include: [
+        { model: User, as: 'student_user', attributes: ['id', 'name'] }
+      ]
+    });
+
+    if (!child) {
+      return res.status(404).json({ message: 'Child not found or does not belong to this parent' });
+    }
+
+    // Get assignments for this specific child
+    const assignments = await Assignment.findAll({
+      where: { 
+        status: 'published',
+        '$class.class_name$': child.class
+      },
+      include: [
+        { model: Class, as: 'class' },
+        { model: Subject, as: 'subject' },
+        { model: User, as: 'teacher', attributes: ['id', 'name'] },
+        { 
+          model: AssignmentSubmission, 
+          as: 'submissions',
+          where: { student_id: child.id },
+          required: false,
+          include: [
+            { model: User, as: 'submitted_by_user', attributes: ['id', 'name'] }
+          ]
+        }
+      ],
+      order: [['due_date', 'ASC']]
+    });
+
+    // Add submission status to each assignment
+    const assignmentsWithStatus = assignments.map(assignment => {
+      const submission = assignment.submissions && assignment.submissions.length > 0 
+        ? assignment.submissions[0] 
+        : null;
+      
+      return {
+        ...assignment.toJSON(),
+        student: {
+          id: child.id,
+          name: child.name,
+          class: child.class,
+          section: child.section
+        },
+        submission_status: submission ? submission.status : 'pending',
+        submitted_at: submission ? submission.submission_date : null,
+        is_late: submission ? submission.is_late : false,
+        marks_obtained: submission ? submission.marks_obtained : null,
+        feedback: submission ? submission.feedback : null,
+        grade: submission ? submission.grade : null
+      };
+    });
+
+    res.json({ 
+      assignments: assignmentsWithStatus,
+      child: {
+        id: child.id,
+        name: child.name,
+        class: child.class,
+        section: child.section
+      }
+    });
+  } catch (error) {
+    console.error('Get specific child assignments error:', error);
+    res.status(500).json({ message: error.message });
   }
 };

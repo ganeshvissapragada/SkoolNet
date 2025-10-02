@@ -1,6 +1,6 @@
 const Attendance = require('../models/mongo/attendance');
 const Marks = require('../models/mongo/marks');
-const { PTM, User, Student } = require('../models/postgres');
+const { PTM, User, Student, Assignment, AssignmentSubmission, Class, Subject } = require('../models/postgres');
 
 exports.addAttendance = async (req, res) => {
   try {
@@ -249,5 +249,268 @@ exports.getStudentsByClass = async (req, res) => {
     });
   } catch (e) {
     res.status(500).json({ message: e.message });
+  }
+};
+
+// Assignment Management
+
+// Create a new assignment
+exports.createAssignment = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      class_id,
+      subject_id,
+      assignment_type = 'homework',
+      attachments = [],
+      due_date,
+      submission_deadline,
+      is_graded = true,
+      allow_late_submission = false,
+      max_marks = 100,
+      instructions,
+      status = 'draft'
+    } = req.body;
+
+    if (!title || !description || !class_id || !subject_id || !due_date) {
+      return res.status(400).json({ 
+        message: 'Title, description, class_id, subject_id, and due_date are required' 
+      });
+    }
+
+    const assignment = await Assignment.create({
+      title,
+      description,
+      teacher_id: req.user.id,
+      class_id,
+      subject_id,
+      assignment_type,
+      attachments,
+      due_date,
+      submission_deadline: submission_deadline || due_date,
+      is_graded,
+      allow_late_submission,
+      max_marks,
+      instructions,
+      status,
+      created_by: req.user.id
+    });
+
+    const assignmentWithDetails = await Assignment.findByPk(assignment.id, {
+      include: [
+        { model: Class, as: 'class' },
+        { model: Subject, as: 'subject' },
+        { model: User, as: 'teacher', attributes: ['id', 'name', 'email'] }
+      ]
+    });
+
+    res.status(201).json({
+      message: 'Assignment created successfully',
+      assignment: assignmentWithDetails
+    });
+  } catch (error) {
+    console.error('Create assignment error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get all assignments for a teacher
+exports.getMyAssignments = async (req, res) => {
+  try {
+    const { status, class_id } = req.query;
+    const whereClause = { teacher_id: req.user.id };
+    
+    if (status) whereClause.status = status;
+    if (class_id) whereClause.class_id = class_id;
+
+    const assignments = await Assignment.findAll({
+      where: whereClause,
+      include: [
+        { model: Class, as: 'class' },
+        { model: Subject, as: 'subject' },
+        { 
+          model: AssignmentSubmission, 
+          as: 'submissions', 
+          include: [
+            { model: Student, as: 'student' },
+            { model: User, as: 'submitted_by_user', attributes: ['id', 'name'] }
+          ]
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json({ assignments });
+  } catch (error) {
+    console.error('Get assignments error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get assignment by ID with all submissions
+exports.getAssignmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const assignment = await Assignment.findOne({
+      where: { id, teacher_id: req.user.id },
+      include: [
+        { model: Class, as: 'class' },
+        { model: Subject, as: 'subject' },
+        { 
+          model: AssignmentSubmission, 
+          as: 'submissions',
+          include: [
+            { model: Student, as: 'student' },
+            { model: User, as: 'submitted_by_user', attributes: ['id', 'name'] }
+          ]
+        }
+      ]
+    });
+
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+
+    res.json({ assignment });
+  } catch (error) {
+    console.error('Get assignment by ID error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update assignment
+exports.updateAssignment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const assignment = await Assignment.findOne({
+      where: { id, teacher_id: req.user.id }
+    });
+
+    if (!assignment) {
+      return res.status(404).json({ message: 'Assignment not found' });
+    }
+
+    await assignment.update(updateData);
+
+    const updatedAssignment = await Assignment.findByPk(id, {
+      include: [
+        { model: Class, as: 'class' },
+        { model: Subject, as: 'subject' }
+      ]
+    });
+
+    res.json({
+      message: 'Assignment updated successfully',
+      assignment: updatedAssignment
+    });
+  } catch (error) {
+    console.error('Update assignment error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Grade a submission
+exports.gradeSubmission = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+    const { marks_obtained, grade, feedback, status = 'graded' } = req.body;
+
+    const submission = await AssignmentSubmission.findOne({
+      where: { id: submissionId },
+      include: [
+        { 
+          model: Assignment, 
+          as: 'assignment',
+          where: { teacher_id: req.user.id }
+        }
+      ]
+    });
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Submission not found' });
+    }
+
+    await submission.update({
+      marks_obtained,
+      grade,
+      feedback,
+      status,
+      graded_by: req.user.id,
+      graded_at: new Date()
+    });
+
+    const updatedSubmission = await AssignmentSubmission.findByPk(submissionId, {
+      include: [
+        { model: Assignment, as: 'assignment' },
+        { model: Student, as: 'student' },
+        { model: User, as: 'submitted_by_user', attributes: ['id', 'name'] }
+      ]
+    });
+
+    res.json({
+      message: 'Submission graded successfully',
+      submission: updatedSubmission
+    });
+  } catch (error) {
+    console.error('Grade submission error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Request resubmission
+exports.requestResubmission = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+    const { resubmission_reason } = req.body;
+
+    const submission = await AssignmentSubmission.findOne({
+      where: { id: submissionId },
+      include: [
+        { 
+          model: Assignment, 
+          as: 'assignment',
+          where: { teacher_id: req.user.id }
+        }
+      ]
+    });
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Submission not found' });
+    }
+
+    await submission.update({
+      status: 'returned',
+      resubmission_requested: true,
+      resubmission_reason,
+      graded_by: req.user.id,
+      graded_at: new Date()
+    });
+
+    res.json({
+      message: 'Resubmission requested successfully'
+    });
+  } catch (error) {
+    console.error('Request resubmission error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get classes and subjects for assignment creation
+exports.getClassesAndSubjects = async (req, res) => {
+  try {
+    const classes = await Class.findAll({
+      include: [
+        { model: Subject, as: 'Subjects' }
+      ]
+    });
+
+    res.json({ classes });
+  } catch (error) {
+    console.error('Get classes and subjects error:', error);
+    res.status(500).json({ message: error.message });
   }
 };

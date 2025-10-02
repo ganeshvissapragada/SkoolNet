@@ -32,6 +32,26 @@ export default function TeacherDashboard() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('attendance');
 
+  // Assignment States
+  const [assignments, setAssignments] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [showAssignmentForm, setShowAssignmentForm] = useState(false);
+  const [assignmentForm, setAssignmentForm] = useState({
+    title: '',
+    description: '',
+    class_id: '',
+    subject_id: '',
+    assignment_type: 'homework',
+    due_date: '',
+    submission_deadline: '',
+    is_graded: true,
+    allow_late_submission: false,
+    max_marks: 100,
+    instructions: '',
+    status: 'draft'
+  });
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+
   const submitAttendance = async (e) => {
     e.preventDefault();
     setError('');
@@ -189,13 +209,154 @@ export default function TeacherDashboard() {
     }));
   };
 
+  // Assignment Functions
+  const fetchClasses = async () => {
+    try {
+      console.log('🔄 Fetching classes and subjects...');
+      console.log('🔑 Auth token:', localStorage.getItem('token') ? 'Present' : 'Missing');
+      const res = await api.get('/teacher/classes-subjects');
+      console.log('📊 Classes response:', res.data);
+      console.log('� Full response object:', JSON.stringify(res.data, null, 2));
+      console.log('�📝 Number of classes received:', (res.data.classes || []).length);
+      setClasses(res.data.classes || []);
+      console.log('✅ Classes set in state');
+    } catch (err) {
+      console.error('❌ Error fetching classes:', err);
+      console.error('❌ Error response:', err.response?.data);
+      console.error('❌ Error status:', err.response?.status);
+      
+      // Temporary fallback test data to verify dropdown functionality
+      console.log('🧪 Setting test data for debugging...');
+      const testData = [
+        {
+          id: 1,
+          class_name: '8',
+          section: 'A',
+          Subjects: [
+            { id: 1, name: 'Mathematics' },
+            { id: 2, name: 'Science' },
+            { id: 3, name: 'English' }
+          ]
+        },
+        {
+          id: 2,
+          class_name: '9',
+          section: 'A',
+          Subjects: [
+            { id: 4, name: 'Mathematics' },
+            { id: 5, name: 'Physics' },
+            { id: 6, name: 'Chemistry' }
+          ]
+        }
+      ];
+      setClasses(testData);
+      console.log('🧪 Test classes set:', testData);
+      
+      setError(err?.response?.data?.message || 'Failed to fetch classes (using test data)');
+    }
+  };
+
+  const fetchAssignments = async () => {
+    try {
+      const res = await api.get('/teacher/assignments');
+      setAssignments(res.data.assignments || []);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to fetch assignments');
+    }
+  };
+
+  const submitAssignment = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const res = await api.post('/teacher/assignments', assignmentForm);
+      
+      setResult({
+        success: true,
+        message: `✅ Assignment "${assignmentForm.title}" created successfully!`,
+        details: `Type: ${assignmentForm.assignment_type} | Due: ${new Date(assignmentForm.due_date).toLocaleDateString()}`,
+        data: res.data
+      });
+      
+      setAssignmentForm({
+        title: '',
+        description: '',
+        class_id: '',
+        subject_id: '',
+        assignment_type: 'homework',
+        due_date: '',
+        submission_deadline: '',
+        is_graded: true,
+        allow_late_submission: false,
+        max_marks: 100,
+        instructions: '',
+        status: 'draft'
+      });
+      setShowAssignmentForm(false);
+      fetchAssignments();
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to create assignment');
+    }
+  };
+
+  const publishAssignment = async (assignmentId) => {
+    try {
+      const res = await api.put(`/teacher/assignments/${assignmentId}`, { status: 'published' });
+      
+      setResult({
+        success: true,
+        message: `✅ Assignment published successfully!`,
+        details: `Students can now view and submit this assignment.`,
+        data: res.data
+      });
+      
+      fetchAssignments();
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to publish assignment');
+    }
+  };
+
+  const gradeSubmission = async (submissionId, marks, feedback) => {
+    try {
+      const res = await api.put(`/teacher/submissions/${submissionId}/grade`, {
+        marks_obtained: marks,
+        feedback: feedback
+      });
+      
+      setResult({
+        success: true,
+        message: `✅ Submission graded successfully!`,
+        details: `Marks: ${marks} | Feedback provided`,
+        data: res.data
+      });
+      
+      if (selectedAssignment) {
+        // Refresh assignment details
+        const assignmentRes = await api.get(`/teacher/assignments/${selectedAssignment.id}`);
+        setSelectedAssignment(assignmentRes.data.assignment);
+      }
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to grade submission');
+    }
+  };
+
   useEffect(() => {
     fetchStudents(); // Always fetch students when component mounts
+    fetchClasses(); // Always fetch classes when component mounts
     
     if (activeTab === 'ptm') {
       fetchPTMs();
     }
+
+    if (activeTab === 'assignments') {
+      fetchAssignments();
+    }
   }, [activeTab]);
+
+  // Load classes and subjects once on component mount
+  useEffect(() => {
+    fetchClasses();
+  }, []);
 
   return (
     <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
@@ -244,6 +405,20 @@ export default function TeacherDashboard() {
           }}
         >
           Parent-Teacher Meetings
+        </button>
+        <button 
+          onClick={() => setActiveTab('assignments')}
+          style={{
+            padding: '10px 20px',
+            marginRight: '10px',
+            border: 'none',
+            backgroundColor: activeTab === 'assignments' ? '#007bff' : '#f8f9fa',
+            color: activeTab === 'assignments' ? 'white' : '#000',
+            cursor: 'pointer',
+            borderRadius: '4px 4px 0 0'
+          }}
+        >
+          Assignments
         </button>
       </div>
 
@@ -594,6 +769,334 @@ export default function TeacherDashboard() {
                   </div>
                 </div>
               ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'assignments' && (
+        <div style={{ padding: 20, backgroundColor: '#fff', border: '1px solid #ddd', borderTop: 'none' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h3 style={{ margin: 0 }}>Assignment Management</h3>
+            <button
+              onClick={() => setShowAssignmentForm(!showAssignmentForm)}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              {showAssignmentForm ? 'Cancel' : '+ Create Assignment'}
+            </button>
+          </div>
+
+          {showAssignmentForm && (
+            <div style={{ backgroundColor: '#f8f9fa', padding: 20, borderRadius: 4, marginBottom: 20 }}>
+              <h4>Create New Assignment</h4>
+              <form onSubmit={submitAssignment}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15, marginBottom: 15 }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Title:</label>
+                    <input
+                      type="text"
+                      value={assignmentForm.title}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, title: e.target.value})}
+                      required
+                      style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Type:</label>
+                    <select
+                      value={assignmentForm.assignment_type}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, assignment_type: e.target.value})}
+                      style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                    >
+                      <option value="homework">Homework</option>
+                      <option value="project">Project</option>
+                      <option value="group_work">Group Work</option>
+                      <option value="practice">Practice</option>
+                      <option value="extra_credit">Extra Credit</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 15 }}>
+                  <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Description:</label>
+                  <textarea
+                    value={assignmentForm.description}
+                    onChange={(e) => setAssignmentForm({...assignmentForm, description: e.target.value})}
+                    required
+                    rows={3}
+                    style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15, marginBottom: 15 }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Class:</label>
+                    <select
+                      value={assignmentForm.class_id}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, class_id: e.target.value, subject_id: ''})}
+                      required
+                      style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                    >
+                      <option value="">Select Class</option>
+                      {classes.map(cls => (
+                        <option key={cls.id} value={cls.id}>{cls.class_name} - {cls.section}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Subject:</label>
+                    <select
+                      value={assignmentForm.subject_id}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, subject_id: e.target.value})}
+                      required
+                      style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                      disabled={!assignmentForm.class_id}
+                    >
+                      <option value="">Select Subject</option>
+                      {assignmentForm.class_id && classes.find(c => c.id == assignmentForm.class_id)?.Subjects?.map(subject => (
+                        <option key={subject.id} value={subject.id}>{subject.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 15, marginBottom: 15 }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Due Date:</label>
+                    <input
+                      type="date"
+                      value={assignmentForm.due_date}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, due_date: e.target.value, submission_deadline: e.target.value})}
+                      required
+                      style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Max Marks:</label>
+                    <input
+                      type="number"
+                      value={assignmentForm.max_marks}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, max_marks: parseInt(e.target.value)})}
+                      min="1"
+                      style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Status:</label>
+                    <select
+                      value={assignmentForm.status}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, status: e.target.value})}
+                      style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 15 }}>
+                  <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Instructions:</label>
+                  <textarea
+                    value={assignmentForm.instructions}
+                    onChange={(e) => setAssignmentForm({...assignmentForm, instructions: e.target.value})}
+                    rows={2}
+                    style={{ width: '100%', padding: 8, border: '1px solid #ddd', borderRadius: 4 }}
+                    placeholder="Additional instructions for students..."
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, marginBottom: 15 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <input
+                      type="checkbox"
+                      checked={assignmentForm.is_graded}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, is_graded: e.target.checked})}
+                    />
+                    Graded Assignment
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <input
+                      type="checkbox"
+                      checked={assignmentForm.allow_late_submission}
+                      onChange={(e) => setAssignmentForm({...assignmentForm, allow_late_submission: e.target.checked})}
+                    />
+                    Allow Late Submission
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 4,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Create Assignment
+                </button>
+              </form>
+            </div>
+          )}
+
+          <div>
+            <h4>My Assignments</h4>
+            {assignments.length === 0 ? (
+              <p style={{ color: '#666', fontStyle: 'italic' }}>No assignments created yet.</p>
+            ) : (
+              <div style={{ display: 'grid', gap: 15 }}>
+                {assignments.map(assignment => (
+                  <div key={assignment.id} style={{ 
+                    border: '1px solid #ddd', 
+                    borderRadius: 4, 
+                    padding: 15,
+                    backgroundColor: assignment.status === 'published' ? '#f8fff8' : '#fff8f8'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 10 }}>
+                      <div>
+                        <h5 style={{ margin: '0 0 5px 0', color: '#333' }}>{assignment.title}</h5>
+                        <p style={{ margin: '0 0 5px 0', color: '#666', fontSize: '0.9em' }}>
+                          {assignment.class?.class_name} - {assignment.subject?.name} | {assignment.assignment_type}
+                        </p>
+                        <p style={{ margin: 0, color: '#888', fontSize: '0.8em' }}>
+                          Due: {new Date(assignment.due_date).toLocaleDateString()} | Max Marks: {assignment.max_marks}
+                        </p>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: 4,
+                          fontSize: '0.8em',
+                          backgroundColor: assignment.status === 'published' ? '#d4edda' : '#f8d7da',
+                          color: assignment.status === 'published' ? '#155724' : '#721c24'
+                        }}>
+                          {assignment.status}
+                        </span>
+                        {assignment.status === 'draft' && (
+                          <button
+                            onClick={() => publishAssignment(assignment.id)}
+                            style={{
+                              padding: '4px 8px',
+                              backgroundColor: '#28a745',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: 4,
+                              fontSize: '0.8em',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Publish
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setSelectedAssignment(selectedAssignment?.id === assignment.id ? null : assignment)}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 4,
+                            fontSize: '0.8em',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {selectedAssignment?.id === assignment.id ? 'Hide' : 'View'} Submissions
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <p style={{ margin: '10px 0 5px 0', color: '#555', fontSize: '0.9em' }}>
+                      {assignment.description}
+                    </p>
+                    
+                    {assignment.submissions && assignment.submissions.length > 0 && (
+                      <p style={{ margin: '5px 0 0 0', color: '#007bff', fontSize: '0.8em' }}>
+                        📋 {assignment.submissions.length} submission(s) received
+                      </p>
+                    )}
+
+                    {selectedAssignment?.id === assignment.id && assignment.submissions && (
+                      <div style={{ marginTop: 15, padding: 15, backgroundColor: '#f8f9fa', borderRadius: 4 }}>
+                        <h6 style={{ margin: '0 0 10px 0' }}>Submissions:</h6>
+                        {assignment.submissions.length === 0 ? (
+                          <p style={{ color: '#666', fontStyle: 'italic', margin: 0 }}>No submissions yet.</p>
+                        ) : (
+                          assignment.submissions.map(submission => (
+                            <div key={submission.id} style={{ 
+                              border: '1px solid #ddd', 
+                              borderRadius: 4, 
+                              padding: 10, 
+                              marginBottom: 10,
+                              backgroundColor: 'white'
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                                <div>
+                                  <strong>{submission.student?.name}</strong>
+                                  <p style={{ margin: '2px 0', fontSize: '0.8em', color: '#666' }}>
+                                    Submitted: {new Date(submission.submission_date).toLocaleString()}
+                                    {submission.is_late && <span style={{ color: '#dc3545' }}> (Late)</span>}
+                                  </p>
+                                  {submission.submission_text && (
+                                    <p style={{ margin: '5px 0', fontSize: '0.9em' }}>{submission.submission_text}</p>
+                                  )}
+                                </div>
+                                <span style={{
+                                  padding: '2px 6px',
+                                  borderRadius: 4,
+                                  fontSize: '0.7em',
+                                  backgroundColor: submission.status === 'graded' ? '#d4edda' : '#fff3cd',
+                                  color: submission.status === 'graded' ? '#155724' : '#856404'
+                                }}>
+                                  {submission.status}
+                                </span>
+                              </div>
+                              
+                              {submission.status === 'submitted' && assignment.is_graded && (
+                                <div style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
+                                  <input
+                                    type="number"
+                                    placeholder="Marks"
+                                    max={assignment.max_marks}
+                                    min="0"
+                                    style={{ width: 80, padding: 4, border: '1px solid #ddd', borderRadius: 4 }}
+                                    onBlur={(e) => {
+                                      if (e.target.value) {
+                                        const feedback = prompt('Enter feedback (optional):') || '';
+                                        gradeSubmission(submission.id, parseInt(e.target.value), feedback);
+                                      }
+                                    }}
+                                  />
+                                  <span style={{ fontSize: '0.8em', color: '#666' }}>/ {assignment.max_marks}</span>
+                                </div>
+                              )}
+                              
+                              {submission.marks_obtained !== null && (
+                                <div style={{ marginTop: 5, padding: 8, backgroundColor: '#e9f7ff', borderRadius: 4 }}>
+                                  <strong>Grade: {submission.marks_obtained}/{assignment.max_marks}</strong>
+                                  {submission.feedback && (
+                                    <p style={{ margin: '5px 0 0 0', fontSize: '0.8em' }}>
+                                      Feedback: {submission.feedback}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
