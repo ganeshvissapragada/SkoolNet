@@ -11,6 +11,8 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      
+      {/* Protected Routes */}
       <Route
         path="/admin"
         element={
@@ -43,6 +45,9 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      
+      {/* Redirect root to login */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

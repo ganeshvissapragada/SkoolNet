@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import AuthProvider from './auth/AuthContext.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import './index.css';
 
 // Unregister any existing service workers to prevent caching issues
 if ('serviceWorker' in navigator) {

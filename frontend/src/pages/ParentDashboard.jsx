@@ -1,6 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
 import api from '../api/api.js';
 import { AuthContext } from '../auth/AuthContext.jsx';
+import attendanceIcon from '../assets/icons/attendance.png';
+import marksIcon from '../assets/icons/marks.png';
+import ptmIcon from '../assets/icons/ptm.png';
+import scholarshipsIcon from '../assets/icons/scholarships.png';
+import mealsIcon from '../assets/icons/meals.png';
+import assignmentsIcon from '../assets/icons/assignments.png';
 
 export default function ParentDashboard() {
   const { userId } = useContext(AuthContext);
@@ -220,36 +226,43 @@ export default function ParentDashboard() {
     cardContainer: {
       padding: '20px',
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-      gap: '20px',
-      maxWidth: '1200px',
+      gridTemplateColumns: 'repeat(2, 1fr)',
+      gap: '16px',
+      maxWidth: '480px',
       margin: '0 auto'
     },
     card: {
       backgroundColor: 'white',
-      borderRadius: '15px',
-      padding: '20px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      borderRadius: '12px',
+      padding: '16px 12px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       textAlign: 'center',
-      border: '1px solid #e1e8ed'
+      border: '1px solid #e1e8ed',
+      minHeight: '120px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     cardIcon: {
-      fontSize: '48px',
-      marginBottom: '15px',
+      fontSize: '32px',
+      marginBottom: '8px',
       display: 'block'
     },
     cardTitle: {
-      fontSize: '20px',
-      fontWeight: 'bold',
-      marginBottom: '10px',
-      color: '#2c3e50'
+      fontSize: '14px',
+      fontWeight: '600',
+      marginBottom: '4px',
+      color: '#2c3e50',
+      lineHeight: '1.2'
     },
     cardDescription: {
-      fontSize: '14px',
+      fontSize: '12px',
       color: '#7f8c8d',
-      lineHeight: '1.4'
+      lineHeight: '1.3',
+      display: 'none' // Hide description on smaller cards
     },
     detailsContainer: {
       padding: '20px',
@@ -261,7 +274,7 @@ export default function ParentDashboard() {
   const cards = [
     {
       id: 'attendance',
-      icon: '📚',
+      icon: attendanceIcon,
       title: texts.attendance,
       description: 'మీ పిల్లవాడి రోజువారీ హాజరు రికార్డులను చూడండి',
       color: '#3498db',
@@ -269,7 +282,7 @@ export default function ParentDashboard() {
     },
     {
       id: 'marks',
-      icon: '📊',
+      icon: marksIcon,
       title: texts.marks,
       description: 'మీ పిల్లవాడి పరీక్ష మార్కులు మరియు గ్రేడ్‌లను చూడండి',
       color: '#e74c3c',
@@ -277,7 +290,7 @@ export default function ParentDashboard() {
     },
     {
       id: 'ptm',
-      icon: '👨‍👩‍👧‍👦',
+      icon: ptmIcon,
       title: texts.ptm,
       description: 'టీచర్‌తో సమావేశాలను వీక్షించండి మరియు ధృవీకరించండి',
       color: '#9b59b6',
@@ -285,7 +298,7 @@ export default function ParentDashboard() {
     },
     {
       id: 'scholarships',
-      icon: '🏆',
+      icon: scholarshipsIcon,
       title: texts.scholarships,
       description: 'మీ పిల్లవాడికి లభ్యమైన స్కాలర్‌షిప్‌లను చూడండి',
       color: '#f39c12',
@@ -293,7 +306,7 @@ export default function ParentDashboard() {
     },
     {
       id: 'meals',
-      icon: '🍽️',
+      icon: mealsIcon,
       title: texts.meals,
       description: 'రోజువారీ భోజన ప్రణాళిక మరియు పోషకాహారాన్ని చూడండి',
       color: '#27ae60',
@@ -301,7 +314,7 @@ export default function ParentDashboard() {
     },
     {
       id: 'assignments',
-      icon: '📋',
+      icon: assignmentsIcon,
       title: texts.assignments,
       description: 'మీ పిల్లవాడి గృహపాఠాలు మరియు సమర్పణలను చూడండి',
       color: '#8e44ad',
@@ -325,24 +338,22 @@ export default function ParentDashboard() {
           }}
         >
           <div style={{...mobileStyles.cardIcon, color: card.color}}>
-            {card.icon}
+            {typeof card.icon === 'string' && (card.icon.includes('.png') || card.icon.includes('.svg')) ? (
+              <img 
+                src={card.icon} 
+                alt={card.title}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  objectFit: 'contain'
+                }}
+              />
+            ) : (
+              card.icon
+            )}
           </div>
           <div style={mobileStyles.cardTitle}>
             {card.title}
-          </div>
-          <div style={mobileStyles.cardDescription}>
-            {card.description}
-          </div>
-          <div style={{
-            marginTop: '15px',
-            padding: '8px 16px',
-            backgroundColor: card.color,
-            color: 'white',
-            borderRadius: '20px',
-            fontSize: '14px',
-            fontWeight: 'bold'
-          }}>
-            {texts.viewDetails}
           </div>
         </div>
       ))}
