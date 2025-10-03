@@ -545,6 +545,11 @@ export default function AdminDashboard() {
     setSubjectForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const onAssignmentFormChange = (e) => {
+    const { name, value } = e.target;
+    setAssignmentForm(prev => ({ ...prev, [name]: value }));
+  };
+
   // Attendance Management Functions
   const loadAttendanceData = async () => {
     setError('');
