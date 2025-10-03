@@ -9,6 +9,7 @@ const MealConsumption = require('./mealConsumption');
 // Import assignment models
 const Assignment = require('./assignment');
 const AssignmentSubmission = require('./assignmentSubmission');
+const TeacherAssignment = require('./teacherAssignment');
 
 const User = sequelize.define('User', {
   name: DataTypes.STRING,
@@ -26,8 +27,8 @@ const Subject = sequelize.define('Subject', {
   name: DataTypes.STRING
 });
 
-Subject.belongsTo(Class, { foreignKey: 'class_id' });
-Class.hasMany(Subject, { foreignKey: 'class_id' });
+Subject.belongsTo(Class, { as: 'Class', foreignKey: 'class_id' });
+Class.hasMany(Subject, { as: 'Subjects', foreignKey: 'class_id' });
 
 const Student = sequelize.define('Student', {
   name: DataTypes.STRING,
@@ -226,6 +227,15 @@ Student.hasMany(AssignmentSubmission, { as: 'submissions', foreignKey: 'student_
 User.hasMany(AssignmentSubmission, { as: 'submitted_assignments', foreignKey: 'submitted_by' });
 User.hasMany(AssignmentSubmission, { as: 'graded_submissions', foreignKey: 'graded_by' });
 
+// Teacher Assignment associations
+TeacherAssignment.belongsTo(User, { as: 'teacher', foreignKey: 'teacher_id' });
+TeacherAssignment.belongsTo(Class, { as: 'class', foreignKey: 'class_id' });
+TeacherAssignment.belongsTo(Subject, { as: 'subject', foreignKey: 'subject_id' });
+
+User.hasMany(TeacherAssignment, { as: 'teacher_assignments', foreignKey: 'teacher_id' });
+Class.hasMany(TeacherAssignment, { as: 'teacher_assignments', foreignKey: 'class_id' });
+Subject.hasMany(TeacherAssignment, { as: 'teacher_assignments', foreignKey: 'subject_id' });
+
 module.exports = {
   sequelize,
   User,
@@ -238,5 +248,6 @@ module.exports = {
   InventoryItem,
   MealConsumption,
   Assignment,
-  AssignmentSubmission
+  AssignmentSubmission,
+  TeacherAssignment
 };

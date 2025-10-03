@@ -40,7 +40,7 @@ class ErrorBoundary extends React.Component {
               overflow: 'auto',
               fontSize: '0.8em'
             }}>
-              {this.state.errorInfo.componentStack}
+              {this.state.errorInfo?.componentStack || 'No error details available'}
             </pre>
           </details>
           <button 

@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/api.js';
 
 export default function TeacherDashboard() {
+  // Teacher Assignments - Now loaded from backend
+  const [teacherAssignments, setTeacherAssignments] = useState([]);
+  const [assignedClasses, setAssignedClasses] = useState([]);
+  const [assignedSubjects, setAssignedSubjects] = useState([]);
+  
   // Class and Section Management
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSection, setSelectedSection] = useState('');
-  const [availableClasses] = useState(['6', '7', '8', '9', '10']);
-  const [availableSections] = useState(['A', 'B']);
   
   // Student Data
   const [students, setStudents] = useState([]);
@@ -115,6 +118,43 @@ export default function TeacherDashboard() {
       filterStudents(res.data.students || []);
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to fetch students');
+    }
+  };
+
+  const fetchTeacherAssignments = async () => {
+    try {
+      const res = await api.get('/teacher/my-assignments');
+      setTeacherAssignments(res.data.assignments || []);
+      
+      // Extract unique classes and subjects from assignments
+      const uniqueClasses = [];
+      const uniqueSubjects = [];
+      
+      res.data.assignmentsByClass?.forEach(assignment => {
+        // Add unique classes
+        const classKey = `${assignment.class.class_name}-${assignment.class.section}`;
+        if (!uniqueClasses.find(c => `${c.class_name}-${c.section}` === classKey)) {
+          uniqueClasses.push(assignment.class);
+        }
+        
+        // Add unique subjects
+        assignment.subjects?.forEach(subject => {
+          if (!uniqueSubjects.find(s => s.id === subject.id)) {
+            uniqueSubjects.push(subject);
+          }
+        });
+      });
+      
+      setAssignedClasses(uniqueClasses);
+      setAssignedSubjects(uniqueSubjects);
+      
+      // Auto-select first assigned class if none selected
+      if (uniqueClasses.length > 0 && !selectedClass) {
+        setSelectedClass(uniqueClasses[0].class_name);
+        setSelectedSection(uniqueClasses[0].section);
+      }
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to fetch teacher assignments');
     }
   };
 
@@ -341,6 +381,7 @@ export default function TeacherDashboard() {
   };
 
   useEffect(() => {
+    fetchTeacherAssignments(); // Load teacher assignments first
     fetchStudents(); // Always fetch students when component mounts
     fetchClasses(); // Always fetch classes when component mounts
     
@@ -353,8 +394,9 @@ export default function TeacherDashboard() {
     }
   }, [activeTab]);
 
-  // Load classes and subjects once on component mount
+  // Load teacher assignments and classes once on component mount
   useEffect(() => {
+    fetchTeacherAssignments();
     fetchClasses();
   }, []);
 
@@ -445,8 +487,10 @@ export default function TeacherDashboard() {
                 style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
               >
                 <option value="">Select Class</option>
-                {availableClasses.map(cls => (
-                  <option key={cls} value={cls}>Class {cls}</option>
+                {assignedClasses.map(cls => (
+                  <option key={`${cls.class_name}-${cls.section}`} value={cls.class_name}>
+                    Class {cls.class_name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -458,9 +502,13 @@ export default function TeacherDashboard() {
                 style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
               >
                 <option value="">Select Section</option>
-                {availableSections.map(sec => (
-                  <option key={sec} value={sec}>Section {sec}</option>
-                ))}
+                {assignedClasses
+                  .filter(cls => cls.class_name === selectedClass)
+                  .map(cls => (
+                    <option key={cls.section} value={cls.section}>
+                      Section {cls.section}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -538,8 +586,10 @@ export default function TeacherDashboard() {
                 style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
               >
                 <option value="">Select Class</option>
-                {availableClasses.map(cls => (
-                  <option key={cls} value={cls}>Class {cls}</option>
+                {assignedClasses.map(cls => (
+                  <option key={`${cls.class_name}-${cls.section}`} value={cls.class_name}>
+                    Class {cls.class_name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -551,9 +601,13 @@ export default function TeacherDashboard() {
                 style={{ width: '100%', padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
               >
                 <option value="">Select Section</option>
-                {availableSections.map(sec => (
-                  <option key={sec} value={sec}>Section {sec}</option>
-                ))}
+                {assignedClasses
+                  .filter(cls => cls.class_name === selectedClass)
+                  .map(cls => (
+                    <option key={cls.section} value={cls.section}>
+                      Section {cls.section}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -573,13 +627,29 @@ export default function TeacherDashboard() {
               ))}
             </select>
             
-            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Subject ID</label>
-            <input
-              placeholder="Subject ID (e.g., 1 for Math, 2 for Science)"
+            <label style={{ display: 'block', marginBottom: 4, fontWeight: 'bold' }}>Subject</label>
+            <select
               value={marks.subjectId}
               onChange={(e) => setMarks((m) => ({ ...m, subjectId: e.target.value }))}
               style={{ width: '100%', marginBottom: 8, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
-            />
+            >
+              <option value="">Select Subject</option>
+              {assignedSubjects
+                .filter(subject => {
+                  // Show subjects that are assigned to the selected class
+                  if (!selectedClass || !selectedSection) return true;
+                  return teacherAssignments.some(assignment => 
+                    assignment.class.class_name === selectedClass && 
+                    assignment.class.section === selectedSection &&
+                    assignment.subject.id === subject.id
+                  );
+                })
+                .map(subject => (
+                  <option key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </option>
+                ))}
+            </select>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 8 }}>
               <div>

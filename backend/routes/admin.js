@@ -13,7 +13,20 @@ const {
   getMealPlans,
   getMealDashboard,
   getMealFeedback,
-  getAllMealFeedback
+  getAllMealFeedback,
+  createClass,
+  getAllClasses,
+  deleteClass,
+  createSubject,
+  getAllSubjects,
+  deleteSubject,
+  getClassesAndSubjects,
+  getTeachers,
+  createTeacherAssignment,
+  getTeacherAssignments,
+  updateTeacherAssignment,
+  deleteTeacherAssignment,
+  getAttendanceData
 } = require('../controllers/adminController');
 
 router.post('/users', auth(['admin']), createUser);
@@ -35,5 +48,26 @@ router.get('/meal-dashboard', auth(['admin']), getMealDashboard);
 // Meal feedback routes
 router.get('/meal-feedback/:mealPlanId', auth(['admin']), getMealFeedback);
 router.get('/meal-feedback', auth(['admin']), getAllMealFeedback);
+
+// Class management routes
+router.post('/classes', auth(['admin']), createClass);
+router.get('/classes', auth(['admin']), getAllClasses);
+router.delete('/classes/:id', auth(['admin']), deleteClass);
+
+// Subject management routes
+router.post('/subjects', auth(['admin']), createSubject);
+router.get('/subjects', auth(['admin']), getAllSubjects);
+router.delete('/subjects/:id', auth(['admin']), deleteSubject);
+
+// Teacher assignment routes
+router.get('/classes-subjects', auth(['admin']), getClassesAndSubjects);
+router.get('/teachers', auth(['admin']), getTeachers);
+router.post('/teacher-assignments', auth(['admin']), createTeacherAssignment);
+router.get('/teacher-assignments', auth(['admin']), getTeacherAssignments);
+router.put('/teacher-assignments/:assignmentId', auth(['admin']), updateTeacherAssignment);
+router.delete('/teacher-assignments/:assignmentId', auth(['admin']), deleteTeacherAssignment);
+
+// Attendance management routes
+router.get('/attendance', auth(['admin']), getAttendanceData);
 
 module.exports = router;

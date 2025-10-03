@@ -91,18 +91,6 @@ export default function AdminDashboard() {
   });
   const [students, setStudents] = useState([]);
 
-  // Class and Subject Management State
-  const [classes, setClasses] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [classForm, setClassForm] = useState({
-    class_name: '',
-    section: ''
-  });
-  const [subjectForm, setSubjectForm] = useState({
-    name: '',
-    class_id: ''
-  });
-
   const onChange = (e) => {
     const { name, value } = e.target;
     if (name.startsWith('student.')) {
@@ -359,11 +347,6 @@ export default function AdminDashboard() {
       loadMealDashboard();
     } else if (activeTab === 'users') {
       loadUsers();
-    } else if (activeTab === 'classes') {
-      loadClasses();
-    } else if (activeTab === 'subjects') {
-      loadSubjects();
-      loadClasses(); // Load classes for the dropdown
     } else if (activeTab === 'teacher-assignments') {
       loadTeacherAssignments();
       loadTeachers();
@@ -440,109 +423,278 @@ export default function AdminDashboard() {
     }
   };
 
-  // Class and Subject Management Functions
-  const loadClasses = async () => {
+  // Attendance Management Functions
+  const loadAttendanceData = async () => {
+    setError('');
     try {
-      const res = await api.get('/admin/classes');
-      setClasses(res.data);
+      const queryParams = new URLSearchParams();
+      
+      Object.entries(attendanceFilters).forEach(([key, value]) => {
+        if (value) {
+          queryParams.append(key, value);
+        }
+      });
+      
+      const res = await api.get(`/admin/attendance?${queryParams.toString()}`);
+      setAttendanceData(res.data.records || []);
+      setAttendanceStats(res.data.stats || {
+        total: 0,
+        present: 0,
+        absent: 0,
+        presentPercentage: 0
+      });
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load classes');
+      setError(err?.response?.data?.message || 'Failed to load attendance data');
     }
   };
 
-  const loadSubjects = async () => {
+  const loadStudents = async () => {
     try {
-      const res = await api.get('/admin/subjects');
-      setSubjects(res.data);
+      const res = await api.get('/admin/users');
+      const studentUsers = res.data.filter(user => user.role === 'student');
+      setStudents(studentUsers);
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load subjects');
+      console.error('Failed to load students:', err);
     }
   };
 
-  const submitClass = async (e) => {
+  const onAttendanceFilterChange = (e) => {
+    const { name, value } = e.target;
+    setAttendanceFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const clearAttendanceFilters = () => {
+    setAttendanceFilters({
+      teacher_id: '',
+      class_name: '',
+      section: '',
+      student_id: '',
+      date_from: '',
+      date_to: ''
+    });
+    setAttendanceData([]);
+    setAttendanceStats({
+      total: 0,
+      present: 0,
+      absent: 0,
+      presentPercentage: 0
+    });
+  };
+
+  const loadMealDashboard = async () => {
+    try {
+      const res = await api.get('/admin/meal-dashboard');
+      setMealDashboard(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load meal dashboard');
+    }
+  };
+
+  const loadMealPlans = async () => {
+    try {
+      const res = await api.get('/admin/meal-plans');
+      setMealPlans(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load meal plans');
+    }
+  };
+
+  const loadMealFeedback = async (mealPlanId) => {
+    try {
+      const res = await api.get(`/admin/meal-feedback/${mealPlanId}`);
+      setMealFeedbacks(prev => ({
+        ...prev,
+        [mealPlanId]: res.data
+      }));
+    } catch (err) {
+      console.error('Failed to load meal feedback:', err);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const res = await api.get('/admin/users');
+      setUsers(res.data);
+    } catch (err) {
+      console.error('Failed to load users:', err);
+      setError('Failed to load users');
+    }
+  };
+
+  const submitMealPlan = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const res = await api.post('/admin/classes', classForm);
-      setResult({
-        success: true,
-        message: `✅ Class "${res.data.class.class_name} - ${res.data.class.section}" created successfully!`,
-        class: res.data.class
+      const payload = {
+        ...mealForm,
+        items: mealForm.items.filter(item => item.trim() !== ''),
+        allergens: mealForm.allergens.filter(allergen => allergen.trim() !== ''),
+        total_quantity_planned: parseInt(mealForm.total_quantity_planned),
+        cost_per_meal: parseFloat(mealForm.cost_per_meal)
+      };
+      
+      const res = await api.post('/admin/meal-plans', payload);
+      setResult(res.data);
+      setMealForm({
+        date: new Date().toISOString().split('T')[0],
+        meal_name: '',
+        description: '',
+        items: [''],
+        nutritional_info: {
+          calories: '',
+          protein: '',
+          carbohydrates: '',
+          fat: '',
+          fiber: '',
+          vitamins: ''
+        },
+        allergens: [''],
+        meal_type: 'lunch',
+        total_quantity_planned: '',
+        cost_per_meal: '',
+        special_notes: ''
       });
-      setClassForm({
-        class_name: '',
-        section: ''
-      });
-      loadClasses();
-      loadClassesAndSubjects(); // Refresh the combined data for teacher assignments
+      loadMealPlans();
+      loadMealDashboard();
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to create class');
+      setError(err?.response?.data?.message || 'Failed to create meal plan');
     }
   };
 
-  const submitSubject = async (e) => {
+  const onMealFormChange = (e) => {
+    const { name, value } = e.target;
+    if (name.startsWith('nutritional_info.')) {
+      const key = name.split('.')[1];
+      setMealForm(prev => ({
+        ...prev,
+        nutritional_info: { ...prev.nutritional_info, [key]: value }
+      }));
+    } else {
+      setMealForm(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const addMealItem = () => {
+    setMealForm(prev => ({ ...prev, items: [...prev.items, ''] }));
+  };
+
+  const removeMealItem = (index) => {
+    setMealForm(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateMealItem = (index, value) => {
+    setMealForm(prev => ({
+      ...prev,
+      items: prev.items.map((item, i) => i === index ? value : item)
+    }));
+  };
+
+  const addAllergen = () => {
+    setMealForm(prev => ({ ...prev, allergens: [...prev.allergens, ''] }));
+  };
+
+  const removeAllergen = (index) => {
+    setMealForm(prev => ({
+      ...prev,
+      allergens: prev.allergens.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateAllergen = (index, value) => {
+    setMealForm(prev => ({
+      ...prev,
+      allergens: prev.allergens.map((allergen, i) => i === index ? value : allergen)
+    }));
+  };
+
+  useEffect(() => {
+    if (activeTab === 'scholarships') {
+      fetchScholarships();
+    } else if (activeTab === 'meals') {
+      loadMealPlans();
+      loadMealDashboard();
+    } else if (activeTab === 'users') {
+      loadUsers();
+    } else if (activeTab === 'teacher-assignments') {
+      loadTeacherAssignments();
+      loadTeachers();
+      loadClassesAndSubjects();
+    } else if (activeTab === 'attendance') {
+      loadStudents();
+      loadAttendanceData();
+    }
+  }, [activeTab]);
+
+  // Teacher Assignment Functions
+  const loadTeacherAssignments = async () => {
+    try {
+      const res = await api.get('/admin/teacher-assignments');
+      setTeacherAssignments(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load teacher assignments');
+    }
+  };
+
+  const loadTeachers = async () => {
+    try {
+      const res = await api.get('/admin/teachers');
+      setTeachers(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load teachers');
+    }
+  };
+
+  const loadClassesAndSubjects = async () => {
+    try {
+      const res = await api.get('/admin/classes-subjects');
+      setClassesAndSubjects(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Failed to load classes and subjects');
+    }
+  };
+
+  const submitTeacherAssignment = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const res = await api.post('/admin/subjects', subjectForm);
+      const res = await api.post('/admin/teacher-assignments', assignmentForm);
       setResult({
         success: true,
-        message: `✅ Subject "${res.data.subject.name}" created successfully!`,
-        subject: res.data.subject
+        message: `✅ Teacher assignment created successfully!`,
+        assignment: res.data.assignment
       });
-      setSubjectForm({
-        name: '',
-        class_id: ''
+      setAssignmentForm({
+        teacher_id: '',
+        class_id: '',
+        subject_id: '',
+        academic_year: new Date().getFullYear().toString()
       });
-      loadSubjects();
-      loadClassesAndSubjects(); // Refresh the combined data for teacher assignments
+      loadTeacherAssignments();
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to create subject');
+      setError(err?.response?.data?.message || 'Failed to create teacher assignment');
     }
   };
 
-  const deleteClass = async (classId) => {
-    if (!window.confirm('Are you sure you want to delete this class? This will also remove all associated subjects and teacher assignments.')) {
+  const deleteTeacherAssignment = async (assignmentId) => {
+    if (!window.confirm('Are you sure you want to remove this teacher assignment?')) {
       return;
     }
     try {
-      const res = await api.delete(`/admin/classes/${classId}`);
+      const res = await api.delete(`/admin/teacher-assignments/${assignmentId}`);
       setResult({
         success: true,
-        message: '✅ Class deleted successfully!'
+        message: '✅ Teacher assignment removed successfully!'
       });
-      loadClasses();
-      loadClassesAndSubjects();
+      loadTeacherAssignments();
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to delete class');
+      setError(err?.response?.data?.message || 'Failed to remove teacher assignment');
     }
-  };
-
-  const deleteSubject = async (subjectId) => {
-    if (!window.confirm('Are you sure you want to delete this subject? This will also remove any teacher assignments for this subject.')) {
-      return;
-    }
-    try {
-      const res = await api.delete(`/admin/subjects/${subjectId}`);
-      setResult({
-        success: true,
-        message: '✅ Subject deleted successfully!'
-      });
-      loadSubjects();
-      loadClassesAndSubjects();
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to delete subject');
-    }
-  };
-
-  const onClassFormChange = (e) => {
-    const { name, value } = e.target;
-    setClassForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const onSubjectFormChange = (e) => {
-    const { name, value } = e.target;
-    setSubjectForm(prev => ({ ...prev, [name]: value }));
   };
 
   // Attendance Management Functions
@@ -606,6 +758,7 @@ export default function AdminDashboard() {
     });
   };
 
+  // Helper function to calculate days remaining
   const getDaysRemaining = (deadline) => {
     const now = new Date();
     const deadlineDate = new Date(deadline);
@@ -689,34 +842,6 @@ export default function AdminDashboard() {
           }}
         >
           🍽️ Meals
-        </button>
-        <button 
-          onClick={() => setActiveTab('classes')}
-          style={{
-            padding: '10px 20px',
-            margin: '0 5px',
-            borderRadius: '5px',
-            border: '1px solid #ccc',
-            backgroundColor: activeTab === 'classes' ? '#007bff' : '#f8f9fa',
-            color: activeTab === 'classes' ? 'white' : '#000',
-            cursor: 'pointer'
-          }}
-        >
-          📚 Classes
-        </button>
-        <button 
-          onClick={() => setActiveTab('subjects')}
-          style={{
-            padding: '10px 20px',
-            margin: '0 5px',
-            borderRadius: '5px',
-            border: '1px solid #ccc',
-            backgroundColor: activeTab === 'subjects' ? '#007bff' : '#f8f9fa',
-            color: activeTab === 'subjects' ? 'white' : '#000',
-            cursor: 'pointer'
-          }}
-        >
-          📖 Subjects
         </button>
         <button 
           onClick={() => setActiveTab('teacher-assignments')}
@@ -1697,299 +1822,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {activeTab === 'classes' && (
-        <div style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '10px', 
-          padding: '30px', 
-          boxShadow: '0 4px 15px rgba(0,0,0,0.1)', 
-          marginBottom: '20px' 
-        }}>
-          <h3 style={{ color: '#2c3e50', marginBottom: '25px', textAlign: 'center' }}>
-            📚 Class Management
-          </h3>
-
-          {/* Class Creation Form */}
-          <div style={{ 
-            backgroundColor: '#f8f9fa', 
-            borderRadius: '8px', 
-            padding: '20px', 
-            marginBottom: '30px',
-            border: '1px solid #dee2e6'
-          }}>
-            <h4 style={{ color: '#495057', marginBottom: '20px' }}>Create New Class</h4>
-            <form onSubmit={submitClass} style={{ display: 'flex', gap: '15px', alignItems: 'end', flexWrap: 'wrap' }}>
-              <div style={{ minWidth: '200px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#495057' }}>
-                  Class Name *
-                </label>
-                <input
-                  type="text"
-                  name="class_name"
-                  value={classForm.class_name}
-                  onChange={onClassFormChange}
-                  placeholder="e.g., 1st, 2nd, 10th"
-                  required
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    width: '100%'
-                  }}
-                />
-              </div>
-              <div style={{ minWidth: '150px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#495057' }}>
-                  Section *
-                </label>
-                <input
-                  type="text"
-                  name="section"
-                  value={classForm.section}
-                  onChange={onClassFormChange}
-                  placeholder="e.g., A, B, C"
-                  required
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    width: '100%'
-                  }}
-                />
-              </div>
-              <button
-                type="submit"
-                style={{
-                  padding: '10px 20px',
-                  backgroundColor: '#28a745',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold'
-                }}
-              >
-                Create Class
-              </button>
-            </form>
-          </div>
-
-          {/* Classes List */}
-          <div>
-            <h4 style={{ color: '#495057', marginBottom: '20px' }}>Existing Classes</h4>
-            {!Array.isArray(classes) || classes.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#6c757d', fontStyle: 'italic' }}>
-                No classes found. Create your first class above.
-              </p>
-            ) : (
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-                gap: '20px' 
-              }}>
-                {classes.map(classItem => (
-                  <div
-                    key={classItem.id}
-                    style={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #dee2e6',
-                      borderRadius: '8px',
-                      padding: '20px',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                      <h5 style={{ color: '#2c3e50', margin: 0 }}>
-                        {classItem.class_name} - {classItem.section}
-                      </h5>
-                      <button
-                        onClick={() => deleteClass(classItem.id)}
-                        style={{
-                          padding: '5px 10px',
-                          backgroundColor: '#dc3545',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                    <div style={{ color: '#6c757d', fontSize: '14px' }}>
-                      <strong>Subjects:</strong> {classItem.Subjects?.length || 0} subject(s)
-                      {classItem.Subjects && classItem.Subjects.length > 0 && (
-                        <div style={{ marginTop: '10px' }}>
-                          {classItem.Subjects.map(subject => (
-                            <span
-                              key={subject.id}
-                              style={{
-                                display: 'inline-block',
-                                backgroundColor: '#e9ecef',
-                                color: '#495057',
-                                padding: '3px 8px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                margin: '2px',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              {subject.name}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'subjects' && (
-        <div style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '10px', 
-          padding: '30px', 
-          boxShadow: '0 4px 15px rgba(0,0,0,0.1)', 
-          marginBottom: '20px' 
-        }}>
-          <h3 style={{ color: '#2c3e50', marginBottom: '25px', textAlign: 'center' }}>
-            📖 Subject Management
-          </h3>
-
-          {/* Subject Creation Form */}
-          <div style={{ 
-            backgroundColor: '#f8f9fa', 
-            borderRadius: '8px', 
-            padding: '20px', 
-            marginBottom: '30px',
-            border: '1px solid #dee2e6'
-          }}>
-            <h4 style={{ color: '#495057', marginBottom: '20px' }}>Create New Subject</h4>
-            <form onSubmit={submitSubject} style={{ display: 'flex', gap: '15px', alignItems: 'end', flexWrap: 'wrap' }}>
-              <div style={{ minWidth: '200px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#495057' }}>
-                  Subject Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={subjectForm.name}
-                  onChange={onSubjectFormChange}
-                  placeholder="e.g., Mathematics, Science"
-                  required
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    width: '100%'
-                  }}
-                />
-              </div>
-              <div style={{ minWidth: '200px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#495057' }}>
-                  Class *
-                </label>
-                <select
-                  name="class_id"
-                  value={subjectForm.class_id}
-                  onChange={onSubjectFormChange}
-                  required
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    width: '100%'
-                  }}
-                >
-                  <option value="">Select a class</option>
-                  {Array.isArray(classes) && classes.map(classItem => (
-                    <option key={classItem.id} value={classItem.id}>
-                      {classItem.class_name} - {classItem.section}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                type="submit"
-                style={{
-                  padding: '10px 20px',
-                  backgroundColor: '#17a2b8',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold'
-                }}
-              >
-                Create Subject
-              </button>
-            </form>
-            {classes.length === 0 && (
-              <p style={{ marginTop: '10px', color: '#dc3545', fontSize: '14px' }}>
-                ⚠️ Please create classes first before adding subjects.
-              </p>
-            )}
-          </div>
-
-          {/* Subjects List */}
-          <div>
-            <h4 style={{ color: '#495057', marginBottom: '20px' }}>Existing Subjects</h4>
-            {!Array.isArray(subjects) || subjects.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#6c757d', fontStyle: 'italic' }}>
-                No subjects found. Create your first subject above.
-              </p>
-            ) : (
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-                gap: '20px' 
-              }}>
-                {subjects.map(subject => (
-                  <div
-                    key={subject.id}
-                    style={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #dee2e6',
-                      borderRadius: '8px',
-                      padding: '20px',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                      <h5 style={{ color: '#2c3e50', margin: 0 }}>
-                        {subject.name}
-                      </h5>
-                      <button
-                        onClick={() => deleteSubject(subject.id)}
-                        style={{
-                          padding: '5px 10px',
-                          backgroundColor: '#dc3545',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                    <div style={{ color: '#6c757d', fontSize: '14px' }}>
-                      <strong>Class:</strong> {subject.Class ? `${subject.Class.class_name} - ${subject.Class.section}` : 'No class assigned'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {activeTab === 'teacher-assignments' && (
         <div style={{ 
           backgroundColor: 'white', 
@@ -2028,7 +1860,7 @@ export default function AdminDashboard() {
                   }}
                 >
                   <option value="">Select Teacher</option>
-                  {Array.isArray(teachers) && teachers.map(teacher => (
+                  {teachers.map(teacher => (
                     <option key={teacher.id} value={teacher.id}>
                       {teacher.name} ({teacher.email})
                     </option>
@@ -2054,7 +1886,7 @@ export default function AdminDashboard() {
                   }}
                 >
                   <option value="">Select Class</option>
-                  {Array.isArray(classesAndSubjects) && classesAndSubjects.map(cls => (
+                  {classesAndSubjects.map(cls => (
                     <option key={cls.id} value={cls.id}>
                       Class {cls.class_name} - Section {cls.section}
                     </option>
@@ -2068,7 +1900,7 @@ export default function AdminDashboard() {
                 </label>
                 <select
                   name="subject_id"
-                  value={assignmentForm.subject_id}
+                                   value={assignmentForm.subject_id}
                   onChange={onAssignmentFormChange}
                   required
                   style={{

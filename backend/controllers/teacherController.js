@@ -1,6 +1,6 @@
 const Attendance = require('../models/mongo/attendance');
 const Marks = require('../models/mongo/marks');
-const { PTM, User, Student, Assignment, AssignmentSubmission, Class, Subject } = require('../models/postgres');
+const { PTM, User, Student, Assignment, AssignmentSubmission, Class, Subject, TeacherAssignment } = require('../models/postgres');
 
 exports.addAttendance = async (req, res) => {
   try {
@@ -318,32 +318,60 @@ exports.createAssignment = async (req, res) => {
 // Get all assignments for a teacher
 exports.getMyAssignments = async (req, res) => {
   try {
-    const { status, class_id } = req.query;
-    const whereClause = { teacher_id: req.user.id };
+    const teacherId = req.user.id;
+    const { academic_year } = req.query;
     
-    if (status) whereClause.status = status;
-    if (class_id) whereClause.class_id = class_id;
+    const whereClause = { 
+      teacher_id: teacherId,
+      is_active: true
+    };
+    
+    if (academic_year) {
+      whereClause.academic_year = academic_year;
+    }
 
-    const assignments = await Assignment.findAll({
+    const assignments = await TeacherAssignment.findAll({
       where: whereClause,
       include: [
-        { model: Class, as: 'class' },
-        { model: Subject, as: 'subject' },
         { 
-          model: AssignmentSubmission, 
-          as: 'submissions', 
+          model: Class, 
+          as: 'class', 
+          attributes: ['id', 'class_name', 'section'],
           include: [
-            { model: Student, as: 'student' },
-            { model: User, as: 'submitted_by_user', attributes: ['id', 'name'] }
+            { 
+              model: Subject, 
+              as: 'Subjects',
+              attributes: ['id', 'name']
+            }
           ]
-        }
+        },
+        { model: Subject, as: 'subject', attributes: ['id', 'name'] }
       ],
-      order: [['createdAt', 'DESC']]
+      order: [
+        [{ model: Class, as: 'class' }, 'class_name', 'ASC'],
+        [{ model: Subject, as: 'subject' }, 'name', 'ASC']
+      ]
     });
 
-    res.json({ assignments });
+    // Group by class to make it easier for frontend
+    const groupedAssignments = {};
+    assignments.forEach(assignment => {
+      const classKey = `${assignment.class.class_name}-${assignment.class.section}`;
+      if (!groupedAssignments[classKey]) {
+        groupedAssignments[classKey] = {
+          class: assignment.class,
+          subjects: []
+        };
+      }
+      groupedAssignments[classKey].subjects.push(assignment.subject);
+    });
+
+    res.json({
+      assignments,
+      groupedAssignments: Object.values(groupedAssignments)
+    });
   } catch (error) {
-    console.error('Get assignments error:', error);
+    console.error('Get teacher assignments error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -511,6 +539,67 @@ exports.getClassesAndSubjects = async (req, res) => {
     res.json({ classes });
   } catch (error) {
     console.error('Get classes and subjects error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get teacher's assigned classes and subjects
+exports.getMyAssignments = async (req, res) => {
+  try {
+    const teacherId = req.user.id;
+    const { academic_year } = req.query;
+    
+    const whereClause = { 
+      teacher_id: teacherId,
+      is_active: true
+    };
+    
+    if (academic_year) {
+      whereClause.academic_year = academic_year;
+    }
+
+    const assignments = await TeacherAssignment.findAll({
+      where: whereClause,
+      include: [
+        { 
+          model: Class, 
+          as: 'class', 
+          attributes: ['id', 'class_name', 'section'],
+          include: [
+            { 
+              model: Subject, 
+              as: 'Subjects',
+              attributes: ['id', 'name']
+            }
+          ]
+        },
+        { model: Subject, as: 'subject', attributes: ['id', 'name'] }
+      ],
+      order: [
+        [{ model: Class, as: 'class' }, 'class_name', 'ASC'],
+        [{ model: Subject, as: 'subject' }, 'name', 'ASC']
+      ]
+    });
+
+    // Group by class to make it easier for frontend
+    const groupedAssignments = {};
+    assignments.forEach(assignment => {
+      const classKey = `${assignment.class.class_name}-${assignment.class.section}`;
+      if (!groupedAssignments[classKey]) {
+        groupedAssignments[classKey] = {
+          class: assignment.class,
+          subjects: []
+        };
+      }
+      groupedAssignments[classKey].subjects.push(assignment.subject);
+    });
+
+    res.json({
+      assignments,
+      groupedAssignments: Object.values(groupedAssignments)
+    });
+  } catch (error) {
+    console.error('Get teacher assignments error:', error);
     res.status(500).json({ message: error.message });
   }
 };

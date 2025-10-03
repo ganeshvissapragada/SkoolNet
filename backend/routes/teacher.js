@@ -37,5 +37,6 @@ router.put('/assignments/:id', auth(['teacher']), updateAssignment);
 router.put('/submissions/:submissionId/grade', auth(['teacher']), gradeSubmission);
 router.put('/submissions/:submissionId/request-resubmission', auth(['teacher']), requestResubmission);
 router.get('/classes-subjects', auth(['teacher']), getClassesAndSubjects);
+router.get('/my-assignments', auth(['teacher']), getMyAssignments);
 
 module.exports = router;
