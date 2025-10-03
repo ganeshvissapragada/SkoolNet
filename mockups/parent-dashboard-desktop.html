@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard - Desktop View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f0f4f9;
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 20px 20px;
+        }
+
+        /* Header */
+        .header {
+            background: transparent;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #374151;
+        }
+
+        .profile-info h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button:hover {
+            background: rgba(55, 65, 81, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .icon-button img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        /* Search Bar */
+        .search-container {
+            background: rgba(255, 255, 255, 1);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-bar:focus {
+            border-color: #374151;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Carousel */
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            background: #f8f9fa;
+        }
+
+        .carousel-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.2);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .card-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 20px;
+            object-fit: contain;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+
+        /* Right Sidebar */
+        .sidebar {
+            background: rgba(255, 255, 255, 1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .quick-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .stat-icon img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .stat-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .stat-info p {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Responsive Design */
+        /* Tablet View (768px - 1024px) - Keep desktop layout but adjust */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+                gap: 20px;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .sidebar {
+                padding: 20px;
+            }
+            
+            .carousel {
+                height: 320px;
+            }
+        }
+
+        /* Large tablets and small desktops */
+        @media (max-width: 1200px) and (min-width: 1025px) {
+            .main-content {
+                grid-template-columns: 1fr 320px;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+        }
+
+        /* Mobile View (up to 768px) - Hide sidebar completely */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 15px 0;
+                flex-direction: row;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .profile-info h2 {
+                font-size: 20px;
+            }
+            
+            .profile-info p {
+                font-size: 14px;
+            }
+            
+            .profile-icon {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            /* Hide the sidebar completely on mobile */
+            .sidebar {
+                display: none;
+            }
+            
+            .carousel {
+                height: 250px;
+                margin-bottom: 20px;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+                min-height: 140px;
+            }
+            
+            .card-icon {
+                width: 48px;
+                height: 48px;
+                margin-bottom: 15px;
+            }
+            
+            .card-title {
+                font-size: 16px;
+                margin-bottom: 6px;
+            }
+            
+            .card-description {
+                font-size: 13px;
+            }
+            
+            .search-container {
+                padding: 15px 20px;
+                margin-bottom: 20px;
+            }
+            
+            .search-bar {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 12px 0;
+                margin-bottom: 15px;
+            }
+            
+            .profile-section {
+                gap: 10px;
+            }
+            
+            .profile-icon {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .profile-info h2 {
+                font-size: 18px;
+            }
+            
+            .carousel {
+                height: 200px;
+                margin-bottom: 15px;
+            }
+            
+            .cards-grid {
+                gap: 12px;
+            }
+            
+            .card {
+                padding: 15px;
+                min-height: 120px;
+            }
+            
+            .card-icon {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 12px;
+            }
+            
+            .card-title {
+                font-size: 15px;
+            }
+            
+            .card-description {
+                font-size: 12px;
+            }
+            
+            .icon-button img {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="profile-section">
+                    <img src="../frontend/src/assets/icons/parents.png" alt="Parent" class="profile-icon">
+                    <div class="profile-info">
+                        <h2>Michael Smith</h2>
+                        <p>Parent Dashboard</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="icon-button" title="Search">
+                    <img src="../frontend/src/assets/icons/search.png" alt="Search">
+                </button>
+                <button class="icon-button" title="Language">
+                    <img src="../frontend/src/assets/icons/translate.png" alt="Translate">
+                </button>
+            </div>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-container" style="display: none;" id="searchContainer">
+            <input type="text" class="search-bar" placeholder="Search features...">
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="left-section">
+                <!-- Carousel -->
+                <div class="carousel">
+                    <div class="carousel-container" id="carouselContainer">
+                        <div class="carousel-slide">
+                            <img src="../frontend/src/assets/carousel/WhatsApp Image 2025-09-06 at 18.44.53.jpeg" alt="School 1">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="../frontend/src/assets/carousel/WhatsApp Image 2025-09-06 at 18.44.54.jpeg" alt="School 2">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="../frontend/src/assets/carousel/WhatsApp Image 2025-09-06 at 18.44.55.jpeg" alt="School 3">
+                        </div>
+                    </div>
+                    <div class="carousel-dots">
+                        <div class="carousel-dot active" onclick="goToSlide(0)"></div>
+                        <div class="carousel-dot" onclick="goToSlide(1)"></div>
+                        <div class="carousel-dot" onclick="goToSlide(2)"></div>
+                    </div>
+                </div>
+
+                <!-- Cards Grid -->
+                <div class="cards-grid">
+                    <div class="card">
+                        <img src="../frontend/src/assets/icons/attendance.png" alt="Attendance" class="card-icon">
+                        <div class="card-title">Attendance</div>
+                        <div class="card-description">View your child's daily attendance records and track their presence</div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="../frontend/src/assets/icons/marks.png" alt="Marks" class="card-icon">
+                        <div class="card-title">Marks</div>
+                        <div class="card-description">Check your child's exam scores, grades, and academic performance</div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="../frontend/src/assets/icons/ptm.png" alt="PTM" class="card-icon">
+                        <div class="card-title">Parent-Teacher Meeting</div>
+                        <div class="card-description">View and confirm meetings with teachers</div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="../frontend/src/assets/icons/scholarships.png" alt="Scholarships" class="card-icon">
+                        <div class="card-title">Scholarships</div>
+                        <div class="card-description">Explore available scholarships and financial aid opportunities</div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="../frontend/src/assets/icons/meals.png" alt="Meals" class="card-icon">
+                        <div class="card-title">Meals</div>
+                        <div class="card-description">View daily meal plans, nutrition info, and submit feedback</div>
+                    </div>
+                    
+                    <div class="card">
+                        <img src="../frontend/src/assets/icons/assignments.png" alt="Assignments" class="card-icon">
+                        <div class="card-title">Assignments</div>
+                        <div class="card-description">View your child's assignments and submissions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="sidebar">
+                <h3>Quick Overview</h3>
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <img src="../frontend/src/assets/icons/attendance.png" alt="Attendance">
+                        </div>
+                        <div class="stat-info">
+                            <h4>Attendance Rate</h4>
+                            <p>95% This Month</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <img src="../frontend/src/assets/icons/marks.png" alt="Marks">
+                        </div>
+                        <div class="stat-info">
+                            <h4>Overall Grade</h4>
+                            <p>A- Average</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <img src="../frontend/src/assets/icons/assignments.png" alt="Assignments">
+                        </div>
+                        <div class="stat-info">
+                            <h4>Pending Tasks</h4>
+                            <p>3 Assignments</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <img src="../frontend/src/assets/icons/ptm.png" alt="PTM">
+                        </div>
+                        <div class="stat-info">
+                            <h4>Next PTM</h4>
+                            <p>Oct 15, 2025</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <img src="../frontend/src/assets/icons/meals.png" alt="Meals">
+                        </div>
+                        <div class="stat-info">
+                            <h4>Today's Meal</h4>
+                            <p>Nutritious & Fresh</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <img src="../frontend/src/assets/icons/scholarships.png" alt="Scholarships">
+                        </div>
+                        <div class="stat-info">
+                            <h4>Scholarships</h4>
+                            <p>2 Available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 3;
+
+        function goToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            const carousel = document.getElementById('carouselContainer');
+            carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // Update dots
+            const dots = document.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            goToSlide(currentSlide);
+        }
+
+        // Auto-advance slides
+        setInterval(nextSlide, 5000);
+
+        // Search functionality
+        const searchButton = document.querySelector('.icon-button[title="Search"]');
+        const searchContainer = document.getElementById('searchContainer');
+        
+        searchButton.addEventListener('click', () => {
+            const isVisible = searchContainer.style.display !== 'none';
+            searchContainer.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) {
+                searchContainer.querySelector('.search-bar').focus();
+            }
+        });
+
+        // Card hover effects
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                alert(`Opening ${card.querySelector('.card-title').textContent} section...`);
+            });
+        });
+
+        // Language toggle
+        const languageButton = document.querySelector('.icon-button[title="Language"]');
+        let isEnglish = true;
+        
+        languageButton.addEventListener('click', () => {
+            isEnglish = !isEnglish;
+            // Here you would implement language switching logic
+            console.log(`Switched to ${isEnglish ? 'English' : 'Telugu'}`);
+        });
+
+        // Responsive behavior detection
+        function checkDeviceType() {
+            const width = window.innerWidth;
+            const isMobile = width <= 768;
+            const isTablet = width > 768 && width <= 1024;
+            const isDesktop = width > 1024;
+            
+            // Log device type for debugging
+            console.log(`Device: ${isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop'} (${width}px)`);
+            
+            // Update body class for device-specific styling if needed
+            document.body.className = isMobile ? 'mobile-view' : isTablet ? 'tablet-view' : 'desktop-view';
+        }
+
+        // Check device type on load and resize
+        window.addEventListener('load', checkDeviceType);
+        window.addEventListener('resize', checkDeviceType);
+
+        // Enhanced touch support for mobile
+        if ('ontouchstart' in window) {
+            // Add touch-friendly behavior
+            cards.forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+    </script>
+</body>
+</html>

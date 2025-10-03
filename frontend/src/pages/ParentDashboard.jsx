@@ -32,6 +32,7 @@ export default function ParentDashboard() {
   const [showSearch, setShowSearch] = useState(false); // For search toggle
   const [searchQuery, setSearchQuery] = useState(''); // For search functionality
   const [currentSlide, setCurrentSlide] = useState(0); // For carousel
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768); // For responsive design
 
   // Language translations
   const translations = {
@@ -203,7 +204,8 @@ export default function ParentDashboard() {
   };
 
   // Mobile-friendly styles
-  const mobileStyles = {
+  // Responsive styles for both mobile and desktop
+  const styles = {
     container: {
       minHeight: '100vh',
       backgroundColor: '#f0f4f9',
@@ -214,88 +216,93 @@ export default function ParentDashboard() {
     header: {
       backgroundColor: 'transparent',
       color: '#374151',
-      padding: '20px 20px',
+      padding: isDesktop ? '20px 0' : '20px 20px',
       textAlign: 'center',
       position: 'sticky',
       top: 0,
       zIndex: 1000,
-      borderBottom: 'none'
+      borderBottom: 'none',
+      maxWidth: isDesktop ? '1400px' : 'none',
+      margin: isDesktop ? '0 auto' : '0',
+      paddingLeft: isDesktop ? '20px' : '20px',
+      paddingRight: isDesktop ? '20px' : '20px'
     },
-    backButton: {
-      position: 'absolute',
-      left: '15px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      background: 'none',
-      border: 'none',
-      color: 'white',
-      fontSize: '18px',
-      cursor: 'pointer',
-      padding: '10px'
+    mainContent: {
+      maxWidth: isDesktop ? '1400px' : 'none',
+      margin: '0 auto',
+      padding: isDesktop ? '0 20px 20px 20px' : '0',
+      display: isDesktop ? 'grid' : 'block',
+      gridTemplateColumns: isDesktop ? '1fr 350px' : 'none',
+      gap: isDesktop ? '30px' : '0'
+    },
+    leftSection: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: isDesktop ? '30px' : '0'
     },
     cardContainer: {
-      padding: '24px',
+      padding: isDesktop ? '0' : '24px',
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '20px',
-      maxWidth: '600px',
-      margin: '0 auto'
+      gridTemplateColumns: isDesktop ? 'repeat(auto-fit, minmax(250px, 1fr))' : 'repeat(2, 1fr)',
+      gap: isDesktop ? '25px' : '20px',
+      maxWidth: isDesktop ? 'none' : '600px',
+      margin: isDesktop ? '0' : '0 auto'
     },
     card: {
       backgroundColor: '#ffffff',
-      borderRadius: '16px',
-      padding: '22px 18px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+      borderRadius: isDesktop ? '20px' : '16px',
+      padding: isDesktop ? '30px' : '22px 18px',
+      boxShadow: isDesktop ? '0 8px 32px rgba(0, 0, 0, 0.1)' : '0 2px 8px rgba(0,0,0,0.06)',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       textAlign: 'center',
       border: '1px solid #f0f0f0',
-      minHeight: '144px',
+      minHeight: isDesktop ? '200px' : '144px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center'
     },
     cardIcon: {
-      fontSize: '48px',
-      marginBottom: '12px',
+      fontSize: isDesktop ? '64px' : '48px',
+      marginBottom: isDesktop ? '20px' : '12px',
       display: 'block'
     },
     cardTitle: {
-      fontSize: '16px',
+      fontSize: isDesktop ? '18px' : '16px',
       fontWeight: '600',
-      marginBottom: '4px',
+      marginBottom: isDesktop ? '8px' : '4px',
       color: '#374151',
       lineHeight: '1.2'
     },
     cardDescription: {
-      fontSize: '12px',
+      fontSize: isDesktop ? '14px' : '12px',
       color: '#7f8c8d',
-      lineHeight: '1.3',
-      display: 'none' // Hide description on smaller cards
+      lineHeight: '1.4',
+      display: isDesktop ? 'block' : 'none'
     },
     carousel: {
       position: 'relative',
       width: '100%',
-      maxWidth: '600px',
-      height: '180px',
-      margin: '0 auto 20px auto',
-      borderRadius: '16px',
+      maxWidth: isDesktop ? 'none' : '600px',
+      height: isDesktop ? '380px' : '180px',
+      margin: isDesktop ? '0 0 0 0' : '0 auto 20px auto',
+      borderRadius: isDesktop ? '20px' : '16px',
       overflow: 'hidden',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      boxShadow: isDesktop ? '0 12px 40px rgba(0, 0, 0, 0.15)' : '0 4px 15px rgba(0,0,0,0.1)',
       backgroundColor: '#f8f9fa'
     },
     carouselContainer: {
       display: 'flex',
       width: '100%',
-      height: '180px',
-      transition: 'transform 0.3s ease-in-out'
+      height: isDesktop ? '380px' : '180px',
+      transition: 'transform 0.5s ease-in-out'
     },
     carouselSlide: {
       minWidth: '100%',
       width: '100%',
-      height: '180px',
-      borderRadius: '16px',
+      height: isDesktop ? '380px' : '180px',
+      borderRadius: isDesktop ? '20px' : '16px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -304,26 +311,65 @@ export default function ParentDashboard() {
     carouselDots: {
       display: 'flex',
       justifyContent: 'center',
-      gap: '8px',
-      padding: '15px',
+      gap: isDesktop ? '12px' : '8px',
+      padding: isDesktop ? '20px' : '15px',
       position: 'absolute',
-      bottom: '10px',
+      bottom: isDesktop ? '20px' : '10px',
       width: '100%'
     },
     carouselDot: {
-      width: '8px',
-      height: '8px',
+      width: isDesktop ? '12px' : '8px',
+      height: isDesktop ? '12px' : '8px',
       borderRadius: '50%',
       backgroundColor: 'rgba(255,255,255,0.5)',
       cursor: 'pointer',
-      transition: 'background-color 0.3s ease'
+      transition: 'all 0.3s ease'
     },
     carouselDotActive: {
-      backgroundColor: 'rgba(255,255,255,1)'
+      backgroundColor: 'rgba(255,255,255,1)',
+      transform: isDesktop ? 'scale(1.2)' : 'scale(1)'
+    },
+    sidebar: {
+      backgroundColor: '#ffffff',
+      borderRadius: '20px',
+      padding: '30px',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+      height: 'fit-content',
+      display: isDesktop ? 'block' : 'none'
+    },
+    sidebarTitle: {
+      fontSize: '20px',
+      fontWeight: '600',
+      color: '#2c3e50',
+      marginBottom: '20px',
+      textAlign: 'center'
+    },
+    quickStats: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '15px'
+    },
+    statItem: {
+      backgroundColor: '#f8f9fa',
+      borderRadius: '12px',
+      padding: '15px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    },
+    statIcon: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      backgroundColor: '#f8f9fa',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '8px'
     },
     detailsContainer: {
-      padding: '20px',
-      maxWidth: '800px',
+      padding: isDesktop ? '30px' : '20px',
+      maxWidth: isDesktop ? '1400px' : '800px',
       margin: '0 auto'
     }
   };
@@ -392,6 +438,85 @@ export default function ParentDashboard() {
     }
   ];
 
+  // Sidebar component for desktop view
+  const renderSidebar = () => {
+    if (!isDesktop) return null;
+
+    const quickStats = [
+      {
+        icon: attendanceIcon,
+        title: language === 'english' ? 'Attendance Rate' : 'హాజరు రేటు',
+        value: language === 'english' ? '95% This Month' : '95% ఈ నెల'
+      },
+      {
+        icon: marksIcon,
+        title: language === 'english' ? 'Overall Grade' : 'మొత్తం గ్రేడ్',
+        value: language === 'english' ? 'A- Average' : 'A- సగటు'
+      },
+      {
+        icon: assignmentsIcon,
+        title: language === 'english' ? 'Pending Tasks' : 'పెండింగ్ పనులు',
+        value: language === 'english' ? '3 Assignments' : '3 గృహపాఠాలు'
+      },
+      {
+        icon: ptmIcon,
+        title: language === 'english' ? 'Next PTM' : 'తదుపరి PTM',
+        value: language === 'english' ? 'Oct 15, 2025' : 'అక్టోబర్ 15, 2025'
+      },
+      {
+        icon: mealsIcon,
+        title: language === 'english' ? "Today's Meal" : 'నేటి భోజనం',
+        value: language === 'english' ? 'Nutritious & Fresh' : 'పోషకమైన & తాజా'
+      },
+      {
+        icon: scholarshipsIcon,
+        title: language === 'english' ? 'Scholarships' : 'స్కాలర్‌షిప్‌లు',
+        value: language === 'english' ? '2 Available' : '2 అందుబాటులో'
+      }
+    ];
+
+    return (
+      <div style={styles.sidebar}>
+        <h3 style={styles.sidebarTitle}>
+          {language === 'english' ? 'Quick Overview' : 'త్వరిత సమీక్ష'}
+        </h3>
+        <div style={styles.quickStats}>
+          {quickStats.map((stat, index) => (
+            <div key={index} style={styles.statItem}>
+              <div style={styles.statIcon}>
+                <img 
+                  src={stat.icon} 
+                  alt={stat.title}
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    objectFit: 'contain'
+                  }}
+                />
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: '#2c3e50',
+                  marginBottom: '4px'
+                }}>
+                  {stat.title}
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#7f8c8d'
+                }}>
+                  {stat.value}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Auto-advance slides every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -399,6 +524,16 @@ export default function ParentDashboard() {
     }, 5000);
     return () => clearInterval(interval);
   }, [carouselSlides.length]);
+
+  // Handle responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth > 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Carousel component
   const renderCarousel = () => {
@@ -415,17 +550,17 @@ export default function ParentDashboard() {
     };
 
     return (
-      <div style={mobileStyles.carousel}>
+      <div style={styles.carousel}>
         <div 
           style={{
-            ...mobileStyles.carouselContainer,
+            ...styles.carouselContainer,
             transform: `translateX(-${currentSlide * 100}%)`
           }}
         >
           {carouselSlides.map((slide) => (
             <div
               key={slide.id}
-              style={mobileStyles.carouselSlide}
+              style={styles.carouselSlide}
             >
               <img 
                 src={slide.image}
@@ -434,7 +569,7 @@ export default function ParentDashboard() {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  borderRadius: '16px'
+                  borderRadius: isDesktop ? '20px' : '16px'
                 }}
                 onError={(e) => {
                   console.log('Image failed to load:', slide.image);
@@ -446,13 +581,13 @@ export default function ParentDashboard() {
         </div>
         
         {/* Carousel dots */}
-        <div style={mobileStyles.carouselDots}>
+        <div style={styles.carouselDots}>
           {carouselSlides.map((_, index) => (
             <div
               key={index}
               style={{
-                ...mobileStyles.carouselDot,
-                ...(index === currentSlide ? mobileStyles.carouselDotActive : {})
+                ...styles.carouselDot,
+                ...(index === currentSlide ? styles.carouselDotActive : {})
               }}
               onClick={() => goToSlide(index)}
             />
@@ -470,80 +605,102 @@ export default function ParentDashboard() {
     );
 
     return (
-      <div>
-        {/* Carousel Section - only show when not searching */}
-        {!searchQuery && (
-          <div style={{ padding: '20px 24px 0 24px' }}>
-            {renderCarousel()}
-          </div>
-        )}
-        
-        {/* Cards Section */}
-        <div style={mobileStyles.cardContainer}>
-          {searchQuery && (
-            <div style={{
-              gridColumn: '1 / -1',
-              textAlign: 'center',
-              padding: '10px',
-              fontSize: '14px',
-              color: '#666',
-              marginBottom: '10px'
-            }}>
-              {language === 'english' ? `Showing ${filteredCards.length} results for "${searchQuery}"` : `"${searchQuery}" కోసం ${filteredCards.length} ఫలితాలు`}
+      <div style={styles.mainContent}>
+        <div style={styles.leftSection}>
+          {/* Carousel Section - only show when not searching */}
+          {!searchQuery && (
+            <div style={{ padding: isDesktop ? '0' : '20px 24px 0 24px' }}>
+              {renderCarousel()}
             </div>
           )}
           
-          {filteredCards.length === 0 ? (
-            <div style={{
-              gridColumn: '1 / -1',
-              textAlign: 'center',
-              padding: '40px',
-              color: '#666'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-              <div>{language === 'english' ? 'No results found' : 'ఫలితాలు లేవు'}</div>
-            </div>
-          ) : (
-            filteredCards.map(card => (
-              <div
-                key={card.id}
-                style={mobileStyles.card}
-                onClick={() => {
-                  setSelectedCard(card);
-                  setCurrentView(card.id);
-                  setShowSearch(false); // Hide search when navigating
-                  setSearchQuery(''); // Clear search
-                  card.loadData();
-                }}
-              >
-                <div style={mobileStyles.cardIcon}>
-                  {typeof card.icon === 'string' && (card.icon.includes('.png') || card.icon.includes('.svg')) ? (
-                    <img 
-                      src={card.icon} 
-                      alt={card.title}
-                      style={{
-                        width: '48px',
-                        height: '48px',
-                        objectFit: 'contain'
-                      }}
-                    />
-                  ) : (
-                    card.icon
+          {/* Cards Section */}
+          <div style={styles.cardContainer}>
+            {searchQuery && (
+              <div style={{
+                gridColumn: '1 / -1',
+                textAlign: 'center',
+                padding: '10px',
+                fontSize: '14px',
+                color: '#666',
+                marginBottom: '10px'
+              }}>
+                {language === 'english' ? `Showing ${filteredCards.length} results for "${searchQuery}"` : `"${searchQuery}" కోసం ${filteredCards.length} ఫలితాలు`}
+              </div>
+            )}
+            
+            {filteredCards.length === 0 ? (
+              <div style={{
+                gridColumn: '1 / -1',
+                textAlign: 'center',
+                padding: '40px',
+                color: '#666'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+                <div>{language === 'english' ? 'No results found' : 'ఫలితాలు లేవు'}</div>
+              </div>
+            ) : (
+              filteredCards.map(card => (
+                <div
+                  key={card.id}
+                  style={styles.card}
+                  onClick={() => {
+                    setSelectedCard(card);
+                    setCurrentView(card.id);
+                    setShowSearch(false); // Hide search when navigating
+                    setSearchQuery(''); // Clear search
+                    card.loadData();
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isDesktop) {
+                      e.target.style.transform = 'translateY(-8px)';
+                      e.target.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.15)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDesktop) {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+                    }
+                  }}
+                >
+                  <div style={styles.cardIcon}>
+                    {typeof card.icon === 'string' && (card.icon.includes('.png') || card.icon.includes('.svg')) ? (
+                      <img 
+                        src={card.icon} 
+                        alt={card.title}
+                        style={{
+                          width: isDesktop ? '64px' : '48px',
+                          height: isDesktop ? '64px' : '48px',
+                          objectFit: 'contain'
+                        }}
+                      />
+                    ) : (
+                      card.icon
+                    )}
+                  </div>
+                  <div style={styles.cardTitle}>
+                    {card.title}
+                  </div>
+                  {isDesktop && (
+                    <div style={styles.cardDescription}>
+                      {card.description}
+                    </div>
                   )}
                 </div>
-                <div style={mobileStyles.cardTitle}>
-                  {card.title}
-                </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
+        
+        {/* Sidebar - Only show on desktop */}
+        {renderSidebar()}
       </div>
     );
   };
 
   const renderAttendanceDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -621,7 +778,7 @@ export default function ParentDashboard() {
   );
 
   const renderMarksDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -720,7 +877,7 @@ export default function ParentDashboard() {
   );
 
   const renderPTMDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -837,7 +994,7 @@ export default function ParentDashboard() {
   );
 
   const renderScholarshipsDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -926,7 +1083,7 @@ export default function ParentDashboard() {
   );
 
   const renderMealsDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -1045,7 +1202,7 @@ export default function ParentDashboard() {
   );
 
   const renderAssignmentsDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -1211,8 +1368,8 @@ export default function ParentDashboard() {
   );
 
   return (
-    <div style={mobileStyles.container}>
-      <div style={mobileStyles.header}>
+    <div style={styles.container}>
+      <div style={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           {/* Left side - Parent icon and name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1248,27 +1405,28 @@ export default function ParentDashboard() {
                   src={parentIcon} 
                   alt="Parent"
                   style={{
-                    width: '50px',
-                    height: '50px',
+                    width: isDesktop ? '60px' : '50px',
+                    height: isDesktop ? '60px' : '50px',
                     borderRadius: '50%',
-                    objectFit: 'cover'
+                    objectFit: 'cover',
+                    border: isDesktop ? '3px solid #374151' : 'none'
                   }}
                 />
                 
                 {/* Parent Name */}
                 <div>
                   <div style={{
-                    fontSize: '20px',
+                    fontSize: isDesktop ? '24px' : '20px',
                     fontWeight: '600',
                     color: '#374151'
                   }}>
                     {language === 'english' ? 'Michael Smith' : 'మైఖేల్ స్మిత్'}
                   </div>
                   <div style={{
-                    fontSize: '14px',
+                    fontSize: isDesktop ? '16px' : '14px',
                     color: 'rgba(55, 65, 81, 0.7)'
                   }}>
-                    {language === 'english' ? 'Parent' : 'తల్లిదండ్రులు'}
+                    {language === 'english' ? 'Parent Dashboard' : 'తల్లిదండ్రుల డాష్‌బోర్డ్'}
                   </div>
                 </div>
               </>
@@ -1282,27 +1440,33 @@ export default function ParentDashboard() {
           </div>
           
           {/* Right side - Search and Translate icons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             {/* Search Icon */}
             <button
               style={{
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '4px',
-                borderRadius: '8px',
-                transition: 'background-color 0.2s'
+                padding: isDesktop ? '12px' : '4px',
+                borderRadius: isDesktop ? '12px' : '8px',
+                transition: 'all 0.3s ease'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(55,65,81,0.1)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(55,65,81,0.1)';
+                if (isDesktop) e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'transparent';
+                if (isDesktop) e.target.style.transform = 'translateY(0)';
+              }}
               onClick={() => setShowSearch(!showSearch)}
             >
               <img 
                 src={searchIcon} 
                 alt="Search"
                 style={{
-                  width: '36px',
-                  height: '36px',
+                  width: isDesktop ? '28px' : '36px',
+                  height: isDesktop ? '28px' : '36px',
                   objectFit: 'contain'
                 }}
               />
@@ -1314,20 +1478,26 @@ export default function ParentDashboard() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '4px',
-                borderRadius: '8px',
-                transition: 'background-color 0.2s'
+                padding: isDesktop ? '12px' : '4px',
+                borderRadius: isDesktop ? '12px' : '8px',
+                transition: 'all 0.3s ease'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(55,65,81,0.1)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(55,65,81,0.1)';
+                if (isDesktop) e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'transparent';
+                if (isDesktop) e.target.style.transform = 'translateY(0)';
+              }}
               onClick={() => setLanguage(language === 'telugu' ? 'english' : 'telugu')}
             >
               <img 
                 src={translateIcon} 
                 alt="Translate"
                 style={{
-                  width: '36px',
-                  height: '36px',
+                  width: isDesktop ? '28px' : '36px',
+                  height: isDesktop ? '28px' : '36px',
                   objectFit: 'contain'
                 }}
               />
@@ -1339,7 +1509,10 @@ export default function ParentDashboard() {
         {showSearch && (
           <div style={{
             marginTop: '15px',
-            position: 'relative'
+            position: 'relative',
+            maxWidth: isDesktop ? '1400px' : 'none',
+            margin: isDesktop ? '20px auto 0 auto' : '15px 0 0 0',
+            padding: isDesktop ? '0 20px' : '0'
           }}>
             <input
               type="text"
@@ -1348,13 +1521,21 @@ export default function ParentDashboard() {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 width: '100%',
-                padding: '12px 16px',
-                border: 'none',
-                borderRadius: '8px',
+                padding: isDesktop ? '15px 20px' : '12px 16px',
+                border: isDesktop ? '2px solid #e1e8ed' : 'none',
+                borderRadius: isDesktop ? '12px' : '8px',
                 fontSize: '16px',
-                backgroundColor: 'rgba(255,255,255,0.95)',
+                backgroundColor: isDesktop ? '#ffffff' : 'rgba(255,255,255,0.95)',
                 color: '#374151',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                outline: 'none',
+                transition: 'border-color 0.3s ease'
+              }}
+              onFocus={(e) => {
+                if (isDesktop) e.target.style.borderColor = '#374151';
+              }}
+              onBlur={(e) => {
+                if (isDesktop) e.target.style.borderColor = '#e1e8ed';
               }}
               autoFocus
             />
@@ -1370,7 +1551,10 @@ export default function ParentDashboard() {
           border: '1px solid #fcc',
           borderRadius: '8px',
           color: '#c33',
-          textAlign: 'center'
+          textAlign: 'center',
+          maxWidth: isDesktop ? '1400px' : 'none',
+          marginLeft: 'auto',
+          marginRight: 'auto'
         }}>
           {texts.error}: {error}
         </div>

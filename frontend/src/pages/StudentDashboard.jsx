@@ -23,6 +23,16 @@ export default function StudentDashboard() {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
+
+  // Handle responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth > 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const [attendance, setAttendance] = useState(null);
   const [marks, setMarks] = useState(null);
@@ -45,6 +55,7 @@ export default function StudentDashboard() {
   const [showSearch, setShowSearch] = useState(false); // For search toggle
   const [searchQuery, setSearchQuery] = useState(''); // For search functionality
   const [currentSlide, setCurrentSlide] = useState(0); // For carousel
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768); // For responsive design
 
   // Language translations
   const translations = {
@@ -305,8 +316,8 @@ export default function StudentDashboard() {
     return '📎';
   };
 
-  // Mobile-friendly styles
-  const mobileStyles = {
+  // Responsive styles for both mobile and desktop
+  const styles = {
     container: {
       minHeight: '100vh',
       backgroundColor: '#f0f4f9',
@@ -317,88 +328,93 @@ export default function StudentDashboard() {
     header: {
       backgroundColor: 'transparent',
       color: '#374151',
-      padding: '20px 20px',
+      padding: isDesktop ? '20px 0' : '20px 20px',
       textAlign: 'center',
       position: 'sticky',
       top: 0,
       zIndex: 1000,
-      borderBottom: 'none'
+      borderBottom: 'none',
+      maxWidth: isDesktop ? '1400px' : 'none',
+      margin: isDesktop ? '0 auto' : '0',
+      paddingLeft: isDesktop ? '20px' : '20px',
+      paddingRight: isDesktop ? '20px' : '20px'
     },
-    backButton: {
-      position: 'absolute',
-      left: '15px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      background: 'none',
-      border: 'none',
-      color: '#374151',
-      fontSize: '18px',
-      cursor: 'pointer',
-      padding: '10px'
+    mainContent: {
+      maxWidth: isDesktop ? '1400px' : 'none',
+      margin: '0 auto',
+      padding: isDesktop ? '0 20px 20px 20px' : '0',
+      display: isDesktop ? 'grid' : 'block',
+      gridTemplateColumns: isDesktop ? '1fr 350px' : 'none',
+      gap: isDesktop ? '30px' : '0'
+    },
+    leftSection: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: isDesktop ? '30px' : '0'
     },
     cardContainer: {
-      padding: '24px',
+      padding: isDesktop ? '0' : '24px',
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '20px',
-      maxWidth: '600px',
-      margin: '0 auto'
+      gridTemplateColumns: isDesktop ? 'repeat(auto-fit, minmax(250px, 1fr))' : 'repeat(2, 1fr)',
+      gap: isDesktop ? '25px' : '20px',
+      maxWidth: isDesktop ? 'none' : '600px',
+      margin: isDesktop ? '0' : '0 auto'
     },
     card: {
       backgroundColor: '#ffffff',
-      borderRadius: '16px',
-      padding: '22px 18px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+      borderRadius: isDesktop ? '20px' : '16px',
+      padding: isDesktop ? '30px' : '22px 18px',
+      boxShadow: isDesktop ? '0 8px 32px rgba(0, 0, 0, 0.1)' : '0 2px 8px rgba(0,0,0,0.06)',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       textAlign: 'center',
       border: '1px solid #f0f0f0',
-      minHeight: '144px',
+      minHeight: isDesktop ? '200px' : '144px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center'
     },
     cardIcon: {
-      fontSize: '48px',
-      marginBottom: '12px',
+      fontSize: isDesktop ? '64px' : '48px',
+      marginBottom: isDesktop ? '20px' : '12px',
       display: 'block'
     },
     cardTitle: {
-      fontSize: '16px',
+      fontSize: isDesktop ? '18px' : '16px',
       fontWeight: '600',
-      marginBottom: '4px',
+      marginBottom: isDesktop ? '8px' : '4px',
       color: '#374151',
       lineHeight: '1.2'
     },
     cardDescription: {
-      fontSize: '12px',
+      fontSize: isDesktop ? '14px' : '12px',
       color: '#7f8c8d',
-      lineHeight: '1.3',
-      display: 'none' // Hide description on smaller cards
+      lineHeight: '1.4',
+      display: isDesktop ? 'block' : 'none'
     },
     carousel: {
       position: 'relative',
       width: '100%',
-      maxWidth: '600px',
-      height: '180px',
-      margin: '0 auto 20px auto',
-      borderRadius: '16px',
+      maxWidth: isDesktop ? 'none' : '600px',
+      height: isDesktop ? '380px' : '180px',
+      margin: isDesktop ? '0 0 0 0' : '0 auto 20px auto',
+      borderRadius: isDesktop ? '20px' : '16px',
       overflow: 'hidden',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      boxShadow: isDesktop ? '0 12px 40px rgba(0, 0, 0, 0.15)' : '0 4px 15px rgba(0,0,0,0.1)',
       backgroundColor: '#f8f9fa'
     },
     carouselContainer: {
       display: 'flex',
       width: '100%',
-      height: '180px',
-      transition: 'transform 0.3s ease-in-out'
+      height: isDesktop ? '380px' : '180px',
+      transition: 'transform 0.5s ease-in-out'
     },
     carouselSlide: {
       minWidth: '100%',
       width: '100%',
-      height: '180px',
-      borderRadius: '16px',
+      height: isDesktop ? '380px' : '180px',
+      borderRadius: isDesktop ? '20px' : '16px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -407,26 +423,65 @@ export default function StudentDashboard() {
     carouselDots: {
       display: 'flex',
       justifyContent: 'center',
-      gap: '8px',
-      padding: '15px',
+      gap: isDesktop ? '12px' : '8px',
+      padding: isDesktop ? '20px' : '15px',
       position: 'absolute',
-      bottom: '10px',
+      bottom: isDesktop ? '20px' : '10px',
       width: '100%'
     },
     carouselDot: {
-      width: '8px',
-      height: '8px',
+      width: isDesktop ? '12px' : '8px',
+      height: isDesktop ? '12px' : '8px',
       borderRadius: '50%',
       backgroundColor: 'rgba(255,255,255,0.5)',
       cursor: 'pointer',
-      transition: 'background-color 0.3s ease'
+      transition: 'all 0.3s ease'
     },
     carouselDotActive: {
-      backgroundColor: 'rgba(255,255,255,1)'
+      backgroundColor: 'rgba(255,255,255,1)',
+      transform: isDesktop ? 'scale(1.2)' : 'scale(1)'
+    },
+    sidebar: {
+      backgroundColor: '#ffffff',
+      borderRadius: '20px',
+      padding: '30px',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+      height: 'fit-content',
+      display: isDesktop ? 'block' : 'none'
+    },
+    sidebarTitle: {
+      fontSize: '20px',
+      fontWeight: '600',
+      color: '#2c3e50',
+      marginBottom: '20px',
+      textAlign: 'center'
+    },
+    quickStats: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '15px'
+    },
+    statItem: {
+      backgroundColor: '#f8f9fa',
+      borderRadius: '12px',
+      padding: '15px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    },
+    statIcon: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      backgroundColor: '#f8f9fa',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '8px'
     },
     detailsContainer: {
-      padding: '20px',
-      maxWidth: '800px',
+      padding: isDesktop ? '30px' : '20px',
+      maxWidth: isDesktop ? '1400px' : '800px',
       margin: '0 auto'
     }
   };
@@ -469,6 +524,80 @@ export default function StudentDashboard() {
     }
   ];
 
+  // Sidebar component for desktop view
+  const renderSidebar = () => {
+    if (!isDesktop) return null;
+
+    const quickStats = [
+      {
+        icon: attendanceIcon,
+        title: language === 'english' ? 'Attendance Rate' : 'హాజరు రేటు',
+        value: language === 'english' ? '98% This Month' : '98% ఈ నెల'
+      },
+      {
+        icon: marksIcon,
+        title: language === 'english' ? 'Overall Grade' : 'మొత్తం గ్రేడ్',
+        value: language === 'english' ? 'A Average' : 'A సగటు'
+      },
+      {
+        icon: assignmentsIcon,
+        title: language === 'english' ? 'Pending Tasks' : 'పెండింగ్ పనులు',
+        value: language === 'english' ? '2 Assignments' : '2 గృహపాఠాలు'
+      },
+      {
+        icon: mealsIcon,
+        title: language === 'english' ? "Today's Meal" : 'నేటి భోజనం',
+        value: language === 'english' ? 'Nutritious & Fresh' : 'పోషకమైన & తాజా'
+      },
+      {
+        icon: scholarshipsIcon,
+        title: language === 'english' ? 'Scholarships' : 'స్కాలర్‌షిప్‌లు',
+        value: language === 'english' ? '3 Available' : '3 అందుబాటులో'
+      }
+    ];
+
+    return (
+      <div style={styles.sidebar}>
+        <h3 style={styles.sidebarTitle}>
+          {language === 'english' ? 'Quick Overview' : 'త్వరిత సమీక్ష'}
+        </h3>
+        <div style={styles.quickStats}>
+          {quickStats.map((stat, index) => (
+            <div key={index} style={styles.statItem}>
+              <div style={styles.statIcon}>
+                <img 
+                  src={stat.icon} 
+                  alt={stat.title}
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    objectFit: 'contain'
+                  }}
+                />
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: '#2c3e50',
+                  marginBottom: '4px'
+                }}>
+                  {stat.title}
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#7f8c8d'
+                }}>
+                  {stat.value}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const renderDashboard = () => {
     // Filter cards based on search query
     const filteredCards = cards.filter(card => 
@@ -477,133 +606,155 @@ export default function StudentDashboard() {
     );
 
     return (
-      <div>
-        {/* Carousel Section - only show when not searching */}
-        {!searchQuery && (
-          <div style={{ padding: '20px 24px 0 24px' }}>
-            <div style={mobileStyles.carousel}>
-              <div 
-                style={{
-                  ...mobileStyles.carouselContainer,
-                  transform: `translateX(-${currentSlide * 100}%)`
-                }}
-              >
-                <div style={mobileStyles.carouselSlide}>
-                  <img 
-                    src={carousel1} 
-                    alt="School 1"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '16px'
-                    }}
-                  />
-                </div>
-                <div style={mobileStyles.carouselSlide}>
-                  <img 
-                    src={carousel2} 
-                    alt="School 2"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '16px'
-                    }}
-                  />
-                </div>
-                <div style={mobileStyles.carouselSlide}>
-                  <img 
-                    src={carousel3} 
-                    alt="School 3"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '16px'
-                    }}
-                  />
-                </div>
-              </div>
-              
-              {/* Carousel dots */}
-              <div style={mobileStyles.carouselDots}>
-                {[0, 1, 2].map((index) => (
-                  <div
-                    key={index}
-                    style={{
-                      ...mobileStyles.carouselDot,
-                      ...(currentSlide === index ? mobileStyles.carouselDotActive : {})
-                    }}
-                    onClick={() => setCurrentSlide(index)}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Cards Section */}
-        <div style={mobileStyles.cardContainer}>
-          {searchQuery && (
-            <div style={{
-              gridColumn: '1 / -1',
-              textAlign: 'center',
-              padding: '10px',
-              fontSize: '14px',
-              color: '#666',
-              marginBottom: '10px'
-            }}>
-              {language === 'english' ? `Showing ${filteredCards.length} results for "${searchQuery}"` : `"${searchQuery}" కోసం ${filteredCards.length} ఫలితాలు`}
-            </div>
-          )}
-          
-          {filteredCards.length === 0 ? (
-            <div style={{
-              gridColumn: '1 / -1',
-              textAlign: 'center',
-              padding: '40px',
-              color: '#666'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-              <div>{language === 'english' ? 'No results found' : 'ఫలితాలు లేవు'}</div>
-            </div>
-          ) : (
-            filteredCards.map(card => (
-              <div
-                key={card.id}
-                style={mobileStyles.card}
-                onClick={() => {
-                  setSelectedCard(card);
-                  setCurrentView(card.id);
-                  setShowSearch(false); // Hide search when navigating
-                  setSearchQuery(''); // Clear search
-                  card.loadData();
-                }}
-              >
-                <img 
-                  src={card.icon} 
-                  alt={card.title}
+      <div style={styles.mainContent}>
+        <div style={styles.leftSection}>
+          {/* Carousel Section - only show when not searching */}
+          {!searchQuery && (
+            <div style={{ padding: isDesktop ? '0' : '20px 24px 0 24px' }}>
+              <div style={styles.carousel}>
+                <div 
                   style={{
-                    width: '48px',
-                    height: '48px',
-                    marginBottom: '12px',
-                    objectFit: 'contain'
+                    ...styles.carouselContainer,
+                    transform: `translateX(-${currentSlide * 100}%)`
                   }}
-                />
-                <div style={mobileStyles.cardTitle}>
-                  {card.title}
+                >
+                  <div style={styles.carouselSlide}>
+                    <img 
+                      src={carousel1} 
+                      alt="School 1"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: isDesktop ? '20px' : '16px'
+                      }}
+                    />
+                  </div>
+                  <div style={styles.carouselSlide}>
+                    <img 
+                      src={carousel2} 
+                      alt="School 2"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: isDesktop ? '20px' : '16px'
+                      }}
+                    />
+                  </div>
+                  <div style={styles.carouselSlide}>
+                    <img 
+                      src={carousel3} 
+                      alt="School 3"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: isDesktop ? '20px' : '16px'
+                      }}
+                    />
+                  </div>
+                </div>
+                
+                {/* Carousel dots */}
+                <div style={styles.carouselDots}>
+                  {[0, 1, 2].map((index) => (
+                    <div
+                      key={index}
+                      style={{
+                        ...styles.carouselDot,
+                        ...(currentSlide === index ? styles.carouselDotActive : {})
+                      }}
+                      onClick={() => setCurrentSlide(index)}
+                    />
+                  ))}
                 </div>
               </div>
-            ))
+            </div>
           )}
+
+          {/* Cards Section */}
+          <div style={styles.cardContainer}>
+            {searchQuery && (
+              <div style={{
+                gridColumn: '1 / -1',
+                textAlign: 'center',
+                padding: '10px',
+                fontSize: '14px',
+                color: '#666',
+                marginBottom: '10px'
+              }}>
+                {language === 'english' ? `Showing ${filteredCards.length} results for "${searchQuery}"` : `"${searchQuery}" కోసం ${filteredCards.length} ఫలితాలు`}
+              </div>
+            )}
+            
+            {filteredCards.length === 0 ? (
+              <div style={{
+                gridColumn: '1 / -1',
+                textAlign: 'center',
+                padding: '40px',
+                color: '#666'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+                <div>{language === 'english' ? 'No results found' : 'ఫలితాలు లేవు'}</div>
+              </div>
+            ) : (
+              filteredCards.map(card => (
+                <div
+                  key={card.id}
+                  style={styles.card}
+                  onClick={() => {
+                    setSelectedCard(card);
+                    setCurrentView(card.id);
+                    setShowSearch(false); // Hide search when navigating
+                    setSearchQuery(''); // Clear search
+                    card.loadData();
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isDesktop) {
+                      e.target.style.transform = 'translateY(-8px)';
+                      e.target.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.15)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isDesktop) {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+                    }
+                  }}
+                >
+                  <img 
+                    src={card.icon} 
+                    alt={card.title}
+                    style={{
+                      width: isDesktop ? '64px' : '48px',
+                      height: isDesktop ? '64px' : '48px',
+                      marginBottom: isDesktop ? '20px' : '12px',
+                      objectFit: 'contain'
+                    }}
+                  />
+                  <div style={styles.cardTitle}>
+                    {card.title}
+                  </div>
+                  {isDesktop && (
+                    <div style={styles.cardDescription}>
+                      {card.description}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
         </div>
+        
+        {/* Sidebar - Only show on desktop */}
+        {renderSidebar()}
       </div>
     );
   };
 
   const renderAttendanceDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -681,7 +832,7 @@ export default function StudentDashboard() {
   );
 
   const renderMarksDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -780,7 +931,7 @@ export default function StudentDashboard() {
   );
 
   const renderScholarshipsDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -869,7 +1020,7 @@ export default function StudentDashboard() {
   );
 
   const renderMealsDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -988,7 +1139,7 @@ export default function StudentDashboard() {
   );
 
   const renderAssignmentsDetails = () => (
-    <div style={mobileStyles.detailsContainer}>
+    <div style={styles.detailsContainer}>
       <div style={{
         backgroundColor: 'white',
         borderRadius: '15px',
@@ -1219,8 +1370,8 @@ export default function StudentDashboard() {
   );
 
   return (
-    <div style={mobileStyles.container}>
-      <div style={mobileStyles.header}>
+    <div style={styles.container}>
+      <div style={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           {/* Left side - Student icon and name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
