@@ -1,9 +1,29 @@
 import React, { useContext, useState, useEffect } from 'react';
 import api from '../api/api.js';
 import { AuthContext } from '../auth/AuthContext.jsx';
+import attendanceIcon from '../assets/icons/attendance.png';
+import marksIcon from '../assets/icons/marks.png';
+import scholarshipsIcon from '../assets/icons/scholarships.png';
+import mealsIcon from '../assets/icons/meals.png';
+import assignmentsIcon from '../assets/icons/assignments.png';
+import studentIcon from '../assets/icons/childicon.png'; // Using child icon
+import searchIcon from '../assets/icons/search.png';
+import translateIcon from '../assets/icons/translate.png';
+import carousel1 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.53.jpeg';
+import carousel2 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.54.jpeg';
+import carousel3 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.55.jpeg';
 
 export default function StudentDashboard() {
   const { userId } = useContext(AuthContext);
+  
+  // Carousel effect (must be at top level)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+  
   const [attendance, setAttendance] = useState(null);
   const [marks, setMarks] = useState(null);
   const [scholarships, setScholarships] = useState([]);
@@ -21,6 +41,53 @@ export default function StudentDashboard() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [selectedCard, setSelectedCard] = useState(null);
   const [error, setError] = useState('');
+  const [language, setLanguage] = useState('telugu'); // 'telugu' or 'english'
+  const [showSearch, setShowSearch] = useState(false); // For search toggle
+  const [searchQuery, setSearchQuery] = useState(''); // For search functionality
+  const [currentSlide, setCurrentSlide] = useState(0); // For carousel
+
+  // Language translations
+  const translations = {
+    telugu: {
+      dashboard: 'డాష్‌బోర్డ్',
+      attendance: 'హాజరు',
+      marks: 'మార్కులు',
+      scholarships: 'స్కాలర్‌షిప్‌లు', 
+      meals: 'భోజనం',
+      assignments: 'గృహపాఠాలు',
+      myProfile: 'నా ప్రొఫైల్',
+      backToDashboard: 'డాష్‌బోర్డ్‌కు తిరిగి వెళ్లు',
+      viewDetails: 'వివరాలు చూడండి',
+      loading: 'లోడ్ అవుతోంది...',
+      noData: 'డేటా లేదు',
+      error: 'లోపం',
+      present: 'హాజరు',
+      absent: 'గైర్హాజరు',
+      submit: 'సమర్పించు',
+      languageSwitch: 'English'
+    },
+    english: {
+      dashboard: 'Dashboard',
+      attendance: 'Attendance',
+      marks: 'Marks',
+      scholarships: 'Scholarships',
+      meals: 'Meals',
+      assignments: 'Assignments',
+      myProfile: 'My Profile',
+      backToDashboard: 'Back to Dashboard',
+      viewDetails: 'View Details',
+      loading: 'Loading...',
+      noData: 'No data available',
+      error: 'Error',
+      present: 'Present',
+      absent: 'Absent',
+      submit: 'Submit',
+      languageSwitch: 'తెలుగు'
+    }
+  };
+
+  // Get current language texts
+  const texts = translations[language];
 
   const loadAttendance = async () => {
     setError('');
@@ -242,65 +309,120 @@ export default function StudentDashboard() {
   const mobileStyles = {
     container: {
       minHeight: '100vh',
-      backgroundColor: '#f5f5f5',
-      fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+      backgroundColor: '#f0f4f9',
+      fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       padding: 0,
       fontSize: '16px'
     },
     header: {
-      backgroundColor: '#2c3e50',
-      color: 'white',
-      padding: '15px 20px',
+      backgroundColor: 'transparent',
+      color: '#374151',
+      padding: '20px 20px',
       textAlign: 'center',
       position: 'sticky',
       top: 0,
       zIndex: 1000,
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'
+      borderBottom: 'none'
     },
     backButton: {
+      position: 'absolute',
+      left: '15px',
+      top: '50%',
+      transform: 'translateY(-50%)',
       background: 'none',
       border: 'none',
-      color: 'white',
+      color: '#374151',
       fontSize: '18px',
       cursor: 'pointer',
       padding: '10px'
     },
     cardContainer: {
-      padding: '20px',
+      padding: '24px',
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+      gridTemplateColumns: 'repeat(2, 1fr)',
       gap: '20px',
-      maxWidth: '1200px',
+      maxWidth: '600px',
       margin: '0 auto'
     },
     card: {
-      backgroundColor: 'white',
-      borderRadius: '15px',
-      padding: '20px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      backgroundColor: '#ffffff',
+      borderRadius: '16px',
+      padding: '22px 18px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       textAlign: 'center',
-      border: '1px solid #e1e8ed'
+      border: '1px solid #f0f0f0',
+      minHeight: '144px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     cardIcon: {
       fontSize: '48px',
-      marginBottom: '15px',
+      marginBottom: '12px',
       display: 'block'
     },
     cardTitle: {
-      fontSize: '20px',
-      fontWeight: 'bold',
-      marginBottom: '10px',
-      color: '#2c3e50'
+      fontSize: '16px',
+      fontWeight: '600',
+      marginBottom: '4px',
+      color: '#374151',
+      lineHeight: '1.2'
     },
     cardDescription: {
-      fontSize: '14px',
+      fontSize: '12px',
       color: '#7f8c8d',
-      lineHeight: '1.4'
+      lineHeight: '1.3',
+      display: 'none' // Hide description on smaller cards
+    },
+    carousel: {
+      position: 'relative',
+      width: '100%',
+      maxWidth: '600px',
+      height: '180px',
+      margin: '0 auto 20px auto',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      backgroundColor: '#f8f9fa'
+    },
+    carouselContainer: {
+      display: 'flex',
+      width: '100%',
+      height: '180px',
+      transition: 'transform 0.3s ease-in-out'
+    },
+    carouselSlide: {
+      minWidth: '100%',
+      width: '100%',
+      height: '180px',
+      borderRadius: '16px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden'
+    },
+    carouselDots: {
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '8px',
+      padding: '15px',
+      position: 'absolute',
+      bottom: '10px',
+      width: '100%'
+    },
+    carouselDot: {
+      width: '8px',
+      height: '8px',
+      borderRadius: '50%',
+      backgroundColor: 'rgba(255,255,255,0.5)',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s ease'
+    },
+    carouselDotActive: {
+      backgroundColor: 'rgba(255,255,255,1)'
     },
     detailsContainer: {
       padding: '20px',
@@ -312,85 +434,173 @@ export default function StudentDashboard() {
   const cards = [
     {
       id: 'attendance',
-      icon: '📚',
-      title: 'My Attendance',
+      icon: attendanceIcon,
+      title: texts.attendance,
       description: 'View your daily attendance records and track your presence',
-      color: '#3498db',
       loadData: loadAttendance
     },
     {
       id: 'marks',
-      icon: '📊',
-      title: 'My Marks',
+      icon: marksIcon,
+      title: texts.marks,
       description: 'Check your exam scores, grades, and academic performance',
-      color: '#e74c3c',
       loadData: loadMarks
     },
     {
       id: 'scholarships',
-      icon: '🏆',
-      title: 'Scholarships',
+      icon: scholarshipsIcon,
+      title: texts.scholarships,
       description: 'Explore available scholarships and financial aid opportunities',
-      color: '#f39c12',
       loadData: loadScholarships
     },
     {
       id: 'meals',
-      icon: '🍽️',
-      title: 'Daily Meals',
+      icon: mealsIcon,
+      title: texts.meals,
       description: 'View meal plans, nutrition info, and submit feedback',
-      color: '#27ae60',
       loadData: () => {loadMealPlans(); loadMealConsumption();}
     },
     {
       id: 'assignments',
-      icon: '📋',
-      title: 'My Assignments',
+      icon: assignmentsIcon,
+      title: texts.assignments,
       description: 'View and manage your assignments and submissions',
-      color: '#8e44ad',
       loadData: loadAssignments
     }
   ];
 
-  const renderDashboard = () => (
-    <div style={mobileStyles.cardContainer}>
-      {cards.map(card => (
-        <div
-          key={card.id}
-          style={{
-            ...mobileStyles.card,
-            borderLeft: `5px solid ${card.color}`
-          }}
-          onClick={() => {
-            setSelectedCard(card);
-            setCurrentView(card.id);
-            card.loadData();
-          }}
-        >
-          <div style={{...mobileStyles.cardIcon, color: card.color}}>
-            {card.icon}
+  const renderDashboard = () => {
+    // Filter cards based on search query
+    const filteredCards = cards.filter(card => 
+      card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      card.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+      <div>
+        {/* Carousel Section - only show when not searching */}
+        {!searchQuery && (
+          <div style={{ padding: '20px 24px 0 24px' }}>
+            <div style={mobileStyles.carousel}>
+              <div 
+                style={{
+                  ...mobileStyles.carouselContainer,
+                  transform: `translateX(-${currentSlide * 100}%)`
+                }}
+              >
+                <div style={mobileStyles.carouselSlide}>
+                  <img 
+                    src={carousel1} 
+                    alt="School 1"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '16px'
+                    }}
+                  />
+                </div>
+                <div style={mobileStyles.carouselSlide}>
+                  <img 
+                    src={carousel2} 
+                    alt="School 2"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '16px'
+                    }}
+                  />
+                </div>
+                <div style={mobileStyles.carouselSlide}>
+                  <img 
+                    src={carousel3} 
+                    alt="School 3"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '16px'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              {/* Carousel dots */}
+              <div style={mobileStyles.carouselDots}>
+                {[0, 1, 2].map((index) => (
+                  <div
+                    key={index}
+                    style={{
+                      ...mobileStyles.carouselDot,
+                      ...(currentSlide === index ? mobileStyles.carouselDotActive : {})
+                    }}
+                    onClick={() => setCurrentSlide(index)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
-          <div style={mobileStyles.cardTitle}>
-            {card.title}
-          </div>
-          <div style={mobileStyles.cardDescription}>
-            {card.description}
-          </div>
-          <div style={{
-            marginTop: '15px',
-            padding: '8px 16px',
-            backgroundColor: card.color,
-            color: 'white',
-            borderRadius: '20px',
-            fontSize: '14px',
-            fontWeight: 'bold'
-          }}>
-            View Details
-          </div>
+        )}
+
+        {/* Cards Section */}
+        <div style={mobileStyles.cardContainer}>
+          {searchQuery && (
+            <div style={{
+              gridColumn: '1 / -1',
+              textAlign: 'center',
+              padding: '10px',
+              fontSize: '14px',
+              color: '#666',
+              marginBottom: '10px'
+            }}>
+              {language === 'english' ? `Showing ${filteredCards.length} results for "${searchQuery}"` : `"${searchQuery}" కోసం ${filteredCards.length} ఫలితాలు`}
+            </div>
+          )}
+          
+          {filteredCards.length === 0 ? (
+            <div style={{
+              gridColumn: '1 / -1',
+              textAlign: 'center',
+              padding: '40px',
+              color: '#666'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+              <div>{language === 'english' ? 'No results found' : 'ఫలితాలు లేవు'}</div>
+            </div>
+          ) : (
+            filteredCards.map(card => (
+              <div
+                key={card.id}
+                style={mobileStyles.card}
+                onClick={() => {
+                  setSelectedCard(card);
+                  setCurrentView(card.id);
+                  setShowSearch(false); // Hide search when navigating
+                  setSearchQuery(''); // Clear search
+                  card.loadData();
+                }}
+              >
+                <img 
+                  src={card.icon} 
+                  alt={card.title}
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    marginBottom: '12px',
+                    objectFit: 'contain'
+                  }}
+                />
+                <div style={mobileStyles.cardTitle}>
+                  {card.title}
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    );
+  };
 
   const renderAttendanceDetails = () => (
     <div style={mobileStyles.detailsContainer}>
@@ -1011,22 +1221,153 @@ export default function StudentDashboard() {
   return (
     <div style={mobileStyles.container}>
       <div style={mobileStyles.header}>
-        {currentView !== 'dashboard' && (
-          <button 
-            style={mobileStyles.backButton}
-            onClick={() => {
-              setCurrentView('dashboard');
-              setSelectedCard(null);
-              setError('');
-            }}
-          >
-            ← Back to Dashboard
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          {/* Left side - Student icon and name */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {currentView !== 'dashboard' && (
+              <button 
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#374151',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '8px'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(55,65,81,0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                onClick={() => {
+                  setCurrentView('dashboard');
+                  setSelectedCard(null);
+                  setError('');
+                  setShowSearch(false);
+                  setSearchQuery('');
+                }}
+              >
+                ← {texts.backToDashboard}
+              </button>
+            )}
+            
+            {currentView === 'dashboard' && (
+              <>
+                {/* Student Icon */}
+                <img 
+                  src={studentIcon} 
+                  alt="Student"
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    objectFit: 'cover'
+                  }}
+                />
+                
+                {/* Student Name */}
+                <div>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    color: '#374151'
+                  }}>
+                    {language === 'english' ? 'Emma Johnson' : 'ఎమ్మా జాన్సన్'}
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: 'rgba(55, 65, 81, 0.7)'
+                  }}>
+                    {language === 'english' ? 'Student' : 'విద్యార్థి'}
+                  </div>
+                </div>
+              </>
+            )}
+            
+            {currentView !== 'dashboard' && (
+              <h1 style={{ margin: '0', fontSize: '20px', color: '#374151' }}>
+                {selectedCard?.title}
+              </h1>
+            )}
+          </div>
+          
+          {/* Right side - Search and Translate icons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Search Icon */}
+            <button
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '8px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(55,65,81,0.1)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              onClick={() => setShowSearch(!showSearch)}
+            >
+              <img 
+                src={searchIcon} 
+                alt="Search"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  objectFit: 'contain'
+                }}
+              />
+            </button>
+            
+            {/* Translate Icon */}
+            <button
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '8px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(55,65,81,0.1)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              onClick={() => setLanguage(language === 'telugu' ? 'english' : 'telugu')}
+            >
+              <img 
+                src={translateIcon} 
+                alt="Translate"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  objectFit: 'contain'
+                }}
+              />
+            </button>
+          </div>
+        </div>
+        
+        {/* Search Bar - Shows when search is clicked */}
+        {showSearch && (
+          <div style={{
+            marginTop: '15px',
+            position: 'relative'
+          }}>
+            <input
+              type="text"
+              placeholder={language === 'english' ? 'Search features...' : 'ఫీచర్లను వెతకండి...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '16px',
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                color: '#374151',
+                boxSizing: 'border-box'
+              }}
+              autoFocus
+            />
+          </div>
         )}
-        <h1 style={{ margin: 0, fontSize: '22px' }}>
-          {currentView === 'dashboard' ? '🎓 Student Dashboard' : selectedCard?.title}
-        </h1>
-        <div style={{ width: '50px' }}></div> {/* Spacer for alignment */}
       </div>
 
       {error && (

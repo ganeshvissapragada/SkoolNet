@@ -8,11 +8,15 @@ import scholarshipsIcon from '../assets/icons/scholarships.png';
 import mealsIcon from '../assets/icons/meals.png';
 import assignmentsIcon from '../assets/icons/assignments.png';
 import parentIcon from '../assets/icons/parents.png';
-import searchIcon from '../assets/icons/searchbar.png';
-import translateIcon from '../assets/icons/translate_8779198.png';
+import searchIcon from '../assets/icons/search.png';
+import translateIcon from '../assets/icons/translate.png';
+import carousel1 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.53.jpeg';
+import carousel2 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.54.jpeg';
+import carousel3 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.55.jpeg';
 
 export default function ParentDashboard() {
   const { userId } = useContext(AuthContext);
+  
   const [attendance, setAttendance] = useState(null);
   const [marks, setMarks] = useState(null);
   const [ptms, setPtms] = useState([]);
@@ -27,6 +31,7 @@ export default function ParentDashboard() {
   const [language, setLanguage] = useState('telugu'); // 'telugu' or 'english'
   const [showSearch, setShowSearch] = useState(false); // For search toggle
   const [searchQuery, setSearchQuery] = useState(''); // For search functionality
+  const [currentSlide, setCurrentSlide] = useState(0); // For carousel
 
   // Language translations
   const translations = {
@@ -201,20 +206,20 @@ export default function ParentDashboard() {
   const mobileStyles = {
     container: {
       minHeight: '100vh',
-      backgroundColor: '#f5f5f5',
-      fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+      backgroundColor: '#f0f4f9',
+      fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       padding: 0,
       fontSize: '16px'
     },
     header: {
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      color: 'white',
+      backgroundColor: 'transparent',
+      color: '#374151',
       padding: '20px 20px',
       textAlign: 'center',
       position: 'sticky',
       top: 0,
       zIndex: 1000,
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+      borderBottom: 'none'
     },
     backButton: {
       position: 'absolute',
@@ -237,15 +242,15 @@ export default function ParentDashboard() {
       margin: '0 auto'
     },
     card: {
-      backgroundColor: 'white',
+      backgroundColor: '#ffffff',
       borderRadius: '16px',
-      padding: '24px 20px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      padding: '22px 18px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       textAlign: 'center',
-      border: '1px solid #e1e8ed',
-      minHeight: '160px',
+      border: '1px solid #f0f0f0',
+      minHeight: '144px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -260,7 +265,7 @@ export default function ParentDashboard() {
       fontSize: '16px',
       fontWeight: '600',
       marginBottom: '4px',
-      color: '#2c3e50',
+      color: '#374151',
       lineHeight: '1.2'
     },
     cardDescription: {
@@ -269,6 +274,53 @@ export default function ParentDashboard() {
       lineHeight: '1.3',
       display: 'none' // Hide description on smaller cards
     },
+    carousel: {
+      position: 'relative',
+      width: '100%',
+      maxWidth: '600px',
+      height: '180px',
+      margin: '0 auto 20px auto',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      backgroundColor: '#f8f9fa'
+    },
+    carouselContainer: {
+      display: 'flex',
+      width: '100%',
+      height: '180px',
+      transition: 'transform 0.3s ease-in-out'
+    },
+    carouselSlide: {
+      minWidth: '100%',
+      width: '100%',
+      height: '180px',
+      borderRadius: '16px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden'
+    },
+    carouselDots: {
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '8px',
+      padding: '15px',
+      position: 'absolute',
+      bottom: '10px',
+      width: '100%'
+    },
+    carouselDot: {
+      width: '8px',
+      height: '8px',
+      borderRadius: '50%',
+      backgroundColor: 'rgba(255,255,255,0.5)',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s ease'
+    },
+    carouselDotActive: {
+      backgroundColor: 'rgba(255,255,255,1)'
+    },
     detailsContainer: {
       padding: '20px',
       maxWidth: '800px',
@@ -276,13 +328,31 @@ export default function ParentDashboard() {
     }
   };
 
+  // Carousel slides data
+  const carouselSlides = [
+    {
+      id: 1,
+      image: carousel1,
+      background: `url(${carousel1})`
+    },
+    {
+      id: 2,
+      image: carousel2,
+      background: `url(${carousel2})`
+    },
+    {
+      id: 3,
+      image: carousel3,
+      background: `url(${carousel3})`
+    }
+  ];
+
   const cards = [
     {
       id: 'attendance',
       icon: attendanceIcon,
       title: texts.attendance,
       description: 'మీ పిల్లవాడి రోజువారీ హాజరు రికార్డులను చూడండి',
-      color: '#3498db',
       loadData: loadAttendance
     },
     {
@@ -290,7 +360,6 @@ export default function ParentDashboard() {
       icon: marksIcon,
       title: texts.marks,
       description: 'మీ పిల్లవాడి పరీక్ష మార్కులు మరియు గ్రేడ్‌లను చూడండి',
-      color: '#e74c3c',
       loadData: loadMarks
     },
     {
@@ -298,7 +367,6 @@ export default function ParentDashboard() {
       icon: ptmIcon,
       title: texts.ptm,
       description: 'టీచర్‌తో సమావేశాలను వీక్షించండి మరియు ధృవీకరించండి',
-      color: '#9b59b6',
       loadData: loadPTMs
     },
     {
@@ -306,7 +374,6 @@ export default function ParentDashboard() {
       icon: scholarshipsIcon,
       title: texts.scholarships,
       description: 'మీ పిల్లవాడికి లభ్యమైన స్కాలర్‌షిప్‌లను చూడండి',
-      color: '#f39c12',
       loadData: loadScholarships
     },
     {
@@ -314,7 +381,6 @@ export default function ParentDashboard() {
       icon: mealsIcon,
       title: texts.meals,
       description: 'రోజువారీ భోజన ప్రణాళిక మరియు పోషకాహారాన్ని చూడండి',
-      color: '#27ae60',
       loadData: () => {loadMealPlans(); loadMealConsumption();}
     },
     {
@@ -322,10 +388,79 @@ export default function ParentDashboard() {
       icon: assignmentsIcon,
       title: texts.assignments,
       description: 'మీ పిల్లవాడి గృహపాఠాలు మరియు సమర్పణలను చూడండి',
-      color: '#8e44ad',
       loadData: loadAssignments
     }
   ];
+
+  // Auto-advance slides every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [carouselSlides.length]);
+
+  // Carousel component
+  const renderCarousel = () => {
+    const nextSlide = () => {
+      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+    };
+
+    const prevSlide = () => {
+      setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
+    };
+
+    const goToSlide = (index) => {
+      setCurrentSlide(index);
+    };
+
+    return (
+      <div style={mobileStyles.carousel}>
+        <div 
+          style={{
+            ...mobileStyles.carouselContainer,
+            transform: `translateX(-${currentSlide * 100}%)`
+          }}
+        >
+          {carouselSlides.map((slide) => (
+            <div
+              key={slide.id}
+              style={mobileStyles.carouselSlide}
+            >
+              <img 
+                src={slide.image}
+                alt={`School slide ${slide.id}`}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '16px'
+                }}
+                onError={(e) => {
+                  console.log('Image failed to load:', slide.image);
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        
+        {/* Carousel dots */}
+        <div style={mobileStyles.carouselDots}>
+          {carouselSlides.map((_, index) => (
+            <div
+              key={index}
+              style={{
+                ...mobileStyles.carouselDot,
+                ...(index === currentSlide ? mobileStyles.carouselDotActive : {})
+              }}
+              onClick={() => goToSlide(index)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   const renderDashboard = () => {
     // Filter cards based on search query
@@ -335,67 +470,74 @@ export default function ParentDashboard() {
     );
 
     return (
-      <div style={mobileStyles.cardContainer}>
-        {searchQuery && (
-          <div style={{
-            gridColumn: '1 / -1',
-            textAlign: 'center',
-            padding: '10px',
-            fontSize: '14px',
-            color: '#666',
-            marginBottom: '10px'
-          }}>
-            {language === 'english' ? `Showing ${filteredCards.length} results for "${searchQuery}"` : `"${searchQuery}" కోసం ${filteredCards.length} ఫలితాలు`}
+      <div>
+        {/* Carousel Section - only show when not searching */}
+        {!searchQuery && (
+          <div style={{ padding: '20px 24px 0 24px' }}>
+            {renderCarousel()}
           </div>
         )}
         
-        {filteredCards.length === 0 ? (
-          <div style={{
-            gridColumn: '1 / -1',
-            textAlign: 'center',
-            padding: '40px',
-            color: '#666'
-          }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-            <div>{language === 'english' ? 'No results found' : 'ఫలితాలు లేవు'}</div>
-          </div>
-        ) : (
-          filteredCards.map(card => (
-            <div
-              key={card.id}
-              style={{
-                ...mobileStyles.card,
-                borderLeft: `5px solid ${card.color}`
-              }}
-              onClick={() => {
-                setSelectedCard(card);
-                setCurrentView(card.id);
-                setShowSearch(false); // Hide search when navigating
-                setSearchQuery(''); // Clear search
-                card.loadData();
-              }}
-            >
-              <div style={{...mobileStyles.cardIcon, color: card.color}}>
-                {typeof card.icon === 'string' && (card.icon.includes('.png') || card.icon.includes('.svg')) ? (
-                  <img 
-                    src={card.icon} 
-                    alt={card.title}
-                    style={{
-                      width: '48px',
-                      height: '48px',
-                      objectFit: 'contain'
-                    }}
-                  />
-                ) : (
-                  card.icon
-                )}
-              </div>
-              <div style={mobileStyles.cardTitle}>
-                {card.title}
-              </div>
+        {/* Cards Section */}
+        <div style={mobileStyles.cardContainer}>
+          {searchQuery && (
+            <div style={{
+              gridColumn: '1 / -1',
+              textAlign: 'center',
+              padding: '10px',
+              fontSize: '14px',
+              color: '#666',
+              marginBottom: '10px'
+            }}>
+              {language === 'english' ? `Showing ${filteredCards.length} results for "${searchQuery}"` : `"${searchQuery}" కోసం ${filteredCards.length} ఫలితాలు`}
             </div>
-          ))
-        )}
+          )}
+          
+          {filteredCards.length === 0 ? (
+            <div style={{
+              gridColumn: '1 / -1',
+              textAlign: 'center',
+              padding: '40px',
+              color: '#666'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+              <div>{language === 'english' ? 'No results found' : 'ఫలితాలు లేవు'}</div>
+            </div>
+          ) : (
+            filteredCards.map(card => (
+              <div
+                key={card.id}
+                style={mobileStyles.card}
+                onClick={() => {
+                  setSelectedCard(card);
+                  setCurrentView(card.id);
+                  setShowSearch(false); // Hide search when navigating
+                  setSearchQuery(''); // Clear search
+                  card.loadData();
+                }}
+              >
+                <div style={mobileStyles.cardIcon}>
+                  {typeof card.icon === 'string' && (card.icon.includes('.png') || card.icon.includes('.svg')) ? (
+                    <img 
+                      src={card.icon} 
+                      alt={card.title}
+                      style={{
+                        width: '48px',
+                        height: '48px',
+                        objectFit: 'contain'
+                      }}
+                    />
+                  ) : (
+                    card.icon
+                  )}
+                </div>
+                <div style={mobileStyles.cardTitle}>
+                  {card.title}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     );
   };
@@ -1079,13 +1221,13 @@ export default function ParentDashboard() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'white',
+                  color: '#374151',
                   fontSize: '18px',
                   cursor: 'pointer',
                   padding: '8px',
                   borderRadius: '8px'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(55,65,81,0.1)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 onClick={() => {
                   setCurrentView('dashboard');
@@ -1118,13 +1260,13 @@ export default function ParentDashboard() {
                   <div style={{
                     fontSize: '20px',
                     fontWeight: '600',
-                    color: 'white'
+                    color: '#374151'
                   }}>
                     {language === 'english' ? 'Michael Smith' : 'మైఖేల్ స్మిత్'}
                   </div>
                   <div style={{
                     fontSize: '14px',
-                    color: 'rgba(255,255,255,0.8)'
+                    color: 'rgba(55, 65, 81, 0.7)'
                   }}>
                     {language === 'english' ? 'Parent' : 'తల్లిదండ్రులు'}
                   </div>
@@ -1133,7 +1275,7 @@ export default function ParentDashboard() {
             )}
             
             {currentView !== 'dashboard' && (
-              <h1 style={{ margin: '0', fontSize: '20px', color: 'white' }}>
+              <h1 style={{ margin: '0', fontSize: '20px', color: '#374151' }}>
                 {selectedCard?.title}
               </h1>
             )}
@@ -1151,7 +1293,7 @@ export default function ParentDashboard() {
                 borderRadius: '8px',
                 transition: 'background-color 0.2s'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(55,65,81,0.1)'}
               onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
               onClick={() => setShowSearch(!showSearch)}
             >
@@ -1159,8 +1301,8 @@ export default function ParentDashboard() {
                 src={searchIcon} 
                 alt="Search"
                 style={{
-                  width: '28px',
-                  height: '28px',
+                  width: '36px',
+                  height: '36px',
                   objectFit: 'contain'
                 }}
               />
@@ -1176,7 +1318,7 @@ export default function ParentDashboard() {
                 borderRadius: '8px',
                 transition: 'background-color 0.2s'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(55,65,81,0.1)'}
               onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
               onClick={() => setLanguage(language === 'telugu' ? 'english' : 'telugu')}
             >
@@ -1184,8 +1326,8 @@ export default function ParentDashboard() {
                 src={translateIcon} 
                 alt="Translate"
                 style={{
-                  width: '28px',
-                  height: '28px',
+                  width: '36px',
+                  height: '36px',
                   objectFit: 'contain'
                 }}
               />
@@ -1210,8 +1352,8 @@ export default function ParentDashboard() {
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '16px',
-                backgroundColor: 'rgba(255,255,255,0.9)',
-                color: '#333',
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                color: '#374151',
                 boxSizing: 'border-box'
               }}
               autoFocus

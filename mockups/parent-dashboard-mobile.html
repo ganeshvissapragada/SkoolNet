@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard - Mobile Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f0f4f9;
+            min-height: 100vh;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            background-color: #f0f4f9;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: transparent;
+            color: #374151;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .parent-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23ff6b6b"/><circle cx="35" cy="40" r="8" fill="white"/><circle cx="65" cy="40" r="8" fill="white"/><path d="M30 70 Q50 85 70 70" stroke="white" stroke-width="3" fill="none"/></svg>');
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .parent-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .parent-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+
+        .parent-role {
+            font-size: 14px;
+            color: rgba(55, 65, 81, 0.7);
+        }
+
+        .right-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .icon-button:hover {
+            background-color: rgba(55, 65, 81, 0.1);
+        }
+
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            background: #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .search-bar {
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #374151;
+            box-sizing: border-box;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 180px;
+            margin: 20px auto 20px auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: #f8f9fa;
+        }
+
+        .carousel-container {
+            display: flex;
+            width: 300%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-slide {
+            width: 33.333%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        .cards-section {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 22px 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid #f0f0f0;
+            min-height: 144px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #374151;
+            line-height: 1.2;
+        }
+
+        /* Icon colors for different cards */
+        .attendance-icon { 
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+        .marks-icon { 
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+        .ptm-icon { 
+            background: #f3e8ff;
+            color: #8b5cf6;
+        }
+        .scholarships-icon { 
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+        .meals-icon { 
+            background: #fecaca;
+            color: #ef4444;
+        }
+        .assignments-icon { 
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .header {
+                padding: 16px;
+            }
+            
+            .cards-section {
+                padding: 20px 16px;
+                gap: 16px;
+            }
+            
+            .card {
+                padding: 18px 14px;
+                min-height: 130px;
+            }
+            
+            .carousel {
+                margin: 16px;
+                height: 160px;
+            }
+        }
+
+        /* Hidden search bar initially */
+        .search-bar {
+            display: none;
+        }
+
+        .search-bar.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <!-- Left side - Parent info -->
+                <div class="left-section">
+                    <div class="parent-icon"></div>
+                    <div class="parent-info">
+                        <div class="parent-name">Michael Smith</div>
+                        <div class="parent-role">Parent</div>
+                    </div>
+                </div>
+                
+                <!-- Right side - Action icons -->
+                <div class="right-section">
+                    <button class="icon-button" onclick="toggleSearch()">
+                        <div class="header-icon">🔍</div>
+                    </button>
+                    <button class="icon-button" onclick="toggleLanguage()">
+                        <div class="header-icon">🌐</div>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-bar" id="searchBar">
+                <input type="text" class="search-input" placeholder="Search features..." />
+            </div>
+        </div>
+
+        <!-- Carousel Section -->
+        <div style="padding: 0 24px;">
+            <div class="carousel">
+                <div class="carousel-container" id="carouselContainer">
+                    <div class="carousel-slide" style="background-image: url('WhatsApp Image 2025-09-06 at 18.44.53.jpeg');"></div>
+                    <div class="carousel-slide" style="background-image: url('WhatsApp Image 2025-09-06 at 18.44.54.jpeg');"></div>
+                    <div class="carousel-slide" style="background-image: url('WhatsApp Image 2025-09-06 at 18.44.55.jpeg');"></div>
+                </div>
+                <div class="carousel-dots">
+                    <div class="carousel-dot active" onclick="goToSlide(0)"></div>
+                    <div class="carousel-dot" onclick="goToSlide(1)"></div>
+                    <div class="carousel-dot" onclick="goToSlide(2)"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Section -->
+        <div class="cards-section">
+            <!-- Attendance Card -->
+            <div class="card" onclick="openFeature('attendance')">
+                <div class="card-icon attendance-icon">�‍🎓</div>
+                <div class="card-title">Attendance</div>
+            </div>
+
+            <!-- Marks Card -->
+            <div class="card" onclick="openFeature('marks')">
+                <div class="card-icon marks-icon">�</div>
+                <div class="card-title">Marks</div>
+            </div>
+
+            <!-- PTM Card -->
+            <div class="card" onclick="openFeature('ptm')">
+                <div class="card-icon ptm-icon">👨‍👩‍👧‍👦</div>
+                <div class="card-title">Parent-Teacher Meeting</div>
+            </div>
+
+            <!-- Scholarships Card -->
+            <div class="card" onclick="openFeature('scholarships')">
+                <div class="card-icon scholarships-icon">�</div>
+                <div class="card-title">Scholarships</div>
+            </div>
+
+            <!-- Meals Card -->
+            <div class="card" onclick="openFeature('meals')">
+                <div class="card-icon meals-icon">🍽️</div>
+                <div class="card-title">Meals</div>
+            </div>
+
+            <!-- Assignments Card -->
+            <div class="card" onclick="openFeature('assignments')">
+                <div class="card-icon assignments-icon">📋</div>
+                <div class="card-title">Assignments</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSearch() {
+            const searchBar = document.getElementById('searchBar');
+            searchBar.classList.toggle('active');
+            if (searchBar.classList.contains('active')) {
+                searchBar.querySelector('input').focus();
+            }
+        }
+
+        function toggleLanguage() {
+            // Toggle between English and Telugu
+            const cards = document.querySelectorAll('.card-title');
+            const isEnglish = cards[0].textContent === 'Attendance';
+            
+            const englishTitles = ['Attendance', 'Marks', 'Parent-Teacher Meeting', 'Scholarships', 'Meals', 'Assignments'];
+            const teluguTitles = ['హాజరు', 'మార్కులు', 'తల్లిదండ్రుల సమావేశం', 'స్కాలర్‌షిప్‌లు', 'భోజనం', 'గృహపాఠాలు'];
+            
+            const titles = isEnglish ? teluguTitles : englishTitles;
+            
+            cards.forEach((card, index) => {
+                card.textContent = titles[index];
+            });
+
+            // Update parent name and role
+            const parentName = document.querySelector('.parent-name');
+            const parentRole = document.querySelector('.parent-role');
+            const searchPlaceholder = document.querySelector('.search-input');
+            
+            if (isEnglish) {
+                parentName.textContent = 'మైఖేల్ స్మిత్';
+                parentRole.textContent = 'తల్లిదండ్రులు';
+                searchPlaceholder.placeholder = 'ఫీచర్లను వెతకండి...';
+            } else {
+                parentName.textContent = 'Michael Smith';
+                parentRole.textContent = 'Parent';
+                searchPlaceholder.placeholder = 'Search features...';
+            }
+        }
+
+        function openFeature(feature) {
+            alert(`Opening ${feature} feature`);
+        }
+
+        function goToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            updateCarousel();
+        }
+
+        // Auto-advance carousel dots
+        let currentSlide = 0;
+        const dots = document.querySelectorAll('.carousel-dot');
+        const carouselContainer = document.getElementById('carouselContainer');
+        
+        function updateCarousel() {
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+            
+            if (carouselContainer) {
+                carouselContainer.style.transform = `translateX(-${currentSlide * 33.333}%)`;
+            }
+            
+            currentSlide = (currentSlide + 1) % dots.length;
+        }
+        
+        setInterval(updateCarousel, 4000);
+
+        // Add click handlers for carousel dots
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                updateCarousel();
+            });
+        });
+    </script>
+</body>
+</html>
