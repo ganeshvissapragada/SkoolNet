@@ -5,11 +5,15 @@ import AdminDashboard from '../pages/AdminDashboard.jsx';
 import TeacherDashboard from '../pages/TeacherDashboard.jsx';
 import ParentDashboard from '../pages/ParentDashboard.jsx';
 import StudentDashboard from '../pages/StudentDashboard.jsx';
+import SchoolLandingPage from '../pages/SchoolLandingPage.jsx';
 import ProtectedRoute from '../auth/ProtectedRoute.jsx';
 
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<SchoolLandingPage />} />
+      <Route path="/home" element={<SchoolLandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       
       {/* Protected Routes */}
@@ -46,9 +50,8 @@ export default function AppRoutes() {
         }
       />
       
-      {/* Redirect root to login */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      {/* Catch all - redirect to home */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

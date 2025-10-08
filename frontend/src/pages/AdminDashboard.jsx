@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/api.js';
+import AdminLandingPageManager from './AdminLandingPageManager.jsx';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('users');
@@ -750,6 +751,20 @@ export default function AdminDashboard() {
           }}
         >
           📊 Attendance
+        </button>
+        <button 
+          onClick={() => setActiveTab('landing-page')}
+          style={{
+            padding: '10px 20px',
+            margin: '0 5px',
+            borderRadius: '5px',
+            border: '1px solid #ccc',
+            backgroundColor: activeTab === 'landing-page' ? '#007bff' : '#f8f9fa',
+            color: activeTab === 'landing-page' ? 'white' : '#000',
+            cursor: 'pointer'
+          }}
+        >
+          🏠 Landing Page
         </button>
       </div>
 
@@ -2556,6 +2571,10 @@ export default function AdminDashboard() {
             </pre>
           )}
         </div>
+      )}
+
+      {activeTab === 'landing-page' && (
+        <AdminLandingPageManager />
       )}
     </div>
   );

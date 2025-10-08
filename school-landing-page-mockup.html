@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excellence Public School - Nurturing Future Leaders</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            line-height: 1.6;
+            color: #333;
+            background-color: #f0f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: transparent;
+            padding: 20px 0;
+            position: sticky;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: none;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: #374151;
+            font-size: 1.8rem;
+            font-weight: bold;
+            font-family: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+            border-radius: 50%;
+            border: 3px solid #374151;
+            object-fit: cover;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(55,65,81,0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        .cta-button {
+            display: none;
+        }
+
+        /* Mobile responsiveness for navbar */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 1.4rem;
+            }
+            
+            .logo-icon {
+                width: 50px;
+                height: 50px;
+                border: none;
+            }
+            
+            .nav-btn {
+                padding: 4px;
+                border-radius: 8px;
+            }
+            
+            .nav-btn img {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        /* Hero Carousel Section */
+        .hero-section {
+            margin-top: 0;
+            height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Fallback gradient background */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .slide1 {
+            background-image: url('frontend/src/assets/carousel/school-classroom.jpg');
+        }
+
+        .slide2 {
+            background-image: url('frontend/src/assets/carousel/community-gathering.jpg');
+        }
+
+        .slide3 {
+            background-image: url('frontend/src/assets/carousel/independence-celebration.jpg');
+        }
+
+        .slide4 {
+            background-image: url('frontend/src/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.53.jpeg');
+        }
+
+        .slide5 {
+            background-image: url('frontend/src/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.54.jpeg');
+        }
+
+        .slide6 {
+            background-image: url('frontend/src/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.55.jpeg');
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff5252;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,107,107,0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-3px);
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        /* School Stats Cards Section */
+        .stats-section {
+            padding: 4rem 0;
+            background: #f0f4f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: #1f2937;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: #6b7280;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.8rem 1.2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            margin: 0 auto 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.students { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .stat-icon.teachers { background: linear-gradient(135deg, #56cfe1, #667eea); }
+        .stat-icon.awards { background: linear-gradient(135deg, #ffd93d, #ff6b6b); }
+        .stat-icon.years { background: linear-gradient(135deg, #ff6b6b, #ffd93d); }
+
+        .stat-number {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+
+        .stat-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        /* Staff Section */
+        .staff-section {
+            padding: 4rem 0;
+            background: white;
+        }
+
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.2rem;
+            margin-top: 2.5rem;
+        }
+
+        .staff-card {
+            background: white;
+            border-radius: 16px;
+            overflow: visible;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 1.2rem;
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+
+        .staff-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .staff-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 3px solid #f8f9fa;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+
+        .staff-image.real-photo {
+            background-size: cover;
+            background-position: center;
+        }
+
+        .staff-info {
+            padding: 0.8rem;
+            text-align: center;
+        }
+
+        .staff-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.3rem;
+        }
+
+        .staff-position {
+            color: #6366f1;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        .staff-qualification {
+            color: #6b7280;
+            margin-bottom: 0.8rem;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        .staff-experience {
+            background: #f9fafb;
+            padding: 0.6rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #f3f4f6;
+        }
+
+        .experience-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.2rem;
+        }
+
+        .experience-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        .staff-contact {
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .contact-btn:hover {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+            transform: translateY(-1px);
+        }
+
+        /* Footer Section */
+        .footer {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: #56cfe1;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .footer-section p, .footer-section li {
+            color: #bdc3c7;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #56cfe1;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .contact-icon {
+            background: #56cfe1;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #56cfe1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: #667eea;
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            padding-top: 2rem;
+            text-align: center;
+            color: #95a5a6;
+        }
+
+        /* Achievements Section */
+        .achievements-section {
+            padding: 4rem 0;
+            position: relative;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow: hidden;
+        }
+
+        .achievements-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('frontend/src/assets/carousel/school-classroom.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(8px);
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        .achievements-section .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .achievement-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+
+        .achievement-stat-card {
+            color: white;
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .achievement-stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+        }
+
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .achievement-number {
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .achievement-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            opacity: 0.95;
+        }
+
+        .achievement-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .achievement-highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .highlight-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+
+        .highlight-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+        }
+
+        .highlight-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .highlight-card h3 {
+            color: #1f2937;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .highlight-card p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* Albums/Gallery Section */
+        .albums-section {
+            padding: 4rem 0;
+            background: white;
+        }
+
+        .achievements-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+        }
+
+        .albums-container {
+            position: relative;
+            margin: 2rem 0;
+        }
+
+        .albums-row {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 1rem 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .albums-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .albums-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .albums-nav:hover {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .albums-nav.prev {
+            left: -25px;
+        }
+
+        .albums-nav.next {
+            right: -25px;
+        }
+
+        .album-card {
+            flex: 0 0 320px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #f3f4f6;
+        }
+
+        .album-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+        }
+
+        .album-cover {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            position: relative;
+        }
+
+        .album-info {
+            padding: 1.5rem;
+        }
+
+        .album-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .album-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .album-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .album-date {
+            font-weight: 500;
+        }
+
+        .album-photo-count {
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .view-more-section {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .view-more-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .view-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+        }
+
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .hidden-albums {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+
+        .hidden-albums.show {
+            max-height: 1000px;
+            opacity: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .section-title h2 {
+                font-size: 1.8rem;
+            }
+
+            .section-title p {
+                font-size: 1rem;
+            }
+
+            .achievements-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-buttons {
+                justify-content: center;
+            }
+
+            .filter-btn {
+                font-size: 0.8rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .achievements-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+
+            .achievement-card {
+                margin-bottom: 1rem;
+            }
+
+            .upload-area {
+                padding: 1.5rem;
+            }
+
+            .upload-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1.4rem 1rem;
+            }
+
+            .stat-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 1.3rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .staff-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .staff-card {
+                padding: 1rem;
+            }
+
+            .staff-image {
+                width: 80px;
+                height: 80px;
+                font-size: 1.6rem;
+            }
+
+            .staff-name {
+                font-size: 1.1rem;
+            }
+
+            .contact-btn {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.6rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Mobile responsiveness for album features */
+            .albums-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .albums-nav.prev {
+                left: -20px;
+            }
+
+            .albums-nav.next {
+                right: -20px;
+            }
+
+            .album-card {
+                flex: 0 0 280px;
+            }
+
+            .album-title {
+                font-size: 1.1rem;
+            }
+
+            .album-description {
+                font-size: 0.85rem;
+                -webkit-line-clamp: 3;
+                line-clamp: 3;
+            }
+
+            .album-photo-count {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.6rem;
+            }
+
+            .view-more-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .hidden-albums {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .album-card {
+                flex: 0 0 260px;
+            }
+
+            .albums-container {
+                margin: 0 -10px;
+            }
+
+            .albums-row {
+                padding: 1rem 10px;
+            }
+
+            .album-cover {
+                height: 160px;
+                font-size: 1.5rem;
+            }
+
+            .album-info {
+                padding: 1rem;
+            }
+
+            .filter-buttons {
+                gap: 0.5rem;
+            }
+
+            .filter-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Left side - School logo and name -->
+            <div class="logo">
+                <img src="frontend/src/assets/icons/school_icon.png" alt="School Logo" class="logo-icon">
+                <div>
+                    <div style="font-size: 24px; font-weight: 600; color: #374151;">Excellence Public School</div>
+                    <div style="font-size: 16px; color: rgba(55, 65, 81, 0.7);">School Landing Page</div>
+                </div>
+            </div>
+            
+            <!-- Right side - Search and Translate buttons -->
+            <div class="nav-actions">
+                <!-- Search Button -->
+                <button class="nav-btn" onclick="toggleSearch()">
+                    <img src="frontend/src/assets/icons/search.png" alt="Search">
+                </button>
+                
+                <!-- Translate Button -->
+                <button class="nav-btn" onclick="toggleLanguage()">
+                    <img src="frontend/src/assets/icons/translate.png" alt="Translate">
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Carousel -->
+    <section class="hero-section" id="home">
+        <div class="carousel-container">
+            <!-- Slide 1 -->
+            <div class="carousel-slide slide1 active">
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="carousel-slide slide2">
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="carousel-slide slide3">
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="carousel-slide slide4">
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="carousel-slide slide5">
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="carousel-slide slide6">
+            </div>
+        </div>
+
+        <!-- Carousel Indicators -->
+        <div class="carousel-indicators">
+            <span class="indicator active" data-slide="0"></span>
+            <span class="indicator" data-slide="1"></span>
+            <span class="indicator" data-slide="2"></span>
+            <span class="indicator" data-slide="3"></span>
+            <span class="indicator" data-slide="4"></span>
+            <span class="indicator" data-slide="5"></span>
+        </div>
+    </section>
+
+    <!-- School Stats Section -->
+  <section class="achievements-section" id="achievements">
+        <div class="container">
+            <div class="section-title animate-on-scroll">
+                <h2>Our Pride in Numbers</h2>
+                <p>Excellence reflected through our achievements and the trust of our community</p>
+            </div>
+
+            <!-- Achievement Stats Grid -->
+            <div class="achievement-stats-grid">
+                <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <div class="achievement-icon">👥</div>
+                    <div class="achievement-number" data-target="2500">0</div>
+                    <div class="achievement-label">Happy Students</div>
+                    <div class="achievement-description">Active learners from diverse backgrounds pursuing excellence</div>
+                </div>
+
+                <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #56cfe1, #667eea);">
+                    <div class="achievement-icon">👨‍🏫</div>
+                    <div class="achievement-number" data-target="150">0</div>
+                    <div class="achievement-label">Expert Teachers</div>
+                    <div class="achievement-description">Qualified educators with average 10+ years experience</div>
+                </div>
+
+                <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #ffd93d, #ff6b6b);">
+                    <div class="achievement-icon">🏆</div>
+                    <div class="achievement-number" data-target="45">0</div>
+                    <div class="achievement-label">Awards Won</div>
+                    <div class="achievement-description">Recognition in academics, sports, and cultural competitions</div>
+                </div>
+
+                <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #ff6b6b, #ffd93d);">
+                    <div class="achievement-icon">📅</div>
+                    <div class="achievement-number" data-target="25">0</div>
+                    <div class="achievement-label">Years of Excellence</div>
+                    <div class="achievement-description">Serving the community with commitment and dedication</div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Staff Details Section -->
+    <section class="staff-section" id="staff">
+        <div class="container">
+            <div class="section-title animate-on-scroll">
+                <h2>Meet Our Leadership Team</h2>
+                <p>Experienced educators and administrators committed to excellence</p>
+            </div>
+
+            <div class="staff-grid">
+                <!-- Principal with Real Photo -->
+                <div class="staff-card animate-on-scroll">
+                    <div class="staff-image real-photo" style="background-image: url('frontend/src/assets/teachers/PLN%20Phanikumar%20SA%20.png');"></div>
+                    <div class="staff-info">
+                        <div class="staff-name">PLN Phanikumar</div>
+                        <div class="staff-position">Principal</div>
+                        <div class="staff-qualification">Ph.D. in Education, M.Ed., B.Ed.</div>
+                        <div class="staff-experience">
+                            <div class="experience-label">Experience</div>
+                            <div class="experience-value">20+ Years</div>
+                        </div>
+                        <div class="staff-contact">
+                            <a href="mailto:principal@excellenceschool.edu" class="contact-btn">📧 Email</a>
+                            <a href="tel:+91-9876543210" class="contact-btn">📞 Call</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vice Principal -->
+                <div class="staff-card animate-on-scroll">
+                    <div class="staff-image">👩‍💼</div>
+                    <div class="staff-info">
+                        <div class="staff-name">Mrs. Priya Sharma</div>
+                        <div class="staff-position">Vice Principal</div>
+                        <div class="staff-qualification">M.Ed., B.Ed., M.A. English</div>
+                        <div class="staff-experience">
+                            <div class="experience-label">Experience</div>
+                            <div class="experience-value">15+ Years</div>
+                        </div>
+                        <div class="staff-contact">
+                            <a href="mailto:viceprincipal@excellenceschool.edu" class="contact-btn">📧 Email</a>
+                            <a href="tel:+91-9876543211" class="contact-btn">📞 Call</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Director -->
+                <div class="staff-card animate-on-scroll">
+                    <div class="staff-image">👨‍🎓</div>
+                    <div class="staff-info">
+                        <div class="staff-name">Prof. Suresh Mehta</div>
+                        <div class="staff-position">Academic Director</div>
+                        <div class="staff-qualification">M.Sc. Physics, B.Ed., Ph.D.</div>
+                        <div class="staff-experience">
+                            <div class="experience-label">Experience</div>
+                            <div class="experience-value">18+ Years</div>
+                        </div>
+                        <div class="staff-contact">
+                            <a href="mailto:academic@excellenceschool.edu" class="contact-btn">📧 Email</a>
+                            <a href="tel:+91-9876543212" class="contact-btn">📞 Call</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sports Director -->
+                <div class="staff-card animate-on-scroll">
+                    <div class="staff-image">🏃‍♂️</div>
+                    <div class="staff-info">
+                        <div class="staff-name">Mr. Arjun Singh</div>
+                        <div class="staff-position">Sports Director</div>
+                        <div class="staff-qualification">M.P.Ed., B.P.Ed., Sports Coach</div>
+                        <div class="staff-experience">
+                            <div class="experience-label">Experience</div>
+                            <div class="experience-value">12+ Years</div>
+                        </div>
+                        <div class="staff-contact">
+                            <a href="mailto:sports@excellenceschool.edu" class="contact-btn">📧 Email</a>
+                            <a href="tel:+91-9876543213" class="contact-btn">📞 Call</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IT Head -->
+                <div class="staff-card animate-on-scroll">
+                    <div class="staff-image">👨‍💻</div>
+                    <div class="staff-info">
+                        <div class="staff-name">Mr. Vikash Patel</div>
+                        <div class="staff-position">IT Head</div>
+                        <div class="staff-qualification">B.Tech IT, M.Tech, Certified</div>
+                        <div class="staff-experience">
+                            <div class="experience-label">Experience</div>
+                            <div class="experience-value">10+ Years</div>
+                        </div>
+                        <div class="staff-contact">
+                            <a href="mailto:it@excellenceschool.edu" class="contact-btn">📧 Email</a>
+                            <a href="tel:+91-9876543214" class="contact-btn">📞 Call</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Counselor -->
+                <div class="staff-card animate-on-scroll">
+                    <div class="staff-image">👩‍⚕️</div>
+                    <div class="staff-info">
+                        <div class="staff-name">Dr. Sunita Rao</div>
+                        <div class="staff-position">School Counselor</div>
+                        <div class="staff-qualification">Ph.D. Psychology, M.A., Certified</div>
+                        <div class="staff-experience">
+                            <div class="experience-label">Experience</div>
+                            <div class="experience-value">14+ Years</div>
+                        </div>
+                        <div class="staff-contact">
+                            <a href="mailto:counselor@excellenceschool.edu" class="contact-btn">📧 Email</a>
+                            <a href="tel:+91-9876543215" class="contact-btn">📞 Call</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Albums/Gallery Section -->
+    <section class="albums-section" id="albums">
+        <div class="container">
+            <div class="section-title animate-on-scroll">
+                <h2>School Albums & Gallery</h2>
+                <p>Capturing precious moments and memorable events throughout our academic journey</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="albums-header">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all" onclick="filterAlbums('all')">All Events</button>
+                    <button class="filter-btn" data-filter="academic" onclick="filterAlbums('academic')">Academic</button>
+                    <button class="filter-btn" data-filter="sports" onclick="filterAlbums('sports')">Sports</button>
+                    <button class="filter-btn" data-filter="cultural" onclick="filterAlbums('cultural')">Cultural</button>
+                    <button class="filter-btn" data-filter="celebrations" onclick="filterAlbums('celebrations')">Celebrations</button>
+                </div>
+                <button class="upload-btn" onclick="openUploadModal()">
+                    <span class="upload-icon">📷</span>
+                    Add Album
+                </button>
+            </div>
+
+            <!-- Main Albums Row (Horizontal Scroll) -->
+            <div class="albums-container">
+                <button class="albums-nav prev" onclick="scrollAlbums('left')">‹</button>
+                <div class="albums-row" id="albumsRow">
+                    <!-- Album Card 1 -->
+                    <div class="album-card" data-category="academic" onclick="openAlbum('science-exhibition-2024')">
+                        <div class="album-cover" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            🔬
+                        </div>
+                        <div class="album-info">
+                            <h3 class="album-title">Science Exhibition 2024</h3>
+                            <p class="album-description">Annual science fair showcasing innovative projects by our brilliant students</p>
+                            <div class="album-meta">
+                                <span class="album-date">March 15, 2024</span>
+                                <span class="album-photo-count">45 Photos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Album Card 2 -->
+                    <div class="album-card" data-category="sports" onclick="openAlbum('inter-school-championship')">
+                        <div class="album-cover" style="background: linear-gradient(135deg, #56cfe1, #667eea);">
+                            🏆
+                        </div>
+                        <div class="album-info">
+                            <h3 class="album-title">Inter-School Championship</h3>
+                            <p class="album-description">Our athletes competing and winning at the district level sports meet</p>
+                            <div class="album-meta">
+                                <span class="album-date">February 22, 2024</span>
+                                <span class="album-photo-count">67 Photos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Album Card 3 -->
+                    <div class="album-card" data-category="cultural" onclick="openAlbum('annual-day-celebration')">
+                        <div class="album-cover" style="background: linear-gradient(135deg, #ffd93d, #ff6b6b);">
+                            🎭
+                        </div>
+                        <div class="album-info">
+                            <h3 class="album-title">Annual Day Celebration</h3>
+                            <p class="album-description">A spectacular showcase of talent, creativity, and cultural diversity</p>
+                            <div class="album-meta">
+                                <span class="album-date">December 10, 2023</span>
+                                <span class="album-photo-count">89 Photos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Album Card 4 -->
+                    <div class="album-card" data-category="celebrations" onclick="openAlbum('independence-day-2024')">
+                        <div class="album-cover" style="background: linear-gradient(135deg, #ff6b6b, #ffd93d);">
+                            🇮🇳
+                        </div>
+                        <div class="album-info">
+                            <h3 class="album-title">Independence Day 2024</h3>
+                            <p class="album-description">Patriotic celebration with flag hoisting, cultural programs and speeches</p>
+                            <div class="album-meta">
+                                <span class="album-date">August 15, 2024</span>
+                                <span class="album-photo-count">34 Photos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Album Card 5 -->
+                    <div class="album-card" data-category="academic" onclick="openAlbum('graduation-ceremony-2024')">
+                        <div class="album-cover" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            🎓
+                        </div>
+                        <div class="album-info">
+                            <h3 class="album-title">Graduation Ceremony 2024</h3>
+                            <p class="album-description">Celebrating the achievements of our graduating class of 2024</p>
+                            <div class="album-meta">
+                                <span class="album-date">April 28, 2024</span>
+                                <span class="album-photo-count">52 Photos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Album Card 6 -->
+                    <div class="album-card" data-category="sports" onclick="openAlbum('swimming-championship')">
+                        <div class="album-cover" style="background: linear-gradient(135deg, #56cfe1, #667eea);">
+                            🏊‍♂️
+                        </div>
+                        <div class="album-info">
+                            <h3 class="album-title">Swimming Championship</h3>
+                            <p class="album-description">Annual swimming competition showcasing aquatic talents of our students</p>
+                            <div class="album-meta">
+                                <span class="album-date">January 18, 2024</span>
+                                <span class="album-photo-count">28 Photos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="albums-nav next" onclick="scrollAlbums('right')">›</button>
+            </div>
+
+            <!-- View More Button -->
+            <div class="view-more-container">
+                <button class="view-more-btn" id="viewMoreBtn" onclick="toggleViewMore()">
+                    <span>View More Albums</span>
+                    <span class="arrow">→</span>
+                </button>
+            </div>
+
+            <!-- Hidden Albums (Shown when View More is clicked) -->
+            <div class="hidden-albums" id="hiddenAlbums">
+                <div class="album-card" data-category="cultural" onclick="openAlbum('music-concert-2024')">
+                    <div class="album-cover" style="background: linear-gradient(135deg, #ffd93d, #ff6b6b);">
+                        🎵
+                    </div>
+                    <div class="album-info">
+                        <h3 class="album-title">Music Concert 2024</h3>
+                        <p class="album-description">Melodious evening featuring our school orchestra and choir performances</p>
+                        <div class="album-meta">
+                            <span class="album-date">November 5, 2024</span>
+                            <span class="album-photo-count">41 Photos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="album-card" data-category="celebrations" onclick="openAlbum('teachers-day-2024')">
+                    <div class="album-cover" style="background: linear-gradient(135deg, #ff6b6b, #ffd93d);">
+                        👩‍🏫
+                    </div>
+                    <div class="album-info">
+                        <h3 class="album-title">Teachers' Day 2024</h3>
+                        <p class="album-description">Honoring our dedicated educators with special programs and appreciation</p>
+                        <div class="album-meta">
+                            <span class="album-date">September 5, 2024</span>
+                            <span class="album-photo-count">36 Photos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="album-card" data-category="academic" onclick="openAlbum('robotics-workshop')">
+                    <div class="album-cover" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        🤖
+                    </div>
+                    <div class="album-info">
+                        <h3 class="album-title">Robotics Workshop</h3>
+                        <p class="album-description">Hands-on learning experience in robotics and artificial intelligence</p>
+                        <div class="album-meta">
+                            <span class="album-date">October 12, 2024</span>
+                            <span class="album-photo-count">29 Photos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="album-card" data-category="sports" onclick="openAlbum('cricket-tournament')">
+                    <div class="album-cover" style="background: linear-gradient(135deg, #56cfe1, #667eea);">
+                        🏏
+                    </div>
+                    <div class="album-info">
+                        <h3 class="album-title">Cricket Tournament</h3>
+                        <p class="album-description">Exciting matches from our annual inter-house cricket championship</p>
+                        <div class="album-meta">
+                            <span class="album-date">September 20, 2024</span>
+                            <span class="album-photo-count">55 Photos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <!-- School Info -->
+                <div class="footer-section">
+                    <h3>Excellence Public School</h3>
+                    <p>Dedicated to providing world-class education and nurturing future leaders through innovative teaching methods and holistic development programs.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">📘</a>
+                        <a href="#" class="social-link">🐦</a>
+                        <a href="#" class="social-link">📸</a>
+                        <a href="#" class="social-link">📺</a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#admissions">Admissions</a></li>
+                        <li><a href="#academics">Academics</a></li>
+                        <li><a href="#facilities">Facilities</a></li>
+                        <li><a href="#activities">Activities</a></li>
+                        <li><a href="#results">Results</a></li>
+                        <li><a href="#gallery">Gallery</a></li>
+                        <li><a href="#careers">Careers</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="footer-section">
+                    <h3>Contact Information</h3>
+                    <div class="contact-info">
+                        <span class="contact-icon">📍</span>
+                        <div>
+                            <strong>Address:</strong><br>
+                            123 Education Street, Knowledge City,<br>
+                            Mumbai, Maharashtra - 400001
+                        </div>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-icon">📞</span>
+                        <div>
+                            <strong>Phone:</strong><br>
+                            +91-22-1234-5678<br>
+                            +91-9876-543-210
+                        </div>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-icon">✉️</span>
+                        <div>
+                            <strong>Email:</strong><br>
+                            info@excellenceschool.edu<br>
+                            admissions@excellenceschool.edu
+                        </div>
+                    </div>
+                </div>
+
+                <!-- School Hours -->
+                <div class="footer-section">
+                    <h3>School Hours</h3>
+                    <p><strong>Academic Session:</strong><br>
+                    Monday - Friday: 8:00 AM - 3:30 PM<br>
+                    Saturday: 8:00 AM - 1:00 PM</p>
+                    
+                    <p><strong>Office Hours:</strong><br>
+                    Monday - Saturday: 9:00 AM - 5:00 PM</p>
+                    
+                    <p><strong>Library Hours:</strong><br>
+                    Monday - Friday: 8:00 AM - 5:00 PM<br>
+                    Saturday: 9:00 AM - 3:00 PM</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 Excellence Public School. All rights reserved. | <a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
+                <p>Designed with ❤️ for Excellence in Education</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Language state
+        let currentLanguage = 'english'; // 'english' or 'telugu'
+        let showSearch = false;
+
+        // Language translations
+        const translations = {
+            english: {
+                schoolName: 'Excellence Public School',
+                subtitle: 'School Landing Page',
+                statsTitle: 'Our Pride in Numbers',
+                statsDescription: 'Excellence reflected through our achievements and the trust of our community',
+                studentsLabel: 'Happy Students',
+                teachersLabel: 'Expert Teachers', 
+                awardsLabel: 'Awards Won',
+                yearsLabel: 'Years of Excellence',
+                staffTitle: 'Meet Our Leadership Team',
+                staffDescription: 'Experienced educators and administrators committed to excellence'
+            },
+            telugu: {
+                schoolName: 'ఎక్సలెన్స్ పబ్లిక్ స్కూల్',
+                subtitle: 'స్కూల్ ల్యాండింగ్ పేజీ',
+                statsTitle: 'మా గర్వకారణాలు',
+                statsDescription: 'మా విజయాలు మరియు సమాజ విశ్వాసంలో ప్రతిబింబించే శ్రేష్ఠత',
+                studentsLabel: 'సంతోషకరమైన విద్యార్థులు',
+                teachersLabel: 'నిపుణ ఉపాధ్యాయులు',
+                awardsLabel: 'గెలుచుకున్న అవార్డులు',
+                yearsLabel: 'శ్రేష్ఠత సంవత్సరాలు',
+                staffTitle: 'మా నాయకత్వ బృందాన్ని కలవండి',
+                staffDescription: 'శ్రేష్ఠతకు కట్టుబడిన అనుభవజ్ఞులైన విద్యావేత్తలు మరియు నిర్వాహకులు'
+            }
+        };
+
+        // Toggle search functionality
+        function toggleSearch() {
+            showSearch = !showSearch;
+            if (showSearch) {
+                // Create search overlay or show search functionality
+                alert('Search functionality activated! (To be implemented)');
+            }
+        }
+
+        // Toggle language
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'english' ? 'telugu' : 'english';
+            updatePageLanguage();
+        }
+
+        // Update page content based on language
+        function updatePageLanguage() {
+            const texts = translations[currentLanguage];
+            
+            // Update header
+            document.querySelector('.logo div div:first-child').textContent = texts.schoolName;
+            document.querySelector('.logo div div:last-child').textContent = texts.subtitle;
+            
+            // Update stats section
+            document.querySelector('.section-title h2').textContent = texts.statsTitle;
+            document.querySelector('.section-title p').textContent = texts.statsDescription;
+            
+            // Update stat labels
+            const statLabels = document.querySelectorAll('.stat-label');
+            statLabels[0].textContent = texts.studentsLabel;
+            statLabels[1].textContent = texts.teachersLabel;
+            statLabels[2].textContent = texts.awardsLabel;
+            statLabels[3].textContent = texts.yearsLabel;
+            
+            // Update staff section
+            const staffSection = document.querySelector('.staff-section .section-title h2');
+            const staffDescription = document.querySelector('.staff-section .section-title p');
+            staffSection.textContent = texts.staffTitle;
+            staffDescription.textContent = texts.staffDescription;
+        }
+
+        // Carousel functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.indicator');
+
+        // Preload carousel images for better performance
+        const carouselImages = [
+            'frontend/src/assets/carousel/school-classroom.jpg',
+            'frontend/src/assets/carousel/community-gathering.jpg',
+            'frontend/src/assets/carousel/independence-celebration.jpg',
+            'frontend/src/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.53.jpeg',
+            'frontend/src/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.54.jpeg',
+            'frontend/src/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.55.jpeg'
+        ];
+
+        // Preload images
+        function preloadImages() {
+            carouselImages.forEach(src => {
+                const img = new Image();
+                img.src = src;
+            });
+        }
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === index);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Initialize carousel after page load
+        function initCarousel() {
+            preloadImages();
+            showSlide(0); // Show first slide
+        }
+
+        // Auto-advance carousel every 6 seconds (slower for 6 slides)
+        setInterval(nextSlide, 6000);
+
+        // Indicator click handlers
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                currentSlide = index;
+                showSlide(currentSlide);
+            });
+        });
+
+        // Counter animation for stats
+        function animateCounter(element, target) {
+            let count = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                count += increment;
+                if (count >= target) {
+                    count = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(count);
+            }, 20);
+        }
+
+        // Scroll animations
+        function isElementInViewport(el) {
+            const rect = el.getBoundingClientRect();
+            return (
+                rect.top >= 0 &&
+                rect.left >= 0 &&
+                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            );
+        }
+
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            elements.forEach(element => {
+                if (isElementInViewport(element) && !element.classList.contains('animated')) {
+                    element.classList.add('animated');
+                    
+                    // Animate counters when stats section is visible
+                    if (element.querySelector('.stat-number')) {
+                        const counter = element.querySelector('.stat-number');
+                        const target = parseInt(counter.getAttribute('data-target'));
+                        setTimeout(() => animateCounter(counter, target), 200);
+                    }
+                    
+                    // Animate counters when achievement section is visible
+                    if (element.querySelector('.achievement-number')) {
+                        const counter = element.querySelector('.achievement-number');
+                        const target = parseInt(counter.getAttribute('data-target'));
+                        if (target) {
+                            setTimeout(() => animateCounter(counter, target), 200);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Album functionality
+        let viewMoreExpanded = false;
+
+        // Scroll albums horizontally
+        function scrollAlbums(direction) {
+            const albumsRow = document.getElementById('albumsRow');
+            const scrollAmount = 340; // Card width + gap
+            
+            if (direction === 'left') {
+                albumsRow.scrollLeft -= scrollAmount;
+            } else {
+                albumsRow.scrollLeft += scrollAmount;
+            }
+        }
+
+        // Filter albums by category
+        function filterAlbums(category) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${category}"]`).classList.add('active');
+
+            // Filter album cards in both visible and hidden sections
+            const allCards = document.querySelectorAll('.album-card');
+            allCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                if (category === 'all' || cardCategory === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Toggle view more functionality
+        function toggleViewMore() {
+            const hiddenAlbums = document.getElementById('hiddenAlbums');
+            const viewMoreBtn = document.getElementById('viewMoreBtn');
+            const btnText = viewMoreBtn.querySelector('span');
+            const arrow = viewMoreBtn.querySelector('.arrow');
+
+            viewMoreExpanded = !viewMoreExpanded;
+
+            if (viewMoreExpanded) {
+                hiddenAlbums.classList.add('show');
+                btnText.textContent = 'View Less Albums';
+                arrow.textContent = '↑';
+                viewMoreBtn.style.background = 'linear-gradient(135deg, #059669, #065f46)';
+            } else {
+                hiddenAlbums.classList.remove('show');
+                btnText.textContent = 'View More Albums';
+                arrow.textContent = '→';
+                viewMoreBtn.style.background = 'linear-gradient(135deg, #6366f1, #8b5cf6)';
+            }
+        }
+
+        // Open album modal (placeholder function)
+        function openAlbum(albumId) {
+            alert(`Opening album: ${albumId}\n\nThis would open a full-screen photo gallery with all images from this event album.\n\n(To be implemented with backend integration)`);
+        }
+
+        // Open upload modal (placeholder function)  
+        function openUploadModal() {
+            alert('Upload Album Modal\n\nThis would open a form to:\n- Add album title and description\n- Select event category\n- Upload multiple photos\n- Set event date\n\n(To be implemented with backend integration)');
+        }
+
+        // Event listeners
+        window.addEventListener('scroll', handleScrollAnimations);
+        window.addEventListener('load', () => {
+            handleScrollAnimations();
+            initCarousel(); // Initialize carousel when page loads
+        });
+    </script>
+</body>
+</html>
