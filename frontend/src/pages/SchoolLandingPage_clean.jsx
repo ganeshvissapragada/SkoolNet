@@ -16,69 +16,56 @@ const SchoolLandingPage = () => {
   const processedStats = useMemo(() => {
     const fallbackStats = [
       {
-        icon: '/assets/landingpage/student.png',
-        fallbackIcon: '🎓',
-        value: 2500,
+        icon: '/src/assets/landingpage/student.png',
+        number: 2500,
         label: 'Student Strength',
         description: 'Bright minds learning and growing with us',
         gradient: 'linear-gradient(135deg, #667eea, #764ba2)'
       },
       {
-        icon: '/assets/landingpage/teacher.png',
-        fallbackIcon: '👩‍🏫',
-        value: 150,
+        icon: '/src/assets/landingpage/teacher.png',
+        number: 150,
         label: 'Teacher Strength',
         description: 'Experienced educators dedicated to excellence',
         gradient: 'linear-gradient(135deg, #f093fb, #f5576c)'
       },
       {
-        icon: '/assets/landingpage/classroom.png',
-        fallbackIcon: '🏫',
-        value: 45,
+        icon: '/src/assets/landingpage/classroom.png',
+        number: 45,
         label: 'Smart Classrooms',
         description: 'Modern technology-enabled learning spaces',
         gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)'
       },
       {
-        icon: '/assets/landingpage/calendar.png',
-        fallbackIcon: '📅',
-        value: 25,
+        icon: '/src/assets/landingpage/calendar.png',
+        number: 25,
         label: 'Years of Excellence',
         description: 'Serving the community since 1999 with dedication',
         gradient: 'linear-gradient(135deg, #ffd93d, #ff6b6b)'
       }
     ];
 
+    console.log('📈 Processing stats data...');
+    console.log('🗂️ Landing data available:', !!landingData);
+    console.log('📊 Stats from backend:', landingData?.stats);
+    console.log('🎯 Fallback stats:', fallbackStats);
+
     if (!landingData?.stats || landingData.stats.length === 0) {
+      console.log('🔄 Using fallback stats data');
       return fallbackStats;
     }
 
     const processedData = landingData.stats.map(stat => ({
       icon: stat.icon,
-      number: stat.value,  // Map 'value' from backend to 'number' for frontend
+      number: stat.value,
       label: stat.label,
       description: stat.description || `Excellence in ${stat.label.toLowerCase()}`,
       gradient: stat.gradient || 'linear-gradient(135deg, #667eea, #764ba2)'
     }));
 
+    console.log('✅ Processed stats data:', processedData);
     return processedData;
   }, [landingData]);
-
-  // Helper function to get default staff icon (must be defined before processedStaffMembers)
-  const getDefaultStaffIcon = (position) => {
-    const lowerPosition = position.toLowerCase();
-    if (lowerPosition.includes('principal')) return '👨‍💼';
-    if (lowerPosition.includes('vice')) return '👩‍💼';
-    if (lowerPosition.includes('academic') || lowerPosition.includes('director')) return '👨‍🎓';
-    if (lowerPosition.includes('sports') || lowerPosition.includes('physical')) return '🏃‍♂️';
-    if (lowerPosition.includes('science')) return '👩‍🔬';
-    if (lowerPosition.includes('computer') || lowerPosition.includes('it')) return '👨‍💻';
-    if (lowerPosition.includes('english') || lowerPosition.includes('language')) return '📚';
-    if (lowerPosition.includes('art')) return '🎨';
-    return '👨‍🏫';
-  };
-
-
 
   // Process teacher data - Use backend teachers data if available, otherwise use fallback
   const processedStaffMembers = useMemo(() => {
@@ -89,7 +76,7 @@ const SchoolLandingPage = () => {
         position: 'Principal',
         qualification: 'Ph.D. in Education, M.Ed., B.Ed.',
         experience: '20+ Years',
-        image: 'frontend/src/assets/teachers/PLN%20Phanikumar%20SA%20.png',
+        image: '/src/assets/teachers/PLN_Phanikumar_SA.png',
         email: 'principal@excellenceschool.edu',
         phone: '+91-9876543210',
         isRealPhoto: true
@@ -123,28 +110,56 @@ const SchoolLandingPage = () => {
         image: '🏃‍♂️',
         email: 'sports@excellenceschool.edu',
         phone: '+91-9876543213'
+      },
+      {
+        id: 5,
+        name: 'Mr. Vikash Patel',
+        position: 'IT Head',
+        qualification: 'B.Tech IT, M.Tech, Certified',
+        experience: '10+ Years',
+        image: '👨‍💻',
+        email: 'it@excellenceschool.edu',
+        phone: '+91-9876543214'
+      },
+      {
+        id: 6,
+        name: 'Dr. Anita Reddy',
+        position: 'Science Head',
+        qualification: 'Ph.D. Chemistry, M.Sc., B.Ed.',
+        experience: '16+ Years',
+        image: '👩‍🔬',
+        email: 'science@excellenceschool.edu',
+        phone: '+91-9876543215'
       }
     ];
 
+    console.log('👥 Processing staff data...');
+    console.log('🗂️ Landing data available:', !!landingData);
+    console.log('👨‍🏫 Teachers from backend:', landingData?.teachers);
+
     if (!landingData?.teachers || landingData.teachers.length === 0) {
+      console.log('🔄 Using fallback teachers data');
       return fallbackTeachers;
     }
 
-    return landingData.teachers.map(teacher => ({
+    console.log('✅ Using backend teachers data');
+    const processedData = landingData.teachers.map(teacher => ({
       id: teacher.id,
       name: teacher.name,
       position: teacher.position,
-      qualification: teacher.qualifications,
-      experience: teacher.experience || '10+ Years',
-      image: teacher.photo ? `http://localhost:3001/uploads/teachers/${encodeURIComponent(teacher.photo)}` : getDefaultStaffIcon(teacher.position),
-      email: teacher.email || `${teacher.name.toLowerCase().replace(/\s+/g, '.')}@excellenceschool.edu`,
-      phone: teacher.phone || '+91-9876543210',
+      qualification: teacher.qualifications || 'Qualified Educator',
+      experience: 'Experienced Professional',
+      image: teacher.photo ? `http://localhost:3001${teacher.photo}` : '👨‍🏫',
+      email: `${teacher.name.toLowerCase().replace(/\s+/g, '.')}@excellenceschool.edu`,
+      phone: `+91-98765432${String(teacher.id).padStart(2, '0')}`,
       isRealPhoto: !!teacher.photo
     }));
+    
+    console.log('✅ Processed teacher data:', processedData);
+    return processedData;
   }, [landingData]);
 
-  // All hooks including useMemo MUST be at the top before any returns or conditional logic
-  // Process data for rendering - using useMemo to optimize performance
+  // Process other data
   const schoolInfo = useMemo(() => {
     return landingData?.schoolInfo || {
       name: 'Excellence Public School',
@@ -249,13 +264,12 @@ const SchoolLandingPage = () => {
     loadLandingPageData();
   }, []);
 
-  // Carousel auto-play effect - Fixed to avoid conditional dependencies
+  // Carousel auto-play effect
   useEffect(() => {
     if (loading || !landingData) {
-      return; // Don't set up carousel until data is loaded
+      return;
     }
 
-    // Get carousel data dynamically
     const carouselData = landingData.carousel || [];
     const slides = carouselData.length > 0 ? carouselData : [
       { id: 1, title: `Welcome to ${landingData?.schoolInfo?.name || 'Excellence Public School'}`, subtitle: 'Nurturing Future Leaders' },
@@ -268,15 +282,15 @@ const SchoolLandingPage = () => {
     
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000); // Change slide every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [loading, landingData]);
 
-  // Counter animation effect - Fixed to avoid conditional dependencies
+  // Counter animation effect
   useEffect(() => {
     if (loading) {
-      return; // Don't animate until data is loaded
+      return;
     }
 
     const animateCounters = () => {
@@ -300,25 +314,26 @@ const SchoolLandingPage = () => {
       });
     };
 
-    // Trigger animation on component mount
     const timer = setTimeout(animateCounters, 500);
     return () => clearTimeout(timer);
   }, [loading]);
 
   const loadLandingPageData = async () => {
     try {
+      console.log('🚀 Fetching landing page data from API...');
       const response = await api.get('/api/public/landing-page-data');
+      console.log('✅ Landing page data received:', response.data);
+      console.log('📊 Stats data:', response.data.stats);
       setLandingData(response.data);
     } catch (error) {
-      console.error('Error loading landing page data:', error);
-      // Use fallback data if API fails
+      console.error('❌ Error loading landing page data:', error);
+      console.log('🔄 Using fallback data...');
       setLandingData(getFallbackData());
     } finally {
       setLoading(false);
     }
   };
 
-  // Fallback data in case API fails
   const getFallbackData = () => ({
     schoolInfo: {
       name: 'Excellence Public School',
@@ -474,25 +489,35 @@ const SchoolLandingPage = () => {
         </div>
       </section>
 
-      {/* School Stats Section - Inspired by Mockup */}
+      {/* School Stats Section */}
       <section className="achievements-section" id="achievements">
         <div className="container">
           <div className="section-title animate-on-scroll">
             <h2>Our Pride in Numbers</h2>
             <p>Excellence reflected through our achievements and the trust of our community</p>
           </div>
+          
+          {/* DEBUG: Show stats count */}
+          <div style={{ padding: '1rem', background: 'yellow', color: 'black', margin: '1rem 0' }}>
+            DEBUG: Stats Count: {processedStats?.length || 0}
+            {processedStats?.map((stat, i) => (
+              <div key={i}>{stat.label}: {stat.number}</div>
+            ))}
+          </div>
 
-          <div className="stats-no-cards-grid">
+          <div className="achievement-stats-grid">
             {processedStats.map((stat, index) => (
-              <div key={index} className="stat-no-card-item">
-                <div className="stat-no-card-icon">
-                  <img src={stat.icon} alt={stat.label} />
+              <div 
+                key={index}
+                className="achievement-stat-card animate-on-scroll" 
+                style={{ background: stat.gradient }}
+              >
+                <div className="achievement-icon">
+                  <img src={stat.icon} alt={stat.label} className="stat-icon-image" />
                 </div>
-                <div className="stat-no-card-number" data-target={stat.number}>
-                  {stat.number}
-                </div>
-                <div className="stat-no-card-label">{stat.label}</div>
-                <div className="stat-no-card-description">{stat.description}</div>
+                <div className="achievement-number" data-target={stat.number}>0</div>
+                <div className="achievement-label">{stat.label}</div>
+                <div className="achievement-description">{stat.description}</div>
               </div>
             ))}
           </div>
@@ -506,18 +531,42 @@ const SchoolLandingPage = () => {
             <h2>Meet Our Leadership Team</h2>
             <p>Experienced educators and administrators committed to excellence</p>
           </div>
+          
+          {/* DEBUG: Show staff count */}
+          <div style={{ padding: '1rem', background: 'yellow', color: 'black', margin: '1rem 0' }}>
+            DEBUG: Staff Members Count: {processedStaffMembers?.length || 0}
+          </div>
 
-          <div className="staff-grid">
+          <div className="modern-staff-grid">
             {processedStaffMembers.map((staff) => (
-              <div key={staff.id} className="staff-card">
-                {staff.isRealPhoto ? (
-                  <img src={staff.image} alt={staff.name} className="staff-photo" />
-                ) : (
-                  <div className="staff-emoji">{staff.image}</div>
-                )}
-                <div className="staff-name">{staff.name}</div>
-                <div className="staff-designation">{staff.position}</div>
-                <a href={`tel:${staff.phone}`} className="staff-phone">{staff.phone}</a>
+              <div key={staff.id} className="modern-staff-card animate-on-scroll">
+                <div className="staff-card-header">
+                  <div className="staff-avatar">
+                    {staff.isRealPhoto ? (
+                      <img src={staff.image} alt={staff.name} className="staff-photo" />
+                    ) : (
+                      <div className="staff-emoji">{staff.image}</div>
+                    )}
+                  </div>
+                  <div className="staff-online-indicator"></div>
+                </div>
+                
+                <div className="staff-card-body">
+                  <h3 className="staff-name">{staff.name}</h3>
+                  <div className="staff-position">{staff.position}</div>
+                  <div className="staff-qualification">{staff.qualification}</div>
+                  
+                  <div className="staff-actions">
+                    <button className="staff-btn primary">
+                      <span className="btn-icon">📧</span>
+                      Contact
+                    </button>
+                    <button className="staff-btn secondary">
+                      <span className="btn-icon">📞</span>
+                      Call
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -650,7 +699,7 @@ const SchoolLandingPage = () => {
             
             {(!landingData?.achievements || landingData.achievements.length === 0) && (
               <div className="no-achievements">
-                <div className="no-achievements-icon">�</div>
+                <div className="no-achievements-icon">🏆</div>
                 <h3>No Achievements Added Yet</h3>
                 <p>Achievements will appear here once added by the administrator.</p>
               </div>

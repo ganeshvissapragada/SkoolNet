@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Plus, Edit2, Trash2, Save, X, Image, Users, BarChart3, Camera } from 'lucide-react';
+import api from '../api/api.js';
 import './AdminLandingPageManager.css';
 
 const AdminLandingPageManager = () => {
@@ -25,14 +26,17 @@ const AdminLandingPageManager = () => {
   const [teachers, setTeachers] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [carousel, setCarousel] = useState([]);
+  const [achievements, setAchievements] = useState([]);
   
   // Form states
   const [editingTeacher, setEditingTeacher] = useState(null);
   const [editingAlbum, setEditingAlbum] = useState(null);
   const [editingCarousel, setEditingCarousel] = useState(null);
+  const [editingAchievement, setEditingAchievement] = useState(null);
   const [showTeacherForm, setShowTeacherForm] = useState(false);
   const [showAlbumForm, setShowAlbumForm] = useState(false);
   const [showCarouselForm, setShowCarouselForm] = useState(false);
+  const [showAchievementForm, setShowAchievementForm] = useState(false);
 
   // Load data on component mount
   useEffect(() => {
@@ -42,15 +46,14 @@ const AdminLandingPageManager = () => {
   const loadAllData = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/landing-page');
-      if (response.ok) {
-        const data = await response.json();
-        setSchoolInfo(data.schoolInfo || {});
-        setStats(data.stats || []);
-        setTeachers(data.teachers || []);
-        setAlbums(data.albums || []);
-        setCarousel(data.carousel || []);
-      }
+      const response = await api.get('/api/admin/landing-page');
+      const data = response.data;
+      setSchoolInfo(data.schoolInfo || {});
+      setStats(data.stats || []);
+      setTeachers(data.teachers || []);
+      setAlbums(data.albums || []);
+      setCarousel(data.carousel || []);
+      setAchievements(data.achievements || []);
     } catch (error) {
       console.error('Error loading data:', error);
       showMessage('error', 'Failed to load data');
@@ -80,17 +83,14 @@ const AdminLandingPageManager = () => {
         formData.append('backgroundImage', schoolInfo.backgroundImage);
       }
       
-      const response = await fetch('/api/admin/school-info', {
-        method: 'POST',
-        body: formData
+      const response = await api.post('/api/admin/school-info', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       
-      if (response.ok) {
-        showMessage('success', 'School information updated successfully');
-        loadAllData();
-      } else {
-        showMessage('error', 'Failed to update school information');
-      }
+      showMessage('success', 'School information updated successfully');
+      loadAllData();
     } catch (error) {
       console.error('Error updating school info:', error);
       showMessage('error', 'Failed to update school information');
@@ -104,17 +104,8 @@ const AdminLandingPageManager = () => {
     setLoading(true);
     
     try {
-      const response = await fetch('/api/admin/stats', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stats })
-      });
-      
-      if (response.ok) {
-        showMessage('success', 'Statistics updated successfully');
-      } else {
-        showMessage('error', 'Failed to update statistics');
-      }
+      await api.put('/api/admin/stats', { stats });
+      showMessage('success', 'Statistics updated successfully');
     } catch (error) {
       console.error('Error updating stats:', error);
       showMessage('error', 'Failed to update statistics');
@@ -136,23 +127,21 @@ const AdminLandingPageManager = () => {
     const formData = new FormData(e.target);
     
     try {
-      const url = editingTeacher 
-        ? `/api/admin/teachers/${editingTeacher.id}`
-        : '/api/admin/teachers';
-      
-      const response = await fetch(url, {
-        method: editingTeacher ? 'PUT' : 'POST',
-        body: formData
-      });
-      
-      if (response.ok) {
-        showMessage('success', `Teacher ${editingTeacher ? 'updated' : 'added'} successfully`);
-        setShowTeacherForm(false);
-        setEditingTeacher(null);
-        loadAllData();
+      if (editingTeacher) {
+        await api.put(`/api/admin/teachers/${editingTeacher.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        showMessage('success', 'Teacher updated successfully');
       } else {
-        showMessage('error', `Failed to ${editingTeacher ? 'update' : 'add'} teacher`);
+        await api.post('/api/admin/teachers', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        showMessage('success', 'Teacher added successfully');
       }
+      
+      setShowTeacherForm(false);
+      setEditingTeacher(null);
+      loadAllData();
     } catch (error) {
       console.error('Error with teacher:', error);
       showMessage('error', `Failed to ${editingTeacher ? 'update' : 'add'} teacher`);
@@ -165,16 +154,9 @@ const AdminLandingPageManager = () => {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/teachers/${id}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        showMessage('success', 'Teacher deleted successfully');
-        loadAllData();
-      } else {
-        showMessage('error', 'Failed to delete teacher');
-      }
+      await api.delete(`/api/admin/teachers/${id}`);
+      showMessage('success', 'Teacher deleted successfully');
+      loadAllData();
     } catch (error) {
       console.error('Error deleting teacher:', error);
       showMessage('error', 'Failed to delete teacher');
@@ -190,23 +172,21 @@ const AdminLandingPageManager = () => {
     const formData = new FormData(e.target);
     
     try {
-      const url = editingAlbum 
-        ? `/api/admin/albums/${editingAlbum.id}`
-        : '/api/admin/albums';
-      
-      const response = await fetch(url, {
-        method: editingAlbum ? 'PUT' : 'POST',
-        body: formData
-      });
-      
-      if (response.ok) {
-        showMessage('success', `Album ${editingAlbum ? 'updated' : 'added'} successfully`);
-        setShowAlbumForm(false);
-        setEditingAlbum(null);
-        loadAllData();
+      if (editingAlbum) {
+        await api.put(`/api/admin/albums/${editingAlbum.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        showMessage('success', 'Album updated successfully');
       } else {
-        showMessage('error', `Failed to ${editingAlbum ? 'update' : 'add'} album`);
+        await api.post('/api/admin/albums', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        showMessage('success', 'Album added successfully');
       }
+      
+      setShowAlbumForm(false);
+      setEditingAlbum(null);
+      loadAllData();
     } catch (error) {
       console.error('Error with album:', error);
       showMessage('error', `Failed to ${editingAlbum ? 'update' : 'add'} album`);
@@ -219,16 +199,9 @@ const AdminLandingPageManager = () => {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/albums/${id}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        showMessage('success', 'Album deleted successfully');
-        loadAllData();
-      } else {
-        showMessage('error', 'Failed to delete album');
-      }
+      await api.delete(`/api/admin/albums/${id}`);
+      showMessage('success', 'Album deleted successfully');
+      loadAllData();
     } catch (error) {
       console.error('Error deleting album:', error);
       showMessage('error', 'Failed to delete album');
@@ -244,23 +217,21 @@ const AdminLandingPageManager = () => {
     const formData = new FormData(e.target);
     
     try {
-      const url = editingCarousel 
-        ? `/api/admin/carousel/${editingCarousel.id}`
-        : '/api/admin/carousel';
-      
-      const response = await fetch(url, {
-        method: editingCarousel ? 'PUT' : 'POST',
-        body: formData
-      });
-      
-      if (response.ok) {
-        showMessage('success', `Carousel item ${editingCarousel ? 'updated' : 'added'} successfully`);
-        setShowCarouselForm(false);
-        setEditingCarousel(null);
-        loadAllData();
+      if (editingCarousel) {
+        await api.put(`/api/admin/carousel/${editingCarousel.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        showMessage('success', 'Carousel item updated successfully');
       } else {
-        showMessage('error', `Failed to ${editingCarousel ? 'update' : 'add'} carousel item`);
+        await api.post('/api/admin/carousel', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        showMessage('success', 'Carousel item added successfully');
       }
+      
+      setShowCarouselForm(false);
+      setEditingCarousel(null);
+      loadAllData();
     } catch (error) {
       console.error('Error with carousel:', error);
       showMessage('error', `Failed to ${editingCarousel ? 'update' : 'add'} carousel item`);
@@ -273,19 +244,67 @@ const AdminLandingPageManager = () => {
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/carousel/${id}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        showMessage('success', 'Carousel item deleted successfully');
-        loadAllData();
-      } else {
-        showMessage('error', 'Failed to delete carousel item');
-      }
+      await api.delete(`/api/admin/carousel/${id}`);
+      showMessage('success', 'Carousel item deleted successfully');
+      loadAllData();
     } catch (error) {
       console.error('Error deleting carousel item:', error);
       showMessage('error', 'Failed to delete carousel item');
+    }
+    setLoading(false);
+  };
+
+  // Achievements Functions
+  const handleAchievementSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    const formData = new FormData(e.target);
+    const achievementData = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      year: formData.get('year'),
+      category: formData.get('category'),
+      rank: formData.get('rank'),
+      icon: formData.get('icon')
+    };
+    
+    try {
+      if (editingAchievement) {
+        await api.put(`/api/admin/achievements/${editingAchievement.id}`, achievementData);
+        showMessage('success', 'Achievement updated successfully');
+      } else {
+        await api.post('/api/admin/achievements', achievementData);
+        showMessage('success', 'Achievement added successfully');
+      }
+      
+      setEditingAchievement(null);
+      setShowAchievementForm(false);
+      loadAllData();
+      e.target.reset();
+    } catch (error) {
+      console.error('Error saving achievement:', error);
+      showMessage('error', 'Failed to save achievement');
+    }
+    setLoading(false);
+  };
+
+  const editAchievement = (achievement) => {
+    setEditingAchievement(achievement);
+    setShowAchievementForm(true);
+  };
+
+  const deleteAchievement = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this achievement?')) return;
+    
+    setLoading(true);
+    try {
+      await api.delete(`/api/admin/achievements/${id}`);
+      showMessage('success', 'Achievement deleted successfully');
+      loadAllData();
+    } catch (error) {
+      console.error('Error deleting achievement:', error);
+      showMessage('error', 'Failed to delete achievement');
     }
     setLoading(false);
   };
@@ -346,6 +365,13 @@ const AdminLandingPageManager = () => {
         >
           <Image size={16} />
           Hero Carousel
+        </button>
+        <button 
+          className={activeTab === 'achievements' ? 'active' : ''}
+          onClick={() => setActiveTab('achievements')}
+        >
+          🏆
+          Achievements
         </button>
       </div>
 
@@ -481,12 +507,15 @@ const AdminLandingPageManager = () => {
               {teachers.map((teacher) => (
                 <div key={teacher.id} className="item-card">
                   {teacher.photo && (
-                    <img src={teacher.photo} alt={teacher.name} className="item-image" />
+                    <img src={`/uploads/teachers/${teacher.photo}`} alt={teacher.name} className="item-image" />
                   )}
                   <div className="item-content">
                     <h4>{teacher.name}</h4>
-                    <p>{teacher.position}</p>
-                    <p>{teacher.qualifications}</p>
+                    <p className="position">{teacher.position}</p>
+                    <p className="qualifications">{teacher.qualifications}</p>
+                    {teacher.experience && <p className="experience">Experience: {teacher.experience}</p>}
+                    {teacher.email && <p className="email">📧 {teacher.email}</p>}
+                    {teacher.phone && <p className="phone">📞 {teacher.phone}</p>}
                   </div>
                   <div className="item-actions">
                     <button onClick={() => { setEditingTeacher(teacher); setShowTeacherForm(true); }}>
@@ -534,11 +563,44 @@ const AdminLandingPageManager = () => {
                         name="qualifications"
                         type="text"
                         defaultValue={editingTeacher?.qualifications || ''}
+                        placeholder="e.g., Ph.D. in Education, M.Ed., B.Ed."
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Experience</label>
+                      <input
+                        name="experience"
+                        type="text"
+                        defaultValue={editingTeacher?.experience || ''}
+                        placeholder="e.g., 20+ Years"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Email</label>
+                      <input
+                        name="email"
+                        type="email"
+                        defaultValue={editingTeacher?.email || ''}
+                        placeholder="e.g., principal@excellenceschool.edu"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Phone</label>
+                      <input
+                        name="phone"
+                        type="tel"
+                        defaultValue={editingTeacher?.phone || ''}
+                        placeholder="e.g., +91-9876543210"
                       />
                     </div>
                     <div className="form-group">
                       <label>Photo</label>
                       <input name="photo" type="file" accept="image/*" />
+                      {editingTeacher?.photo && (
+                        <div className="current-image">
+                          <small>Current photo: {editingTeacher.photo}</small>
+                        </div>
+                      )}
                     </div>
                     <div className="modal-actions">
                       <button type="button" onClick={() => { setShowTeacherForm(false); setEditingTeacher(null); }}>
@@ -700,6 +762,113 @@ const AdminLandingPageManager = () => {
                     </div>
                     <div className="modal-actions">
                       <button type="button" onClick={() => { setShowCarouselForm(false); setEditingCarousel(null); }}>
+                        Cancel
+                      </button>
+                      <button type="submit" disabled={loading}>
+                        {loading ? 'Saving...' : 'Save'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Achievements Tab */}
+        {activeTab === 'achievements' && (
+          <div className="tab-content">
+            <div className="section-header">
+              <h3>Achievements</h3>
+              <button onClick={() => setShowAchievementForm(true)} className="add-btn">
+                <Plus size={16} />
+                Add Achievement
+              </button>
+            </div>
+
+            <div className="items-grid">
+              {achievements.map((achievement) => (
+                <div key={achievement.id} className="item-card">
+                  <div className="item-content">
+                    <h4>{achievement.title}</h4>
+                    <p>{achievement.description}</p>
+                    <p><strong>Year:</strong> {achievement.year}</p>
+                    <p><strong>Category:</strong> {achievement.category}</p>
+                    <p><strong>Rank:</strong> {achievement.rank}</p>
+                  </div>
+                  <div className="item-actions">
+                    <button onClick={() => editAchievement(achievement)}>
+                      <Edit2 size={14} />
+                    </button>
+                    <button onClick={() => deleteAchievement(achievement.id)} className="delete-btn">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {showAchievementForm && (
+              <div className="modal-overlay">
+                <div className="modal">
+                  <div className="modal-header">
+                    <h3>{editingAchievement ? 'Edit Achievement' : 'Add Achievement'}</h3>
+                    <button onClick={() => { setShowAchievementForm(false); setEditingAchievement(null); }}>
+                      <X size={20} />
+                    </button>
+                  </div>
+                  <form onSubmit={handleAchievementSubmit}>
+                    <div className="form-group">
+                      <label>Title *</label>
+                      <input
+                        name="title"
+                        type="text"
+                        defaultValue={editingAchievement?.title || ''}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Description</label>
+                      <textarea
+                        name="description"
+                        defaultValue={editingAchievement?.description || ''}
+                        rows={3}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Year</label>
+                      <input
+                        name="year"
+                        type="number"
+                        defaultValue={editingAchievement?.year || ''}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Category</label>
+                      <input
+                        name="category"
+                        type="text"
+                        defaultValue={editingAchievement?.category || ''}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Rank</label>
+                      <input
+                        name="rank"
+                        type="text"
+                        defaultValue={editingAchievement?.rank || ''}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Icon</label>
+                      <input
+                        name="icon"
+                        type="text"
+                        defaultValue={editingAchievement?.icon || ''}
+                      />
+                    </div>
+                    <div className="modal-actions">
+                      <button type="button" onClick={() => { setShowAchievementForm(false); setEditingAchievement(null); }}>
                         Cancel
                       </button>
                       <button type="submit" disabled={loading}>

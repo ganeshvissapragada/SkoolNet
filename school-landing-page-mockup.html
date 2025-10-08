@@ -1179,31 +1179,39 @@
             <!-- Achievement Stats Grid -->
             <div class="achievement-stats-grid">
                 <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                    <div class="achievement-icon">👥</div>
+                    <div class="achievement-icon">
+                        <img src="frontend/src/assets/landingpage/student.png" alt="Student Strength" style="width: 60px; height: 60px; filter: brightness(0) invert(1); opacity: 0.9;">
+                    </div>
                     <div class="achievement-number" data-target="2500">0</div>
-                    <div class="achievement-label">Happy Students</div>
-                    <div class="achievement-description">Active learners from diverse backgrounds pursuing excellence</div>
+                    <div class="achievement-label">Student Strength</div>
+                    <div class="achievement-description">Bright minds learning and growing with us</div>
                 </div>
 
-                <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #56cfe1, #667eea);">
-                    <div class="achievement-icon">👨‍🏫</div>
+                <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <div class="achievement-icon">
+                        <img src="frontend/src/assets/landingpage/teacher.png" alt="Teacher Strength" style="width: 60px; height: 60px; filter: brightness(0) invert(1); opacity: 0.9;">
+                    </div>
                     <div class="achievement-number" data-target="150">0</div>
-                    <div class="achievement-label">Expert Teachers</div>
-                    <div class="achievement-description">Qualified educators with average 10+ years experience</div>
+                    <div class="achievement-label">Teacher Strength</div>
+                    <div class="achievement-description">Experienced educators dedicated to excellence</div>
+                </div>
+
+                <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <div class="achievement-icon">
+                        <img src="frontend/src/assets/landingpage/classroom.png" alt="Smart Classrooms" style="width: 60px; height: 60px; filter: brightness(0) invert(1); opacity: 0.9;">
+                    </div>
+                    <div class="achievement-number" data-target="45">0</div>
+                    <div class="achievement-label">Smart Classrooms</div>
+                    <div class="achievement-description">Modern technology-enabled learning spaces</div>
                 </div>
 
                 <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #ffd93d, #ff6b6b);">
-                    <div class="achievement-icon">🏆</div>
-                    <div class="achievement-number" data-target="45">0</div>
-                    <div class="achievement-label">Awards Won</div>
-                    <div class="achievement-description">Recognition in academics, sports, and cultural competitions</div>
-                </div>
-
-                <div class="achievement-stat-card animate-on-scroll" style="background: linear-gradient(135deg, #ff6b6b, #ffd93d);">
-                    <div class="achievement-icon">📅</div>
+                    <div class="achievement-icon">
+                        <img src="frontend/src/assets/landingpage/calendar.png" alt="Years of Excellence" style="width: 60px; height: 60px; filter: brightness(0) invert(1); opacity: 0.9;">
+                    </div>
                     <div class="achievement-number" data-target="25">0</div>
                     <div class="achievement-label">Years of Excellence</div>
-                    <div class="achievement-description">Serving the community with commitment and dedication</div>
+                    <div class="achievement-description">Serving the community since 1999 with dedication</div>
                 </div>
 
             </div>
@@ -1613,9 +1621,9 @@
                 subtitle: 'School Landing Page',
                 statsTitle: 'Our Pride in Numbers',
                 statsDescription: 'Excellence reflected through our achievements and the trust of our community',
-                studentsLabel: 'Happy Students',
-                teachersLabel: 'Expert Teachers', 
-                awardsLabel: 'Awards Won',
+                studentsLabel: 'Student Strength',
+                teachersLabel: 'Teacher Strength', 
+                classroomsLabel: 'Smart Classrooms',
                 yearsLabel: 'Years of Excellence',
                 staffTitle: 'Meet Our Leadership Team',
                 staffDescription: 'Experienced educators and administrators committed to excellence'
@@ -1625,9 +1633,9 @@
                 subtitle: 'స్కూల్ ల్యాండింగ్ పేజీ',
                 statsTitle: 'మా గర్వకారణాలు',
                 statsDescription: 'మా విజయాలు మరియు సమాజ విశ్వాసంలో ప్రతిబింబించే శ్రేష్ఠత',
-                studentsLabel: 'సంతోషకరమైన విద్యార్థులు',
-                teachersLabel: 'నిపుణ ఉపాధ్యాయులు',
-                awardsLabel: 'గెలుచుకున్న అవార్డులు',
+                studentsLabel: 'విద్యార్థుల బలం',
+                teachersLabel: 'ఉపాధ్యాయుల బలం',
+                classroomsLabel: 'స్మార్ట్ క్లాస్‌రూమ్‌లు',
                 yearsLabel: 'శ్రేష్ఠత సంవత్సరాలు',
                 staffTitle: 'మా నాయకత్వ బృందాన్ని కలవండి',
                 staffDescription: 'శ్రేష్ఠతకు కట్టుబడిన అనుభవజ్ఞులైన విద్యావేత్తలు మరియు నిర్వాహకులు'
@@ -1662,10 +1670,10 @@
             document.querySelector('.section-title p').textContent = texts.statsDescription;
             
             // Update stat labels
-            const statLabels = document.querySelectorAll('.stat-label');
+            const statLabels = document.querySelectorAll('.achievement-label');
             statLabels[0].textContent = texts.studentsLabel;
             statLabels[1].textContent = texts.teachersLabel;
-            statLabels[2].textContent = texts.awardsLabel;
+            statLabels[2].textContent = texts.classroomsLabel;
             statLabels[3].textContent = texts.yearsLabel;
             
             // Update staff section

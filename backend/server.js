@@ -12,6 +12,7 @@ const teacherRoutes = require('./routes/teacher');
 const parentRoutes = require('./routes/parent');
 const studentRoutes = require('./routes/student');
 const publicRoutes = require('./routes/public');
+const landingPageRoutes = require('./routes/landingPage');
 
 const app = express();
 app.use(cors());
@@ -31,7 +32,8 @@ app.use('/admin', adminRoutes);
 app.use('/teacher', teacherRoutes);
 app.use('/parent', parentRoutes);
 app.use('/student', studentRoutes);
-app.use('/api', publicRoutes);
+app.use('/api/public', publicRoutes);
+app.use('/api/admin', landingPageRoutes);
 
 const PORT = process.env.PORT || 3001;
 

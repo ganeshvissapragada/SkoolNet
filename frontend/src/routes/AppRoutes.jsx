@@ -14,6 +14,7 @@ export default function AppRoutes() {
       {/* Public Routes */}
       <Route path="/" element={<SchoolLandingPage />} />
       <Route path="/home" element={<SchoolLandingPage />} />
+      <Route path="/landing" element={<SchoolLandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       
       {/* Protected Routes */}
