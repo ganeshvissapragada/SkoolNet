@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const landingPageData = require('../controllers/landingPageDataStore');
 const multer = require('multer');
 const path = require('path');
+const { cloudinary, albumStorage, albumCoverStorage } = require('../config/cloudinary');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -156,38 +157,7 @@ router.delete('/teachers/:id', auth(['admin']), (req, res) => {
 });
 
 // Albums management
-router.get('/albums', auth(['admin']), (req, res) => {
-  try {
-    res.json(landingPageData.albums);
-  } catch (error) {
-    console.error('Error getting albums:', error);
-    res.status(500).json({ error: 'Failed to get albums' });
-  }
-});
-
-router.post('/albums', auth(['admin']), upload.array('photos', 10), (req, res) => {
-  try {
-    const { title, description, category, date } = req.body;
-    
-    const photos = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
-    
-    const newAlbum = {
-      id: Date.now(),
-      title,
-      description,
-      category,
-      date,
-      photos,
-      photoCount: photos.length
-    };
-    
-    landingPageData.albums.push(newAlbum);
-    res.json({ message: 'Album created successfully', data: newAlbum });
-  } catch (error) {
-    console.error('Error creating album:', error);
-    res.status(500).json({ error: 'Failed to create album' });
-  }
-});
+// Albums will be handled in the ALBUM ROUTES section below
 
 // Carousel management
 router.get('/carousel', auth(['admin']), (req, res) => {
@@ -296,6 +266,210 @@ router.delete('/achievements/:id', auth(['admin']), (req, res) => {
   } catch (error) {
     console.error('Error deleting achievement:', error);
     res.status(500).json({ error: 'Failed to delete achievement' });
+  }
+});
+
+// ===================== ALBUM ROUTES =====================
+
+// Configure multer for album uploads using Cloudinary
+const uploadAlbumCover = multer({ storage: albumCoverStorage });
+const uploadAlbumImages = multer({ storage: albumStorage });
+
+// Get all albums
+router.get('/albums', auth(['admin']), (req, res) => {
+  try {
+    res.json(landingPageData.albums);
+  } catch (error) {
+    console.error('Error getting albums:', error);
+    res.status(500).json({ error: 'Failed to get albums' });
+  }
+});
+
+// Create new album
+router.post('/albums', auth(['admin']), uploadAlbumImages.any(), async (req, res) => {
+  try {
+    const { title, description, category, date } = req.body;
+    
+    // Handle cover image and photos
+    let coverImage = null;
+    let photos = [];
+    
+    if (req.files && req.files.length > 0) {
+      // Separate cover image and photos based on fieldname
+      req.files.forEach(file => {
+        if (file.fieldname === 'coverImage') {
+          coverImage = file.path; // Cloudinary URL
+        } else if (file.fieldname === 'photos') {
+          photos.push(file.path); // Cloudinary URL
+        }
+      });
+    }
+    
+    const newAlbum = {
+      id: landingPageData.albums.length > 0 ? Math.max(...landingPageData.albums.map(a => a.id)) + 1 : 1,
+      title,
+      description,
+      category: category || 'general',
+      date: date || new Date().toISOString().split('T')[0],
+      coverImage,
+      images: photos,
+      photoCount: photos.length
+    };
+    
+    landingPageData.albums.push(newAlbum);
+    
+    res.json({ message: 'Album created successfully', data: newAlbum });
+  } catch (error) {
+    console.error('Error creating album:', error);
+    res.status(500).json({ error: 'Failed to create album' });
+  }
+});
+
+// Update album
+router.put('/albums/:id', auth(['admin']), uploadAlbumCover.single('coverImage'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, category, date } = req.body;
+    
+    const albumIndex = landingPageData.albums.findIndex(a => a.id === parseInt(id));
+    if (albumIndex === -1) {
+      return res.status(404).json({ error: 'Album not found' });
+    }
+    
+    const album = landingPageData.albums[albumIndex];
+    
+    // If new cover image uploaded, delete old one from Cloudinary
+    if (req.file && album.coverImage) {
+      try {
+        const publicId = album.coverImage.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`school-platform/album-covers/${publicId}`);
+      } catch (error) {
+        console.log('Error deleting old cover image:', error);
+      }
+    }
+    
+    landingPageData.albums[albumIndex] = {
+      ...album,
+      title,
+      description,
+      category: category || album.category,
+      date: date || album.date,
+      coverImage: req.file ? req.file.path : album.coverImage
+    };
+    
+    res.json({ message: 'Album updated successfully', data: landingPageData.albums[albumIndex] });
+  } catch (error) {
+    console.error('Error updating album:', error);
+    res.status(500).json({ error: 'Failed to update album' });
+  }
+});
+
+// Delete album
+router.delete('/albums/:id', auth(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const albumIndex = landingPageData.albums.findIndex(a => a.id === parseInt(id));
+    if (albumIndex === -1) {
+      return res.status(404).json({ error: 'Album not found' });
+    }
+    
+    const album = landingPageData.albums[albumIndex];
+    
+    // Delete cover image from Cloudinary
+    if (album.coverImage) {
+      try {
+        const publicId = album.coverImage.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`school-platform/album-covers/${publicId}`);
+      } catch (error) {
+        console.log('Error deleting cover image:', error);
+      }
+    }
+    
+    // Delete all album images from Cloudinary
+    if (album.images && album.images.length > 0) {
+      for (const imageUrl of album.images) {
+        try {
+          const publicId = imageUrl.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(`school-platform/albums/${publicId}`);
+        } catch (error) {
+          console.log('Error deleting album image:', error);
+        }
+      }
+    }
+    
+    landingPageData.albums.splice(albumIndex, 1);
+    
+    res.json({ message: 'Album deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting album:', error);
+    res.status(500).json({ error: 'Failed to delete album' });
+  }
+});
+
+// Add images to album
+router.post('/albums/:id/images', auth(['admin']), uploadAlbumImages.array('images', 20), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const albumIndex = landingPageData.albums.findIndex(a => a.id === parseInt(id));
+    if (albumIndex === -1) {
+      return res.status(404).json({ error: 'Album not found' });
+    }
+    
+    const album = landingPageData.albums[albumIndex];
+    const newImages = req.files.map(file => file.path); // Cloudinary URLs
+    
+    album.images = album.images || [];
+    album.images.push(...newImages);
+    album.photoCount = album.images.length;
+    
+    res.json({ 
+      message: 'Images added successfully', 
+      data: { 
+        addedImages: newImages, 
+        totalImages: album.images.length 
+      } 
+    });
+  } catch (error) {
+    console.error('Error adding images to album:', error);
+    res.status(500).json({ error: 'Failed to add images to album' });
+  }
+});
+
+// Remove image from album
+router.delete('/albums/:id/images', auth(['admin']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl } = req.body;
+    
+    const albumIndex = landingPageData.albums.findIndex(a => a.id === parseInt(id));
+    if (albumIndex === -1) {
+      return res.status(404).json({ error: 'Album not found' });
+    }
+    
+    const album = landingPageData.albums[albumIndex];
+    const imageIndex = album.images.indexOf(imageUrl);
+    
+    if (imageIndex === -1) {
+      return res.status(404).json({ error: 'Image not found in album' });
+    }
+    
+    // Delete image from Cloudinary
+    try {
+      const publicId = imageUrl.split('/').pop().split('.')[0];
+      await cloudinary.uploader.destroy(`school-platform/albums/${publicId}`);
+    } catch (error) {
+      console.log('Error deleting image from Cloudinary:', error);
+    }
+    
+    album.images.splice(imageIndex, 1);
+    album.photoCount = album.images.length;
+    
+    res.json({ message: 'Image removed successfully' });
+  } catch (error) {
+    console.error('Error removing image from album:', error);
+    res.status(500).json({ error: 'Failed to remove image from album' });
   }
 });
 

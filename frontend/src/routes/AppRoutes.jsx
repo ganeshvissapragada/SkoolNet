@@ -6,6 +6,7 @@ import TeacherDashboard from '../pages/TeacherDashboard.jsx';
 import ParentDashboard from '../pages/ParentDashboard.jsx';
 import StudentDashboard from '../pages/StudentDashboard.jsx';
 import SchoolLandingPage from '../pages/SchoolLandingPage.jsx';
+import AlbumViewer from '../pages/AlbumViewer.jsx';
 import ProtectedRoute from '../auth/ProtectedRoute.jsx';
 
 export default function AppRoutes() {
@@ -15,6 +16,7 @@ export default function AppRoutes() {
       <Route path="/" element={<SchoolLandingPage />} />
       <Route path="/home" element={<SchoolLandingPage />} />
       <Route path="/landing" element={<SchoolLandingPage />} />
+      <Route path="/album/:albumId" element={<AlbumViewer />} />
       <Route path="/login" element={<LoginPage />} />
       
       {/* Protected Routes */}

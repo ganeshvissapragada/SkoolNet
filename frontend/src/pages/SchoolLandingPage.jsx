@@ -362,7 +362,7 @@ const SchoolLandingPage = () => {
   };
 
   const openAlbum = (albumId) => {
-    alert(`Opening album: ${albumId}\n\nThis would open a full-screen photo gallery with all images from this event album.\n\n(To be implemented with backend integration)`);
+    navigate(`/album/${albumId}`);
   };
 
   const openUploadModal = () => {
@@ -584,14 +584,25 @@ const SchoolLandingPage = () => {
                   onClick={() => openAlbum(album.id)}
                 >
                   <div className="album-cover">
-                    <span style={{ fontSize: '3rem' }}>{album.cover}</span>
+                    {album.coverImage ? (
+                      <img 
+                        src={album.coverImage.startsWith('http') 
+                          ? album.coverImage 
+                          : `http://localhost:3001${album.coverImage}`
+                        } 
+                        alt={album.title}
+                        className="album-cover-image"
+                      />
+                    ) : (
+                      <span style={{ fontSize: '3rem' }}>{album.cover || '📷'}</span>
+                    )}
                   </div>
                   <div className="album-info">
                     <div className="album-title">{album.title}</div>
                     <div className="album-description">{album.description}</div>
                     <div className="album-meta">
                       <span className="album-date">{new Date(album.date).toLocaleDateString()}</span>
-                      <span className="album-photo-count">{album.photoCount} photos</span>
+                      <span className="album-photo-count">{album.images?.length || album.photoCount || 0} photos</span>
                     </div>
                   </div>
                 </div>

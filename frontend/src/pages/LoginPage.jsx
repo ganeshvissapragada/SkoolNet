@@ -7,7 +7,7 @@ export default function LoginPage() {
   const { login } = useContext(AuthContext);
   const nav = useNavigate();
   const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('admin123');
+  const [password, setPassword] = useState('Admin@123');
   const [error, setError] = useState('');
   const [selectedRole, setSelectedRole] = useState('admin');
   const [rememberMe, setRememberMe] = useState(false);

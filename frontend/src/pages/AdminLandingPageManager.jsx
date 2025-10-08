@@ -37,6 +37,11 @@ const AdminLandingPageManager = () => {
   const [showAlbumForm, setShowAlbumForm] = useState(false);
   const [showCarouselForm, setShowCarouselForm] = useState(false);
   const [showAchievementForm, setShowAchievementForm] = useState(false);
+  
+  // Album manager states
+  const [showAlbumManager, setShowAlbumManager] = useState(false);
+  const [managingAlbum, setManagingAlbum] = useState(null);
+  const [selectedImages, setSelectedImages] = useState([]);
 
   // Load data on component mount
   useEffect(() => {
@@ -205,6 +210,60 @@ const AdminLandingPageManager = () => {
     } catch (error) {
       console.error('Error deleting album:', error);
       showMessage('error', 'Failed to delete album');
+    }
+    setLoading(false);
+  };
+
+  // Album manager functions
+  const openAlbumManager = (album) => {
+    setManagingAlbum(album);
+    setShowAlbumManager(true);
+  };
+
+  const handleAlbumImagesUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setLoading(true);
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('images', file);
+    });
+
+    try {
+      await api.post(`/api/admin/albums/${managingAlbum.id}/images`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      showMessage('success', `${files.length} images uploaded successfully`);
+      loadAllData();
+      // Refresh the managing album data
+      const response = await api.get('/api/admin/landing-page');
+      const updatedAlbum = response.data.albums.find(a => a.id === managingAlbum.id);
+      setManagingAlbum(updatedAlbum);
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      showMessage('error', 'Failed to upload images');
+    }
+    setLoading(false);
+  };
+
+  const removeImageFromAlbum = async (imageUrl) => {
+    if (!window.confirm('Are you sure you want to remove this image?')) return;
+    
+    setLoading(true);
+    try {
+      await api.delete(`/api/admin/albums/${managingAlbum.id}/images`, {
+        data: { imageUrl }
+      });
+      showMessage('success', 'Image removed successfully');
+      loadAllData();
+      // Refresh the managing album data
+      const response = await api.get('/api/admin/landing-page');
+      const updatedAlbum = response.data.albums.find(a => a.id === managingAlbum.id);
+      setManagingAlbum(updatedAlbum);
+    } catch (error) {
+      console.error('Error removing image:', error);
+      showMessage('error', 'Failed to remove image');
     }
     setLoading(false);
   };
@@ -637,10 +696,18 @@ const AdminLandingPageManager = () => {
                   <div className="item-content">
                     <h4>{album.title}</h4>
                     <p>{album.description}</p>
+                    <div className="album-meta">
+                      <span className="album-category">{album.category || 'General'}</span>
+                      <span className="album-date">{album.date}</span>
+                      <span className="album-photos">{album.photoCount || 0} photos</span>
+                    </div>
                   </div>
                   <div className="item-actions">
                     <button onClick={() => { setEditingAlbum(album); setShowAlbumForm(true); }}>
                       <Edit2 size={14} />
+                    </button>
+                    <button onClick={() => openAlbumManager(album)} className="manage-btn">
+                      📷 Manage Photos
                     </button>
                     <button onClick={() => deleteAlbum(album.id)} className="delete-btn">
                       <Trash2 size={14} />
@@ -677,9 +744,43 @@ const AdminLandingPageManager = () => {
                         rows={3}
                       />
                     </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Category</label>
+                        <select name="category" defaultValue={editingAlbum?.category || 'general'}>
+                          <option value="general">General</option>
+                          <option value="academic">Academic</option>
+                          <option value="sports">Sports</option>
+                          <option value="cultural">Cultural</option>
+                          <option value="events">Events</option>
+                          <option value="graduation">Graduation</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>Date</label>
+                        <input
+                          name="date"
+                          type="date"
+                          defaultValue={editingAlbum?.date || new Date().toISOString().split('T')[0]}
+                        />
+                      </div>
+                    </div>
                     <div className="form-group">
                       <label>Cover Image</label>
                       <input name="coverImage" type="file" accept="image/*" />
+                      {editingAlbum?.coverImage && (
+                        <div className="current-image">
+                          <img src={editingAlbum.coverImage} alt="Current cover" style={{width: '100px', height: '60px', objectFit: 'cover'}} />
+                          <span>Current cover image</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Photos (Optional - you can upload multiple)</label>
+                      <input name="photos" type="file" accept="image/*" multiple />
+                      <small style={{color: '#666', fontSize: '12px'}}>
+                        You can select multiple photos at once to add to this album
+                      </small>
                     </div>
                     <div className="modal-actions">
                       <button type="button" onClick={() => { setShowAlbumForm(false); setEditingAlbum(null); }}>
@@ -690,6 +791,61 @@ const AdminLandingPageManager = () => {
                       </button>
                     </div>
                   </form>
+                </div>
+              </div>
+            )}
+
+            {showAlbumManager && managingAlbum && (
+              <div className="modal-overlay">
+                <div className="modal large-modal">
+                  <div className="modal-header">
+                    <h3>Manage Photos - {managingAlbum.title}</h3>
+                    <button onClick={() => { setShowAlbumManager(false); setManagingAlbum(null); }}>
+                      <X size={20} />
+                    </button>
+                  </div>
+                  <div className="album-manager">
+                    <div className="upload-section">
+                      <h4>Upload New Photos</h4>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleAlbumImagesUpload}
+                        disabled={loading}
+                      />
+                      <p className="upload-info">
+                        Select multiple images to upload. Images will be automatically optimized and stored in Cloudinary.
+                      </p>
+                    </div>
+                    
+                    <div className="current-images">
+                      <h4>Current Photos ({managingAlbum.images?.length || 0})</h4>
+                      <div className="images-grid">
+                        {managingAlbum.images && managingAlbum.images.length > 0 ? (
+                          managingAlbum.images.map((imageUrl, index) => (
+                            <div key={index} className="image-item">
+                              <img src={imageUrl} alt={`Album image ${index + 1}`} />
+                              <button
+                                className="remove-image-btn"
+                                onClick={() => removeImageFromAlbum(imageUrl)}
+                                disabled={loading}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="no-images">No images uploaded yet. Use the upload section above to add photos.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-actions">
+                    <button onClick={() => { setShowAlbumManager(false); setManagingAlbum(null); }}>
+                      Close
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

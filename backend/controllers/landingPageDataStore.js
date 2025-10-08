@@ -72,49 +72,61 @@ const landingPageData = {
       id: 1,
       title: 'Annual Sports Day 2024',
       description: 'Celebrating athletic excellence and team spirit with various sporting events, competitions, and award ceremonies',
-      coverImage: null
+      category: 'sports',
+      date: '2024-03-15',
+      coverImage: null,
+      images: [],
+      photoCount: 0
     },
     {
       id: 2,
       title: 'Science Exhibition 2024',
       description: 'Showcasing student innovations, experiments, and scientific discoveries across all grade levels',
-      coverImage: null
+      category: 'academic',
+      date: '2024-02-20',
+      coverImage: null,
+      images: [],
+      photoCount: 0
     },
     {
       id: 3,
       title: 'Cultural Festival 2024',
       description: 'Embracing diversity through arts, dance, music performances, and cultural celebrations',
-      coverImage: null
+      category: 'cultural',
+      date: '2024-01-10',
+      coverImage: null,
+      images: [],
+      photoCount: 0
     },
     {
       id: 4,
       title: 'Independence Day Celebration',
       description: 'Patriotic celebrations with flag hoisting, cultural programs, and student performances',
-      coverImage: null
+      category: 'events',
+      date: '2024-08-15',
+      coverImage: null,
+      images: [],
+      photoCount: 0
     },
     {
       id: 5,
       title: 'Inter-House Competition',
       description: 'Annual competition between school houses featuring academics, sports, and cultural events',
-      coverImage: null
+      category: 'sports',
+      date: '2024-04-10',
+      coverImage: null,
+      images: [],
+      photoCount: 0
     },
     {
       id: 6,
       title: 'Field Trip Adventures',
       description: 'Educational field trips to museums, historical sites, and science centers',
-      coverImage: null
-    },
-    {
-      id: 7,
-      title: 'Teacher\'s Day Celebration',
-      description: 'Honoring our dedicated teachers with special performances and appreciation ceremonies',
-      coverImage: null
-    },
-    {
-      id: 8,
-      title: 'Community Service Projects',
-      description: 'Students engaged in various community service initiatives and social responsibility programs',
-      coverImage: null
+      category: 'academic',
+      date: '2024-05-25',
+      coverImage: null,
+      images: [],
+      photoCount: 0
     }
   ],
   carousel: [
