@@ -441,52 +441,44 @@ const SchoolLandingPage = () => {
               <img src="frontend/src/assets/icons/school_icon.png" alt="School Logo" className="logo-icon" />
             )}
             <div>
-              <div style={{ fontSize: '24px', fontWeight: 600, color: '#FFFFFF' }}>{schoolInfo.name}</div>
-              <div style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.8)' }}>School Landing Page</div>
+              <div style={{ fontSize: '24px', fontWeight: 600, color: '#374151' }}>{schoolInfo.name}</div>
+              <div style={{ fontSize: '16px', color: 'rgba(55, 65, 81, 0.7)' }}>School Landing Page</div>
             </div>
           </div>
           
           <div className="nav-actions">
             <button className="nav-btn" onClick={toggleSearch}>
-              <img src="/src/assets/icons/search.png" alt="Search" />
+              <img src="frontend/src/assets/icons/search.png" alt="Search" />
             </button>
             
             <button className="nav-btn" onClick={toggleLanguage}>
-              <img src="/src/assets/icons/translate.png" alt="Translate" />
+              <img src="frontend/src/assets/icons/translate.png" alt="Translate" />
             </button>
 
             <button 
               className="login-btn"
               onClick={() => navigate('/login')}
               style={{
-                background: 'transparent',
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                color: 'white',
                 border: 'none',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                marginLeft: '10px',
-                padding: '8px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                marginLeft: '10px'
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'scale(1.1)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.25)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = 'scale(1)';
-                e.target.style.background = 'transparent';
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
               }}
             >
-              <img 
-                src="/src/assets/landingpage/loginicon.png" 
-                alt="Login" 
-                style={{ 
-                  width: '40px', 
-                  height: '40px'
-                }} 
-              />
+              🔐 Login
             </button>
           </div>
         </div>
@@ -538,14 +530,9 @@ const SchoolLandingPage = () => {
         </div>
       </section>
 
-      {/* School Stats Section - Pride in Numbers */}
+      {/* School Stats Section - Inspired by Mockup */}
       <section className="achievements-section" id="achievements">
         <div className="container">
-          <div className="pride-main-heading">
-            <h1>Pride in Numbers</h1>
-            <p>Our achievements and milestones that reflect our commitment to excellence</p>
-          </div>
-          
           <div className="section-title animate-on-scroll">
             <h2>Our Pride in Numbers</h2>
             <p>Excellence reflected through our achievements and the trust of our community</p>
@@ -738,27 +725,29 @@ const SchoolLandingPage = () => {
       {/* Footer Section */}
       <footer className="footer" id="contact">
         <div className="container">
-          <div className="footer-content-single-row">
-            {/* School Name - Absolute Left */}
-            <div className="footer-left">
-              <h2 className="footer-school-name">{schoolInfo.name || 'ZPHS Pendyala'}</h2>
-            </div>
+          <div className="footer-content">
+            <h1 className="footer-school-name">{schoolInfo.name || 'ZPHS Pendyala'}</h1>
             
-            {/* Copyright - Center */}
-            <div className="footer-center">
-              <p className="footer-copyright">
-                © 2025 {schoolInfo.name || 'ZPHS Pendyala'}. All rights reserved.
-              </p>
-            </div>
-            
-            {/* Address - Right (3 layers like letter format) */}
-            <div className="footer-right">
-              <div className="footer-address-layers">
-                <div className="address-line">Pendyala Village</div>
-                <div className="address-line">Guntur District</div>
-                <div className="address-line">Andhra Pradesh - 522019</div>
+            <div className="footer-contact-info">
+              <div className="footer-contact-item">
+                <span className="icon">📍</span>
+                <span>{schoolInfo.address || 'Pendyala Village, Guntur District, Andhra Pradesh - 522019'}</span>
+              </div>
+              
+              <div className="footer-contact-item">
+                <span className="icon">�</span>
+                <span>{schoolInfo.email || 'zphs.pendyala@education.ap.gov.in'}</span>
+              </div>
+              
+              <div className="footer-contact-item">
+                <span className="icon">�</span>
+                <span>{schoolInfo.phone || '+91-8632-245678'}</span>
               </div>
             </div>
+            
+            <p className="footer-copyright">
+              © 2025 {schoolInfo.name || 'ZPHS Pendyala'}. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

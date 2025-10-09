@@ -336,77 +336,42 @@ const AdminLandingPageManager = () => {
         </div>
       )}
 
-      {/* Card-based Layout like Parent Dashboard */}
-      <div className="admin-cards-container">
-        {/* School Info Card */}
-        <div 
-          className={`admin-card ${activeTab === 'school-info' ? 'active' : ''}`}
+      <div className="manager-tabs">
+        <button 
+          className={activeTab === 'school-info' ? 'active' : ''}
           onClick={() => setActiveTab('school-info')}
         >
-          <div className="admin-card-icon">
-            <Image size={48} />
-          </div>
-          <div className="admin-card-content">
-            <h3>School Information</h3>
-            <p>Manage basic school details and branding</p>
-          </div>
-        </div>
-
-        {/* Statistics Card */}
-        <div 
-          className={`admin-card ${activeTab === 'stats' ? 'active' : ''}`}
+          <Image size={16} />
+          School Info
+        </button>
+        <button 
+          className={activeTab === 'stats' ? 'active' : ''}
           onClick={() => setActiveTab('stats')}
         >
-          <div className="admin-card-icon">
-            <BarChart3 size={48} />
-          </div>
-          <div className="admin-card-content">
-            <h3>Statistics</h3>
-            <p>Update pride in numbers section</p>
-          </div>
-        </div>
-
-        {/* Teachers Card */}
-        <div 
-          className={`admin-card ${activeTab === 'teachers' ? 'active' : ''}`}
+          <BarChart3 size={16} />
+          Statistics
+        </button>
+        <button 
+          className={activeTab === 'teachers' ? 'active' : ''}
           onClick={() => setActiveTab('teachers')}
         >
-          <div className="admin-card-icon">
-            <Users size={48} />
-          </div>
-          <div className="admin-card-content">
-            <h3>Leadership Team</h3>
-            <p>Manage teachers and staff profiles</p>
-          </div>
-        </div>
-
-        {/* Albums Card */}
-        <div 
-          className={`admin-card ${activeTab === 'albums' ? 'active' : ''}`}
+          <Users size={16} />
+          Leadership Team
+        </button>
+        <button 
+          className={activeTab === 'albums' ? 'active' : ''}
           onClick={() => setActiveTab('albums')}
         >
-          <div className="admin-card-icon">
-            <Camera size={48} />
-          </div>
-          <div className="admin-card-content">
-            <h3>Photo Albums</h3>
-            <p>Manage school event galleries</p>
-          </div>
-        </div>
-
-        {/* Carousel Card */}
-        <div 
-          className={`admin-card ${activeTab === 'carousel' ? 'active' : ''}`}
+          <Camera size={16} />
+          Albums
+        </button>
+        <button 
+          className={activeTab === 'carousel' ? 'active' : ''}
           onClick={() => setActiveTab('carousel')}
         >
-          <div className="admin-card-icon">
-            <Image size={48} />
-          </div>
-          <div className="admin-card-content">
-            <h3>Hero Carousel</h3>
-            <p>Manage homepage carousel images</p>
-          </div>
-        </div>
+          <Image size={16} />
+          Hero Carousel
+        </button>
       </div>
 
       <div className="manager-content">

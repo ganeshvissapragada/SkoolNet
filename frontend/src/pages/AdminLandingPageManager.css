@@ -1,9 +1,7 @@
 .admin-landing-manager {
   padding: 2rem;
-  background: #f0f4f9;
+  background: #f8fafc;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 16px;
 }
 
 .manager-header {
@@ -11,14 +9,14 @@
 }
 
 .manager-header h2 {
-  color: #1f2937;
+  color: #1e293b;
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
 .manager-header p {
-  color: #6b7280;
+  color: #64748b;
   font-size: 1rem;
 }
 
@@ -45,7 +43,7 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #d1d5db;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 .manager-tabs button {
@@ -55,7 +53,7 @@
   padding: 1rem 1.5rem;
   background: none;
   border: none;
-  color: #6b7280;
+  color: #64748b;
   font-weight: 500;
   cursor: pointer;
   border-radius: 8px 8px 0 0;
@@ -63,55 +61,52 @@
 }
 
 .manager-tabs button:hover {
-  background-color: rgba(46, 124, 246, 0.1);
-  color: #1f2937;
+  background-color: #f1f5f9;
+  color: #334155;
 }
 
 .manager-tabs button.active {
-  background-color: #2E7CF6;
+  background-color: #3b82f6;
   color: white;
 }
 
 .manager-content {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .tab-content h3 {
-  color: #1f2937;
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 24px;
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
 }
 
 .section-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 2rem;
 }
 
 .add-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #2E7CF6 0%, #1E5FD9 100%);
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #3b82f6;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 16px;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .add-btn:hover {
-  background: linear-gradient(135deg, #1E5FD9 0%, #164ABF 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(46, 124, 246, 0.3);
+  background-color: #2563eb;
 }
 
 .school-form, .stats-form {
@@ -119,36 +114,33 @@
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
   color: #374151;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 500;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  background: #ffffff;
-  font-family: inherit;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #2E7CF6;
-  box-shadow: 0 0 0 3px rgba(46, 124, 246, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .file-upload {
@@ -170,28 +162,24 @@
 .submit-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #2E7CF6 0%, #1E5FD9 100%);
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background-color: #059669;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 16px;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .submit-btn:hover {
-  background: linear-gradient(135deg, #1E5FD9 0%, #164ABF 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(46, 124, 246, 0.3);
+  background-color: #047857;
 }
 
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
 .stats-form {
@@ -204,10 +192,9 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem;
   padding: 1.5rem;
-  background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .items-grid {
@@ -390,77 +377,6 @@
   cursor: not-allowed;
 }
 
-/* Admin Cards Container - Parent Dashboard Style */
-.admin-cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  margin-bottom: 2rem;
-  max-width: 1200px;
-}
-
-.admin-card {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  min-height: 180px;
-  justify-content: center;
-}
-
-.admin-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  border-color: #2E7CF6;
-}
-
-.admin-card.active {
-  border-color: #2E7CF6;
-  background: linear-gradient(135deg, #2E7CF6 0%, #1E5FD9 100%);
-  color: white;
-  transform: translateY(-2px);
-}
-
-.admin-card-icon {
-  margin-bottom: 16px;
-  color: #2E7CF6;
-  transition: color 0.3s ease;
-}
-
-.admin-card.active .admin-card-icon {
-  color: white;
-}
-
-.admin-card-content h3 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #374151;
-  transition: color 0.3s ease;
-}
-
-.admin-card.active .admin-card-content h3 {
-  color: white;
-}
-
-.admin-card-content p {
-  font-size: 14px;
-  color: #6b7280;
-  line-height: 1.4;
-  transition: color 0.3s ease;
-}
-
-.admin-card.active .admin-card-content p {
-  color: rgba(255, 255, 255, 0.9);
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .admin-landing-manager {
@@ -496,29 +412,6 @@
   
   .modal-actions {
     flex-direction: column;
-  }
-  
-  .admin-cards-container {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-  
-  .admin-card {
-    padding: 20px 16px;
-    min-height: 140px;
-  }
-  
-  .admin-card-icon svg {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .admin-card-content h3 {
-    font-size: 16px;
-  }
-  
-  .admin-card-content p {
-    font-size: 12px;
   }
 }
 
