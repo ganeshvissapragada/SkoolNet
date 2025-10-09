@@ -12,6 +12,9 @@ const AdminLandingPageManager = () => {
   const [schoolInfo, setSchoolInfo] = useState({
     name: '',
     description: '',
+    address: '',
+    email: '',
+    phone: '',
     logo: null,
     backgroundImage: null
   });
@@ -20,23 +23,20 @@ const AdminLandingPageManager = () => {
     { label: 'Students', value: 0, icon: 'users' },
     { label: 'Teachers', value: 0, icon: 'users' },
     { label: 'Years of Excellence', value: 0, icon: 'award' },
-    { label: 'Achievements', value: 0, icon: 'trophy' }
+    { label: 'Smart Classrooms', value: 0, icon: 'monitor' }
   ]);
   
   const [teachers, setTeachers] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [carousel, setCarousel] = useState([]);
-  const [achievements, setAchievements] = useState([]);
   
   // Form states
   const [editingTeacher, setEditingTeacher] = useState(null);
   const [editingAlbum, setEditingAlbum] = useState(null);
   const [editingCarousel, setEditingCarousel] = useState(null);
-  const [editingAchievement, setEditingAchievement] = useState(null);
   const [showTeacherForm, setShowTeacherForm] = useState(false);
   const [showAlbumForm, setShowAlbumForm] = useState(false);
   const [showCarouselForm, setShowCarouselForm] = useState(false);
-  const [showAchievementForm, setShowAchievementForm] = useState(false);
   
   // Album manager states
   const [showAlbumManager, setShowAlbumManager] = useState(false);
@@ -58,7 +58,6 @@ const AdminLandingPageManager = () => {
       setTeachers(data.teachers || []);
       setAlbums(data.albums || []);
       setCarousel(data.carousel || []);
-      setAchievements(data.achievements || []);
     } catch (error) {
       console.error('Error loading data:', error);
       showMessage('error', 'Failed to load data');
@@ -80,6 +79,9 @@ const AdminLandingPageManager = () => {
       const formData = new FormData();
       formData.append('name', schoolInfo.name);
       formData.append('description', schoolInfo.description);
+      formData.append('address', schoolInfo.address);
+      formData.append('email', schoolInfo.email);
+      formData.append('phone', schoolInfo.phone);
       
       if (schoolInfo.logo instanceof File) {
         formData.append('logo', schoolInfo.logo);
@@ -313,61 +315,6 @@ const AdminLandingPageManager = () => {
     setLoading(false);
   };
 
-  // Achievements Functions
-  const handleAchievementSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    const formData = new FormData(e.target);
-    const achievementData = {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      year: formData.get('year'),
-      category: formData.get('category'),
-      rank: formData.get('rank'),
-      icon: formData.get('icon')
-    };
-    
-    try {
-      if (editingAchievement) {
-        await api.put(`/api/admin/achievements/${editingAchievement.id}`, achievementData);
-        showMessage('success', 'Achievement updated successfully');
-      } else {
-        await api.post('/api/admin/achievements', achievementData);
-        showMessage('success', 'Achievement added successfully');
-      }
-      
-      setEditingAchievement(null);
-      setShowAchievementForm(false);
-      loadAllData();
-      e.target.reset();
-    } catch (error) {
-      console.error('Error saving achievement:', error);
-      showMessage('error', 'Failed to save achievement');
-    }
-    setLoading(false);
-  };
-
-  const editAchievement = (achievement) => {
-    setEditingAchievement(achievement);
-    setShowAchievementForm(true);
-  };
-
-  const deleteAchievement = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this achievement?')) return;
-    
-    setLoading(true);
-    try {
-      await api.delete(`/api/admin/achievements/${id}`);
-      showMessage('success', 'Achievement deleted successfully');
-      loadAllData();
-    } catch (error) {
-      console.error('Error deleting achievement:', error);
-      showMessage('error', 'Failed to delete achievement');
-    }
-    setLoading(false);
-  };
-
   // File preview helper
   const getImagePreview = (file) => {
     if (file instanceof File) {
@@ -425,13 +372,6 @@ const AdminLandingPageManager = () => {
           <Image size={16} />
           Hero Carousel
         </button>
-        <button 
-          className={activeTab === 'achievements' ? 'active' : ''}
-          onClick={() => setActiveTab('achievements')}
-        >
-          🏆
-          Achievements
-        </button>
       </div>
 
       <div className="manager-content">
@@ -459,6 +399,39 @@ const AdminLandingPageManager = () => {
                   required
                   rows={4}
                   placeholder="Enter school description"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>School Address *</label>
+                <input
+                  type="text"
+                  value={schoolInfo.address || ''}
+                  onChange={(e) => setSchoolInfo({ ...schoolInfo, address: e.target.value })}
+                  required
+                  placeholder="Enter school address"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Email Address *</label>
+                <input
+                  type="email"
+                  value={schoolInfo.email || ''}
+                  onChange={(e) => setSchoolInfo({ ...schoolInfo, email: e.target.value })}
+                  required
+                  placeholder="Enter school email address"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Phone Number *</label>
+                <input
+                  type="tel"
+                  value={schoolInfo.phone || ''}
+                  onChange={(e) => setSchoolInfo({ ...schoolInfo, phone: e.target.value })}
+                  required
+                  placeholder="Enter school phone number"
                 />
               </div>
 
@@ -856,10 +829,13 @@ const AdminLandingPageManager = () => {
         {activeTab === 'carousel' && (
           <div className="tab-content">
             <div className="section-header">
-              <h3>Hero Carousel</h3>
+              <h3>Hero Carousel Images</h3>
+              <p style={{ fontSize: '14px', color: '#666', marginTop: '5px' }}>
+                Manage carousel background images. Title and subtitle are no longer displayed on slides.
+              </p>
               <button onClick={() => setShowCarouselForm(true)} className="add-btn">
                 <Plus size={16} />
-                Add Slide
+                Add Image
               </button>
             </div>
 
@@ -867,11 +843,13 @@ const AdminLandingPageManager = () => {
               {carousel.map((slide) => (
                 <div key={slide.id} className="item-card">
                   {slide.image && (
-                    <img src={slide.image} alt={slide.title} className="item-image" />
+                    <img src={slide.image} alt={`Slide ${slide.id}`} className="item-image" />
                   )}
                   <div className="item-content">
-                    <h4>{slide.title}</h4>
-                    <p>{slide.subtitle}</p>
+                    <h4>Slide {slide.id}</h4>
+                    <p style={{ fontSize: '12px', color: '#666' }}>
+                      {slide.title ? `Reference: ${slide.title}` : 'Background Image'}
+                    </p>
                   </div>
                   <div className="item-actions">
                     <button onClick={() => { setEditingCarousel(slide); setShowCarouselForm(true); }}>
@@ -889,142 +867,33 @@ const AdminLandingPageManager = () => {
               <div className="modal-overlay">
                 <div className="modal">
                   <div className="modal-header">
-                    <h3>{editingCarousel ? 'Edit Slide' : 'Add Slide'}</h3>
+                    <h3>{editingCarousel ? 'Edit Carousel Image' : 'Add Carousel Image'}</h3>
                     <button onClick={() => { setShowCarouselForm(false); setEditingCarousel(null); }}>
                       <X size={20} />
                     </button>
                   </div>
                   <form onSubmit={handleCarouselSubmit}>
                     <div className="form-group">
-                      <label>Title *</label>
+                      <label>Reference Title (Optional)</label>
                       <input
                         name="title"
                         type="text"
                         defaultValue={editingCarousel?.title || ''}
-                        required
+                        placeholder="For internal reference only (not displayed on site)"
                       />
+                      <small style={{ color: '#666', fontSize: '12px' }}>
+                        This title is only for admin reference and won't be shown on the website.
+                      </small>
                     </div>
                     <div className="form-group">
-                      <label>Subtitle</label>
-                      <input
-                        name="subtitle"
-                        type="text"
-                        defaultValue={editingCarousel?.subtitle || ''}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Image</label>
-                      <input name="image" type="file" accept="image/*" />
+                      <label>Background Image *</label>
+                      <input name="image" type="file" accept="image/*" required={!editingCarousel} />
+                      <small style={{ color: '#666', fontSize: '12px' }}>
+                        Recommended size: 1920x1080 pixels or higher for best quality.
+                      </small>
                     </div>
                     <div className="modal-actions">
                       <button type="button" onClick={() => { setShowCarouselForm(false); setEditingCarousel(null); }}>
-                        Cancel
-                      </button>
-                      <button type="submit" disabled={loading}>
-                        {loading ? 'Saving...' : 'Save'}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Achievements Tab */}
-        {activeTab === 'achievements' && (
-          <div className="tab-content">
-            <div className="section-header">
-              <h3>Achievements</h3>
-              <button onClick={() => setShowAchievementForm(true)} className="add-btn">
-                <Plus size={16} />
-                Add Achievement
-              </button>
-            </div>
-
-            <div className="items-grid">
-              {achievements.map((achievement) => (
-                <div key={achievement.id} className="item-card">
-                  <div className="item-content">
-                    <h4>{achievement.title}</h4>
-                    <p>{achievement.description}</p>
-                    <p><strong>Year:</strong> {achievement.year}</p>
-                    <p><strong>Category:</strong> {achievement.category}</p>
-                    <p><strong>Rank:</strong> {achievement.rank}</p>
-                  </div>
-                  <div className="item-actions">
-                    <button onClick={() => editAchievement(achievement)}>
-                      <Edit2 size={14} />
-                    </button>
-                    <button onClick={() => deleteAchievement(achievement.id)} className="delete-btn">
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {showAchievementForm && (
-              <div className="modal-overlay">
-                <div className="modal">
-                  <div className="modal-header">
-                    <h3>{editingAchievement ? 'Edit Achievement' : 'Add Achievement'}</h3>
-                    <button onClick={() => { setShowAchievementForm(false); setEditingAchievement(null); }}>
-                      <X size={20} />
-                    </button>
-                  </div>
-                  <form onSubmit={handleAchievementSubmit}>
-                    <div className="form-group">
-                      <label>Title *</label>
-                      <input
-                        name="title"
-                        type="text"
-                        defaultValue={editingAchievement?.title || ''}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Description</label>
-                      <textarea
-                        name="description"
-                        defaultValue={editingAchievement?.description || ''}
-                        rows={3}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Year</label>
-                      <input
-                        name="year"
-                        type="number"
-                        defaultValue={editingAchievement?.year || ''}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Category</label>
-                      <input
-                        name="category"
-                        type="text"
-                        defaultValue={editingAchievement?.category || ''}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Rank</label>
-                      <input
-                        name="rank"
-                        type="text"
-                        defaultValue={editingAchievement?.rank || ''}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Icon</label>
-                      <input
-                        name="icon"
-                        type="text"
-                        defaultValue={editingAchievement?.icon || ''}
-                      />
-                    </div>
-                    <div className="modal-actions">
-                      <button type="button" onClick={() => { setShowAchievementForm(false); setEditingAchievement(null); }}>
                         Cancel
                       </button>
                       <button type="submit" disabled={loading}>

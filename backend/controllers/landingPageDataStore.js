@@ -1,8 +1,17 @@
-// Shared in-memory landing page data store
-const landingPageData = {
+const fs = require('fs');
+const path = require('path');
+
+// File path for persistent storage
+const DATA_FILE_PATH = path.join(__dirname, '../data/landingPageData.json');
+
+// Default data structure
+const defaultLandingPageData = {
   schoolInfo: {
-    name: 'Excellence Public School',
+    name: 'ZPHS Pendyala',
     description: 'Nurturing young minds for a brighter tomorrow with excellence in education, character building, and holistic development. We are committed to providing world-class education that prepares students for future challenges while maintaining strong moral values and cultural heritage.',
+    address: 'Pendyala Village, Guntur District, Andhra Pradesh - 522019',
+    email: 'zphs.pendyala@education.ap.gov.in',
+    phone: '+91-8632-245678',
     logo: null,
     backgroundImage: null
   },  stats: [
@@ -160,189 +169,54 @@ const landingPageData = {
       subtitle: 'Preserving Traditions While Embracing Modernity',
       image: null
     }
-  ],
-  achievements: [
-    {
-      id: 1,
-      title: 'State Board Topper',
-      description: 'Our student Rajesh Kumar secured 1st rank in State Board examinations with 98.5% marks, making the entire school proud',
-      year: '2024',
-      category: 'Academic',
-      rank: '#1 State Rank',
-      icon: '🏆'
-    },
-    {
-      id: 2,
-      title: 'National Science Olympiad',
-      description: 'Gold medal in National Science Olympiad competition representing our state with exceptional performance in physics and chemistry',
-      year: '2024',
-      category: 'Academic',
-      rank: 'Gold Medal',
-      icon: '🥇'
-    },
-    {
-      id: 3,
-      title: 'Inter-School Football Championship',
-      description: 'Champions in District Inter-School Football Tournament for consecutive 3 years, showcasing exceptional teamwork and sportsmanship',
-      year: '2024',
-      category: 'Sports',
-      rank: 'Champions',
-      icon: '⚽'
-    },
-    {
-      id: 4,
-      title: 'Best School Award',
-      description: 'Recognized as the Best School in the district by State Education Department for overall excellence in academics and infrastructure',
-      year: '2024',
-      category: 'Recognition',
-      rank: 'Best School',
-      icon: '🏫'
-    },
-    {
-      id: 5,
-      title: 'International Mathematics Olympiad',
-      description: 'Silver medal in International Mathematics Olympiad by our class 10 student Priya Sharma, competing with 50+ countries',
-      year: '2024',
-      category: 'Academic',
-      rank: 'Silver Medal',
-      icon: '🧮'
-    },
-    {
-      id: 6,
-      title: 'State Cultural Festival Winners',
-      description: 'First place in State Level Cultural Festival with outstanding classical dance and traditional music performances',
-      year: '2024',
-      category: 'Cultural',
-      rank: '1st Place',
-      icon: '🎭'
-    },
-    {
-      id: 7,
-      title: 'Green School Certification',
-      description: 'Awarded Green School Certification for outstanding environmental initiatives, solar power adoption, and sustainability practices',
-      year: '2023',
-      category: 'Environmental',
-      rank: 'Certified',
-      icon: '🌱'
-    },
-    {
-      id: 8,
-      title: 'State Athletics Championship',
-      description: 'Multiple medals in State Athletics Championship including 100m sprint record and long jump district record by our students',
-      year: '2024',
-      category: 'Sports',
-      rank: 'Multiple Records',
-      icon: '🏃‍♂️'
-    },
-    {
-      id: 9,
-      title: 'Inter-State Debate Competition',
-      description: 'Won Inter-State Debate Competition on "Digital India and Future Education" showcasing exceptional oratory skills',
-      year: '2024',
-      category: 'Cultural',
-      rank: 'Winners',
-      icon: '🎤'
-    },
-    {
-      id: 10,
-      title: 'Community Service Excellence',
-      description: 'Completed 5000+ hours of community service including COVID relief, environmental cleanup, and elderly care programs',
-      year: '2023-2024',
-      category: 'Community',
-      rank: '5000+ Hours',
-      icon: '🤝'
-    },
-    {
-      id: 11,
-      title: 'Innovation in Education Award',
-      description: 'Awarded by State Government for implementing innovative teaching methods, AI-based learning, and digital classroom initiatives',
-      year: '2024',
-      category: 'Innovation',
-      rank: 'Excellence Award',
-      icon: '💡'
-    },
-    {
-      id: 12,
-      title: 'District Chess Championship',
-      description: 'District Chess Championship winners with our students securing top 3 positions and representing state at national level',
-      year: '2024',
-      category: 'Sports',
-      rank: 'Top 3 Sweep',
-      icon: '♟️'
-    },
-    {
-      id: 13,
-      title: 'National Art Competition',
-      description: 'First prize in National Level Art Competition for painting on "Unity in Diversity" theme by class 8 student',
-      year: '2024',
-      category: 'Cultural',
-      rank: '1st Prize',
-      icon: '🎨'
-    },
-    {
-      id: 14,
-      title: 'Robotics Competition Victory',
-      description: 'Won State Level Robotics Competition with innovative AI-powered cleaning robot designed by our computer science students',
-      year: '2024',
-      category: 'Innovation',
-      rank: 'State Champions',
-      icon: '🤖'
-    },
-    {
-      id: 15,
-      title: 'Literary Excellence Award',
-      description: 'School magazine "Young Voices" won State Award for Best School Publication with creative writing and journalism',
-      year: '2024',
-      category: 'Academic',
-      rank: 'Best Publication',
-      icon: '📚'
-    },
-    {
-      id: 16,
-      title: 'Swimming Championship',
-      description: 'District Swimming Championship with multiple gold medals in freestyle, butterfly, and relay events',
-      year: '2024',
-      category: 'Sports',
-      rank: 'Multiple Golds',
-      icon: '🏊‍♀️'
-    },
-    {
-      id: 17,
-      title: 'UNESCO Associated Schools Recognition',
-      description: 'Selected as UNESCO Associated School for promoting peace education, international cooperation, and sustainable development',
-      year: '2024',
-      category: 'Recognition',
-      rank: 'UNESCO Associated',
-      icon: '🌍'
-    },
-    {
-      id: 18,
-      title: 'Science Fair Innovation',
-      description: 'National Science Fair winner for developing low-cost water purification system using locally available materials',
-      year: '2024',
-      category: 'Innovation',
-      rank: 'National Winner',
-      icon: '🔬'
-    },
-    {
-      id: 19,
-      title: 'Perfect Attendance Recognition',
-      description: 'Achieved 99.5% student attendance rate, highest in the district, recognized by Education Department',
-      year: '2024',
-      category: 'Recognition',
-      rank: 'District Best',
-      icon: '📅'
-    },
-    {
-      id: 20,
-      title: 'Digital Learning Excellence',
-      description: 'Awarded for successful implementation of digital classrooms, online learning platforms, and technology integration',
-      year: '2024',
-      category: 'Innovation',
-      rank: 'Excellence Award',
-      icon: '💻'
-    }
-  ],
+  ]
 };
 
-module.exports = landingPageData;
+// Function to save data to file
+const saveDataToFile = () => {
+  try {
+    const dataDir = path.dirname(DATA_FILE_PATH);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(landingPageData, null, 2));
+    console.log('Landing page data saved to file');
+  } catch (error) {
+    console.error('Error saving landing page data:', error);
+  }
+};
+
+// Function to load data from file
+const loadDataFromFile = () => {
+  try {
+    if (fs.existsSync(DATA_FILE_PATH)) {
+      const fileData = fs.readFileSync(DATA_FILE_PATH, 'utf8');
+      const parsedData = JSON.parse(fileData);
+      
+      // Merge with default data to ensure all required fields exist
+      Object.keys(defaultLandingPageData).forEach(key => {
+        if (parsedData[key] !== undefined) {
+          landingPageData[key] = parsedData[key];
+        }
+      });
+      
+      console.log('Landing page data loaded from file');
+      return true;
+    }
+  } catch (error) {
+    console.error('Error loading landing page data:', error);
+  }
+  console.log('Using default landing page data');
+  return false;
+};
+
+// Initialize data from file on startup
+let landingPageData = { ...defaultLandingPageData };
+loadDataFromFile();
+
+// Export data and utility functions
+module.exports = {
+  get data() { return landingPageData; },
+  saveDataToFile,
+  loadDataFromFile
+};

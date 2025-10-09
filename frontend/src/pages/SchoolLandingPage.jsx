@@ -156,6 +156,7 @@ const SchoolLandingPage = () => {
 
   const carouselSlides = useMemo(() => {
     const carouselData = landingData?.carousel || [];
+    
     if (carouselData.length > 0) {
       return carouselData;
     }
@@ -165,8 +166,7 @@ const SchoolLandingPage = () => {
       { id: 2, title: 'Academic Excellence', subtitle: 'Shaping Bright Minds' },
       { id: 3, title: 'Sports & Activities', subtitle: 'Building Character' },
       { id: 4, title: 'Innovation & Technology', subtitle: 'Preparing for Tomorrow' },
-      { id: 5, title: 'Community & Values', subtitle: 'Growing Together' },
-      { id: 6, title: 'Achievements & Success', subtitle: 'Celebrating Excellence' }
+      { id: 5, title: 'Community & Values', subtitle: 'Growing Together' }
     ];
   }, [landingData, schoolInfo]);
 
@@ -262,8 +262,7 @@ const SchoolLandingPage = () => {
       { id: 2, title: 'Academic Excellence', subtitle: 'Shaping Bright Minds' },
       { id: 3, title: 'Sports & Activities', subtitle: 'Building Character' },
       { id: 4, title: 'Innovation & Technology', subtitle: 'Preparing for Tomorrow' },
-      { id: 5, title: 'Community & Values', subtitle: 'Growing Together' },
-      { id: 6, title: 'Achievements & Success', subtitle: 'Celebrating Excellence' }
+      { id: 5, title: 'Community & Values', subtitle: 'Growing Together' }
     ];
     
     const interval = setInterval(() => {
@@ -342,6 +341,17 @@ const SchoolLandingPage = () => {
     setCurrentSlide(slideIndex);
   };
 
+  // Auto-advance carousel
+  useEffect(() => {
+    if (carouselSlides.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentSlide(prev => (prev + 1) % carouselSlides.length);
+      }, 5000); // Change slide every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [carouselSlides.length]);
+
   const scrollAlbums = (direction) => {
     const albumsRow = document.getElementById('albumsRow');
     const scrollAmount = 340;
@@ -350,6 +360,33 @@ const SchoolLandingPage = () => {
       albumsRow.scrollLeft -= scrollAmount;
     } else {
       albumsRow.scrollLeft += scrollAmount;
+    }
+  };
+
+  const scrollStaff = (direction) => {
+    const staffSlider = document.getElementById('staffSlider');
+    const cardWidth = 340; // Width of one card + gap
+    const scrollAmount = cardWidth * 3; // Scroll 3 cards at a time
+    
+    if (direction === 'left') {
+      staffSlider.scrollLeft -= scrollAmount;
+    } else {
+      staffSlider.scrollLeft += scrollAmount;
+    }
+  };
+
+  const scrollTeachers = (direction) => {
+    const teachersRow = document.getElementById('teachersRow');
+    const cardWidth = teachersRow.children[0]?.offsetWidth || 320; // Get actual card width
+    const gap = 32; // 2rem gap between cards
+    const totalCardWidth = cardWidth + gap;
+    const visibleCards = 3; // Show 3 teachers at a time
+    const scrollAmount = totalCardWidth * visibleCards;
+    
+    if (direction === 'left') {
+      teachersRow.scrollLeft -= scrollAmount;
+    } else {
+      teachersRow.scrollLeft += scrollAmount;
     }
   };
 
@@ -450,17 +487,36 @@ const SchoolLandingPage = () => {
       {/* Hero Section with Carousel */}
       <section className="hero-section" id="home">
         <div className="carousel-container">
-          {carouselSlides.map((slide, index) => (
-            <div 
-              key={slide.id}
-              className={`carousel-slide slide${index + 1} ${index === currentSlide ? 'active' : ''}`}
-            >
-              <div className="carousel-content">
-                <h1>{slide.title}</h1>
-                <p>{slide.subtitle}</p>
+          {carouselSlides.map((slide, index) => {
+            const imageUrl = slide.image 
+              ? (slide.image.startsWith('http') 
+                  ? slide.image 
+                  : `http://localhost:3001${encodeURI(slide.image)}`)
+              : undefined;
+            
+            const slideStyle = {
+              backgroundImage: imageUrl ? `url("${imageUrl}")` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            };
+            
+            return (
+              <div 
+                key={`slide-${slide.id}`}
+                className={`carousel-slide ${index === currentSlide ? 'active' : 'inactive'}`}
+                style={slideStyle}
+              >
+                {/* Content overlay - only show if we have title or subtitle */}
+                {(slide.title || slide.subtitle) && (
+                  <div className="hero-content">
+                    {slide.title && <h1>{slide.title}</h1>}
+                    {slide.subtitle && <p>{slide.subtitle}</p>}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="carousel-indicators">
@@ -502,24 +558,61 @@ const SchoolLandingPage = () => {
       {/* Staff Details Section */}
       <section className="staff-section" id="staff">
         <div className="container">
+          {/* Main Heading */}
+          <div className="staff-main-title">
+            <h1>Our Teaching Faculty</h1>
+            <p>Meet the dedicated professionals shaping young minds</p>
+          </div>
+          
           <div className="section-title animate-on-scroll">
             <h2>Meet Our Leadership Team</h2>
             <p>Experienced educators and administrators committed to excellence</p>
           </div>
 
-          <div className="staff-grid">
-            {processedStaffMembers.map((staff) => (
-              <div key={staff.id} className="staff-card">
-                {staff.isRealPhoto ? (
-                  <img src={staff.image} alt={staff.name} className="staff-photo" />
-                ) : (
-                  <div className="staff-emoji">{staff.image}</div>
-                )}
-                <div className="staff-name">{staff.name}</div>
-                <div className="staff-designation">{staff.position}</div>
-                <a href={`tel:${staff.phone}`} className="staff-phone">{staff.phone}</a>
-              </div>
-            ))}
+          <div className="teachers-container">
+            <button className="teachers-nav prev" onClick={() => scrollTeachers('left')}>
+              <img src="/src/assets/landingpage/left.png" alt="Previous" />
+            </button>
+            <div className="teachers-row" id="teachersRow">
+              {processedStaffMembers.map((teacher) => (
+                <div key={teacher.id} className="teacher-card">
+                  {teacher.isRealPhoto ? (
+                    <img src={teacher.image} alt={teacher.name} className="teacher-photo" />
+                  ) : (
+                    <div className="teacher-emoji">{teacher.image}</div>
+                  )}
+                  
+                  <h3 className="teacher-name">{teacher.name}</h3>
+                  <p className="teacher-position">{teacher.position}</p>
+                  
+                  <div className="teacher-details">
+                    <div className="teacher-detail-item">
+                      <span className="teacher-detail-icon">
+                        <img src="/src/assets/landingpage/education.png" alt="Education" />
+                      </span>
+                      <span>{teacher.qualification || 'Educational Background'}</span>
+                    </div>
+                    
+                    <div className="teacher-detail-item">
+                      <span className="teacher-detail-icon">
+                        <img src="/src/assets/landingpage/experience.png" alt="Experience" />
+                      </span>
+                      <span>{teacher.experience || 'Experience'}</span>
+                    </div>
+                    
+                    <div className="teacher-detail-item">
+                      <span className="teacher-detail-icon">
+                        <img src="/src/assets/landingpage/phone.png" alt="Phone" />
+                      </span>
+                      <span>{teacher.phone || 'Contact'}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button className="teachers-nav next" onClick={() => scrollTeachers('right')}>
+              <img src="/src/assets/landingpage/right.png" alt="Next" />
+            </button>
           </div>
         </div>
       </section>
@@ -629,116 +722,32 @@ const SchoolLandingPage = () => {
         </div>
       </section>
 
-      {/* Achievements Section */}
-      <section className="achievements-showcase-section" id="achievements-showcase">
-        <div className="container">
-          <div className="section-title animate-on-scroll">
-            <h2>Our Achievements & Recognition</h2>
-            <p>Celebrating excellence in academics, sports, and community service</p>
-          </div>
-
-          <div className="achievements-grid">
-            {(landingData?.achievements || []).map((achievement) => (
-              <div key={achievement.id} className="achievement-card">
-                <div className="achievement-header">
-                  <div className="achievement-icon">{achievement.icon || '🏆'}</div>
-                  <div className="achievement-meta">
-                    <span className="achievement-year">{achievement.year}</span>
-                    <span className="achievement-category">{achievement.category}</span>
-                  </div>
-                </div>
-                <div className="achievement-content">
-                  <h3>{achievement.title}</h3>
-                  <p className="achievement-description">{achievement.description}</p>
-                  {achievement.rank && (
-                    <div className="achievement-rank">
-                      <span className="rank-badge">{achievement.rank}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-            
-            {(!landingData?.achievements || landingData.achievements.length === 0) && (
-              <div className="no-achievements">
-                <div className="no-achievements-icon">�</div>
-                <h3>No Achievements Added Yet</h3>
-                <p>Achievements will appear here once added by the administrator.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
       {/* Footer Section */}
       <footer className="footer" id="contact">
         <div className="container">
           <div className="footer-content">
-            <div className="footer-section">
-              <h3>{schoolInfo.name}</h3>
-              <p>{schoolInfo.description}</p>
-              <div className="social-links">
-                <a href="#" className="social-link">📘</a>
-                <a href="#" className="social-link">🐦</a>
-                <a href="#" className="social-link">📸</a>
-                <a href="#" className="social-link">📺</a>
+            <h1 className="footer-school-name">{schoolInfo.name || 'ZPHS Pendyala'}</h1>
+            
+            <div className="footer-contact-info">
+              <div className="footer-contact-item">
+                <span className="icon">📍</span>
+                <span>{schoolInfo.address || 'Pendyala Village, Guntur District, Andhra Pradesh - 522019'}</span>
+              </div>
+              
+              <div className="footer-contact-item">
+                <span className="icon">�</span>
+                <span>{schoolInfo.email || 'zphs.pendyala@education.ap.gov.in'}</span>
+              </div>
+              
+              <div className="footer-contact-item">
+                <span className="icon">�</span>
+                <span>{schoolInfo.phone || '+91-8632-245678'}</span>
               </div>
             </div>
-
-            <div className="footer-section">
-              <h3>Quick Links</h3>
-              <ul>
-                <li><a href="#admissions">Admissions</a></li>
-                <li><a href="#academics">Academics</a></li>
-                <li><a href="#facilities">Facilities</a></li>
-                <li><a href="#activities">Activities</a></li>
-                <li><a href="#results">Results</a></li>
-                <li><a href="#gallery">Gallery</a></li>
-                <li><a href="#careers">Careers</a></li>
-              </ul>
-            </div>
-
-            <div className="footer-section">
-              <h3>Contact Information</h3>
-              <div className="contact-info">
-                <div className="contact-item">
-                  <span className="contact-icon">📍</span>
-                  <div>
-                    <strong>Address:</strong><br />
-                    123 Education Street, Knowledge City,<br />
-                    Learning State - 560001, India
-                  </div>
-                </div>
-                <div className="contact-item">
-                  <span className="contact-icon">📞</span>
-                  <div>
-                    <strong>Phone:</strong><br />
-                    +91-80-12345678<br />
-                    +91-80-87654321
-                  </div>
-                </div>
-                <div className="contact-item">
-                  <span className="contact-icon">✉️</span>
-                  <div>
-                    <strong>Email:</strong><br />
-                    info@excellenceschool.edu<br />
-                    admissions@excellenceschool.edu
-                  </div>
-                </div>
-                <div className="contact-item">
-                  <span className="contact-icon">🕒</span>
-                  <div>
-                    <strong>Office Hours:</strong><br />
-                    Monday - Friday: 8:00 AM - 5:00 PM<br />
-                    Saturday: 9:00 AM - 2:00 PM
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="footer-bottom">
-            <p>&copy; 2024 {schoolInfo.name}. All rights reserved. | Privacy Policy | Terms of Service</p>
+            
+            <p className="footer-copyright">
+              © 2025 {schoolInfo.name || 'ZPHS Pendyala'}. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

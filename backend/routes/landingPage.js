@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const auth = require('../middleware/auth');
-const landingPageData = require('../controllers/landingPageDataStore');
+const landingPageDataStore = require('../controllers/landingPageDataStore');
+const landingPageData = landingPageDataStore.data;
 const multer = require('multer');
 const path = require('path');
 const { cloudinary, albumStorage, albumCoverStorage } = require('../config/cloudinary');
@@ -44,11 +45,14 @@ router.post('/school-info', auth(['admin']), upload.fields([
   { name: 'backgroundImage', maxCount: 1 }
 ]), (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, address, email, phone } = req.body;
     
     // Update school info
     if (name) landingPageData.schoolInfo.name = name;
     if (description) landingPageData.schoolInfo.description = description;
+    if (address) landingPageData.schoolInfo.address = address;
+    if (email) landingPageData.schoolInfo.email = email;
+    if (phone) landingPageData.schoolInfo.phone = phone;
     
     // Handle file uploads
     if (req.files && req.files.logo) {
@@ -57,6 +61,9 @@ router.post('/school-info', auth(['admin']), upload.fields([
     if (req.files && req.files.backgroundImage) {
       landingPageData.schoolInfo.backgroundImage = `/uploads/${req.files.backgroundImage[0].filename}`;
     }
+    
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
     
     res.json({ message: 'School information updated successfully', data: landingPageData.schoolInfo });
   } catch (error) {
@@ -70,6 +77,10 @@ router.put('/stats', auth(['admin']), (req, res) => {
   try {
     const { stats } = req.body;
     landingPageData.stats = stats;
+    
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
+    
     res.json({ message: 'Statistics updated successfully', data: landingPageData.stats });
   } catch (error) {
     console.error('Error updating stats:', error);
@@ -103,6 +114,10 @@ router.post('/teachers', auth(['admin']), uploadTeacher.single('photo'), (req, r
     };
     
     landingPageData.teachers.push(newTeacher);
+    
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
+    
     res.json({ message: 'Teacher added successfully', data: newTeacher });
   } catch (error) {
     console.error('Error adding teacher:', error);
@@ -132,6 +147,9 @@ router.put('/teachers/:id', auth(['admin']), uploadTeacher.single('photo'), (req
       teacher.photo = req.file.filename;
     }
     
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
+    
     res.json({ message: 'Teacher updated successfully', data: teacher });
   } catch (error) {
     console.error('Error updating teacher:', error);
@@ -149,6 +167,10 @@ router.delete('/teachers/:id', auth(['admin']), (req, res) => {
     }
     
     landingPageData.teachers.splice(teacherIndex, 1);
+    
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
+    
     res.json({ message: 'Teacher deleted successfully' });
   } catch (error) {
     console.error('Error deleting teacher:', error);
@@ -171,18 +193,21 @@ router.get('/carousel', auth(['admin']), (req, res) => {
 
 router.post('/carousel', auth(['admin']), upload.single('image'), (req, res) => {
   try {
-    const { title, description, order } = req.body;
+    const { title, subtitle, order } = req.body;
     
     const newSlide = {
       id: Date.now(),
       title,
-      description,
+      subtitle,
       image: req.file ? `/uploads/${req.file.filename}` : null,
       order: parseInt(order) || 0
     };
     
     landingPageData.carousel.push(newSlide);
     landingPageData.carousel.sort((a, b) => a.order - b.order);
+    
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
     
     res.json({ message: 'Carousel slide added successfully', data: newSlide });
   } catch (error) {
@@ -191,81 +216,58 @@ router.post('/carousel', auth(['admin']), upload.single('image'), (req, res) => 
   }
 });
 
-// Achievements management
-router.get('/achievements', auth(['admin']), (req, res) => {
-  try {
-    res.json(landingPageData.achievements);
-  } catch (error) {
-    console.error('Error getting achievements:', error);
-    res.status(500).json({ error: 'Failed to get achievements' });
-  }
-});
-
-router.post('/achievements', auth(['admin']), (req, res) => {
-  try {
-    const { title, description, year, category, rank, icon } = req.body;
-    
-    const newAchievement = {
-      id: Date.now(),
-      title,
-      description,
-      year,
-      category,
-      rank,
-      icon: icon || '🏆'
-    };
-    
-    landingPageData.achievements.push(newAchievement);
-    
-    res.json({ message: 'Achievement added successfully', data: newAchievement });
-  } catch (error) {
-    console.error('Error adding achievement:', error);
-    res.status(500).json({ error: 'Failed to add achievement' });
-  }
-});
-
-router.put('/achievements/:id', auth(['admin']), (req, res) => {
+// Update carousel slide
+router.put('/carousel/:id', auth(['admin']), upload.single('image'), (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, year, category, rank, icon } = req.body;
+    const { title, subtitle, order } = req.body;
     
-    const achievementIndex = landingPageData.achievements.findIndex(a => a.id === parseInt(id));
-    if (achievementIndex === -1) {
-      return res.status(404).json({ error: 'Achievement not found' });
+    const slideIndex = landingPageData.carousel.findIndex(slide => slide.id === parseInt(id));
+    if (slideIndex === -1) {
+      return res.status(404).json({ error: 'Carousel slide not found' });
     }
     
-    landingPageData.achievements[achievementIndex] = {
-      ...landingPageData.achievements[achievementIndex],
+    const slide = landingPageData.carousel[slideIndex];
+    
+    landingPageData.carousel[slideIndex] = {
+      ...slide,
       title,
-      description,
-      year,
-      category,
-      rank,
-      icon: icon || '🏆'
+      subtitle,
+      image: req.file ? `/uploads/${req.file.filename}` : slide.image,
+      order: parseInt(order) || slide.order
     };
     
-    res.json({ message: 'Achievement updated successfully', data: landingPageData.achievements[achievementIndex] });
+    landingPageData.carousel.sort((a, b) => a.order - b.order);
+    
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
+    
+    res.json({ message: 'Carousel slide updated successfully', data: landingPageData.carousel[slideIndex] });
   } catch (error) {
-    console.error('Error updating achievement:', error);
-    res.status(500).json({ error: 'Failed to update achievement' });
+    console.error('Error updating carousel slide:', error);
+    res.status(500).json({ error: 'Failed to update carousel slide' });
   }
 });
 
-router.delete('/achievements/:id', auth(['admin']), (req, res) => {
+// Delete carousel slide
+router.delete('/carousel/:id', auth(['admin']), (req, res) => {
   try {
     const { id } = req.params;
     
-    const achievementIndex = landingPageData.achievements.findIndex(a => a.id === parseInt(id));
-    if (achievementIndex === -1) {
-      return res.status(404).json({ error: 'Achievement not found' });
+    const slideIndex = landingPageData.carousel.findIndex(slide => slide.id === parseInt(id));
+    if (slideIndex === -1) {
+      return res.status(404).json({ error: 'Carousel slide not found' });
     }
     
-    landingPageData.achievements.splice(achievementIndex, 1);
+    landingPageData.carousel.splice(slideIndex, 1);
     
-    res.json({ message: 'Achievement deleted successfully' });
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
+    
+    res.json({ message: 'Carousel slide deleted successfully' });
   } catch (error) {
-    console.error('Error deleting achievement:', error);
-    res.status(500).json({ error: 'Failed to delete achievement' });
+    console.error('Error deleting carousel slide:', error);
+    res.status(500).json({ error: 'Failed to delete carousel slide' });
   }
 });
 
@@ -318,6 +320,9 @@ router.post('/albums', auth(['admin']), uploadAlbumImages.any(), async (req, res
     
     landingPageData.albums.push(newAlbum);
     
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
+    
     res.json({ message: 'Album created successfully', data: newAlbum });
   } catch (error) {
     console.error('Error creating album:', error);
@@ -356,6 +361,9 @@ router.put('/albums/:id', auth(['admin']), uploadAlbumCover.single('coverImage')
       date: date || album.date,
       coverImage: req.file ? req.file.path : album.coverImage
     };
+    
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
     
     res.json({ message: 'Album updated successfully', data: landingPageData.albums[albumIndex] });
   } catch (error) {
@@ -399,6 +407,9 @@ router.delete('/albums/:id', auth(['admin']), async (req, res) => {
     }
     
     landingPageData.albums.splice(albumIndex, 1);
+    
+    // Save data to file
+    landingPageDataStore.saveDataToFile();
     
     res.json({ message: 'Album deleted successfully' });
   } catch (error) {

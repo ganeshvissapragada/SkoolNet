@@ -1,0 +1,125 @@
+{
+  "schoolInfo": {
+    "name": "ZPHS  Pendyala",
+    "description": "Nurturing young minds for a brighter tomorrow with excellence in education, character building, and holistic development. We are committed to providing world-class education that prepares students for future challenges while maintaining strong moral values and cultural heritage.",
+    "address": "Pendyala Village, Guntur District, Andhra Pradesh - 522019",
+    "email": "zphs.pendyala@education.ap.gov.in",
+    "phone": "+91-8632-245678",
+    "logo": "/uploads/1759949016037-Gemini_Generated_Image_1kxvgy1kxvgy1kxv.png",
+    "backgroundImage": null
+  },
+  "stats": [
+    {
+      "label": "Student Strength",
+      "value": 100,
+      "icon": "/assets/landingpage/student.png",
+      "description": "Bright minds learning and growing with us",
+      "gradient": "linear-gradient(135deg, #667eea, #764ba2)"
+    },
+    {
+      "label": "Teacher Strength",
+      "value": 7,
+      "icon": "/assets/landingpage/teacher.png",
+      "description": "Experienced educators dedicated to excellence",
+      "gradient": "linear-gradient(135deg, #f093fb, #f5576c)"
+    },
+    {
+      "label": "Smart Classrooms",
+      "value": 10,
+      "icon": "/assets/landingpage/classroom.png",
+      "description": "Modern technology-enabled learning spaces",
+      "gradient": "linear-gradient(135deg, #4facfe, #00f2fe)"
+    },
+    {
+      "label": "Years of Excellence",
+      "value": 16,
+      "icon": "/assets/landingpage/calendar.png",
+      "description": "Serving the community since 1999 with dedication",
+      "gradient": "linear-gradient(135deg, #ffd93d, #ff6b6b)"
+    }
+  ],
+  "teachers": [
+    {
+      "id": 2,
+      "name": "V V D S V MOHANA KRISHNA",
+      "position": "Principal",
+      "qualifications": "M.A,M.A,M.A,M.Sc,B.Ed",
+      "experience": "15 Years",
+      "photo": "1759949373953-teacher-krishna.png",
+      "email": "viceprincipal@excellenceschool.edu",
+      "phone": "7981766022"
+    },
+    {
+      "id": 3,
+      "name": "Ch.Venugopal",
+      "position": "L P HINDI",
+      "qualifications": "M.Sc. Physics, B.Ed., Ph.D.",
+      "experience": "18+ Years",
+      "photo": "1759983339772-teacher-cropped_circle_image (4).png",
+      "email": "academic@excellenceschool.edu",
+      "phone": "+91-9876543212"
+    },
+    {
+      "id": 4,
+      "name": "K.Venkteswara Rao",
+      "position": "SA MATHS",
+      "qualifications": "M.P.Ed., B.P.Ed., Sports Coach",
+      "experience": "12+ Years",
+      "photo": "1759983409710-teacher-cropped_circle_image (5).png",
+      "email": "sports@excellenceschool.edu",
+      "phone": "+91-9876543213"
+    }
+  ],
+  "albums": [
+    {
+      "id": 1,
+      "title": "GST 2.0",
+      "description": "",
+      "category": "general",
+      "date": "2025-10-08",
+      "coverImage": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1759948003/school-platform/albums/m6rudghbshzn92kcfvxw.jpg",
+      "images": [],
+      "photoCount": 0
+    },
+    {
+      "id": 2,
+      "title": "PTM 25",
+      "description": "",
+      "category": "general",
+      "date": "2025-10-09",
+      "coverImage": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1759982182/school-platform/album-covers/ftj4p3ea3mwbju2cqf19.jpg",
+      "images": [],
+      "photoCount": 0
+    },
+    {
+      "id": 3,
+      "title": "GREEN PASSPORT",
+      "description": "",
+      "category": "general",
+      "date": "2025-10-09",
+      "coverImage": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1759982249/school-platform/albums/lsnlp6wgwrmlwukngzl4.jpg",
+      "images": [],
+      "photoCount": 0
+    }
+  ],
+  "carousel": [
+    {
+      "id": 1759976139372,
+      "title": "",
+      "image": "/uploads/1759976139368-WhatsApp Image 2025-09-06 at 18.44.55.jpeg",
+      "order": 0
+    },
+    {
+      "id": 1759976149595,
+      "title": "",
+      "image": "/uploads/1759976149592-WhatsApp Image 2025-09-06 at 18.47.32.jpeg",
+      "order": 0
+    },
+    {
+      "id": 1759976157452,
+      "title": "",
+      "image": "/uploads/1759976157448-WhatsApp Image 2025-09-06 at 18.44.53.jpeg",
+      "order": 0
+    }
+  ]
+}
