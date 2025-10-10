@@ -467,7 +467,7 @@ export default function LoginPage() {
           color: 'white',
           position: 'relative',
           overflow: 'hidden',
-          backgroundImage: 'url(/src/assets/logincard/sidecard.jpg)',
+          backgroundImage: `url(${import.meta.env.VITE_CLOUDINARY_BASE_URL}/c_fill,w_1920,h_1080,q_auto,f_auto/v1760004332/school-platform/login/background.jpg)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'

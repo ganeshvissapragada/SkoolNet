@@ -10,9 +10,12 @@ import assignmentsIcon from '../assets/icons/assignments.png';
 import parentIcon from '../assets/icons/parents.png';
 import searchIcon from '../assets/icons/search.png';
 import translateIcon from '../assets/icons/translate.png';
-import carousel1 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.53.jpeg';
-import carousel2 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.54.jpeg';
-import carousel3 from '../assets/carousel/WhatsApp Image 2025-09-06 at 18.44.55.jpeg';
+
+// Cloudinary optimized carousel images
+const CLOUDINARY_BASE = import.meta.env.VITE_CLOUDINARY_BASE_URL;
+const carousel1 = `${CLOUDINARY_BASE}/c_fill,w_800,h_400,q_auto,f_auto/v1760004319/school-platform/carousel/school-event-1.jpg`;
+const carousel2 = `${CLOUDINARY_BASE}/c_fill,w_800,h_400,q_auto,f_auto/v1760004321/school-platform/carousel/school-event-2.jpg`;
+const carousel3 = `${CLOUDINARY_BASE}/c_fill,w_800,h_400,q_auto,f_auto/v1760004322/school-platform/carousel/school-event-3.jpg`;
 
 export default function ParentDashboard() {
   const { userId } = useContext(AuthContext);

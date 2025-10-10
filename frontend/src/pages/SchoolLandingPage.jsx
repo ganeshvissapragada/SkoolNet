@@ -89,7 +89,7 @@ const SchoolLandingPage = () => {
         position: 'Principal',
         qualification: 'Ph.D. in Education, M.Ed., B.Ed.',
         experience: '20+ Years',
-        image: 'frontend/src/assets/teachers/PLN%20Phanikumar%20SA%20.png',
+        image: `${import.meta.env.VITE_CLOUDINARY_BASE_URL}/c_fill,w_200,h_200,q_auto,f_auto,r_max/v1760004338/school-platform/teachers/phanikumar.png`,
         email: 'principal@excellenceschool.edu',
         phone: '+91-9876543210',
         isRealPhoto: true

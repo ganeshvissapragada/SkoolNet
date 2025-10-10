@@ -18,7 +18,7 @@
     },
     {
       "label": "Teacher Strength",
-      "value": 7,
+      "value": 10,
       "icon": "/assets/landingpage/teacher.png",
       "description": "Experienced educators dedicated to excellence",
       "gradient": "linear-gradient(135deg, #f093fb, #f5576c)"
