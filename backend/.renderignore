@@ -1,0 +1,33 @@
+# Files to ignore during Render deployment
+
+# Development files
+*.md
+.env.example
+.gitignore
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Development dependencies
+.eslintrc*
+.prettier*
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Documentation
+docs/
+documentation/

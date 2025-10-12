@@ -72,6 +72,3 @@
 - **Environment Management** - Separate dev, staging, production configs
 - **Monitoring** - Application health checks and error tracking
 - **Deployment Strategy** - Blue-green deployment with zero downtime
-# In Supabase Dashboard:
-# Settings → Database → Connection string
-# Copy: Host, Database, User,

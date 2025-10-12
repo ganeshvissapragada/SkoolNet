@@ -1,0 +1,16 @@
+# Ignore everything first
+*
+
+# Then include only what we need
+!backend/
+backend/node_modules/
+backend/.env
+backend/uploads/
+backend/logs/
+
+# Ignore frontend and other folders
+frontend/
+.git/
+.vscode/
+*.md
+.gitignore
