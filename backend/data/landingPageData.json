@@ -5,7 +5,7 @@
     "address": "Pendyala Village, Guntur District, Andhra Pradesh - 522019",
     "email": "zphs.pendyala@education.ap.gov.in",
     "phone": "+91-8632-245678",
-    "logo": "/uploads/1759949016037-Gemini_Generated_Image_1kxvgy1kxvgy1kxv.png",
+    "logo": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1760811730/school-platform/general/ozy6xbitlrwv7usc7viu.png",
     "backgroundImage": null
   },
   "stats": [
@@ -45,7 +45,7 @@
       "position": "Principal",
       "qualifications": "M.A,M.A,M.A,M.Sc,B.Ed",
       "experience": "15 Years",
-      "photo": "1759949373953-teacher-krishna.png",
+      "photo": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1760811725/school-platform/teachers/k32jnt2zuxvygx0tsreq.png",
       "email": "viceprincipal@excellenceschool.edu",
       "phone": "7981766022"
     },
@@ -55,7 +55,7 @@
       "position": "L P HINDI",
       "qualifications": "M.Sc. Physics, B.Ed., Ph.D.",
       "experience": "18+ Years",
-      "photo": "1759983339772-teacher-cropped_circle_image (4).png",
+      "photo": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1760811726/school-platform/teachers/rzstwee0une2wc3irdwm.png",
       "email": "academic@excellenceschool.edu",
       "phone": "+91-9876543212"
     },
@@ -65,7 +65,7 @@
       "position": "SA MATHS",
       "qualifications": "M.P.Ed., B.P.Ed., Sports Coach",
       "experience": "12+ Years",
-      "photo": "1759983409710-teacher-cropped_circle_image (5).png",
+      "photo": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1760811728/school-platform/teachers/pxegqunbqrqr9hqizndo.png",
       "email": "sports@excellenceschool.edu",
       "phone": "+91-9876543213"
     }
@@ -106,19 +106,19 @@
     {
       "id": 1759976139372,
       "title": "",
-      "image": "/uploads/1759976139368-WhatsApp Image 2025-09-06 at 18.44.55.jpeg",
+      "image": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1760811720/school-platform/carousel/dr4kcbqgjlwc7htbmin4.jpg",
       "order": 0
     },
     {
       "id": 1759976149595,
       "title": "",
-      "image": "/uploads/1759976149592-WhatsApp Image 2025-09-06 at 18.47.32.jpeg",
+      "image": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1760811722/school-platform/carousel/ybxakk7jhaiuht8cybqy.jpg",
       "order": 0
     },
     {
       "id": 1759976157452,
       "title": "",
-      "image": "/uploads/1759976157448-WhatsApp Image 2025-09-06 at 18.44.53.jpeg",
+      "image": "https://res.cloudinary.com/dcgfcbqbv/image/upload/v1760811723/school-platform/carousel/uazgn9o9gakuaydtyi4d.jpg",
       "order": 0
     }
   ]
