@@ -270,34 +270,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Credentials Helper */}
-          <div style={{
-            backgroundColor: '#F8FAFC',
-            border: '1px solid #E2E8F0',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '24px',
-            fontSize: '12px',
-            color: '#64748B'
-          }}>
-            <div style={{ fontWeight: '600', marginBottom: '8px', color: '#475569' }}>
-              Demo Credentials:
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-              <div><strong>Admin:</strong> admin@example.com</div>
-              <div><strong>Password:</strong> Admin@123</div>
-              <div><strong>Teacher:</strong> teacher1@school.com</div>
-              <div><strong>Password:</strong> teacher123</div>
-              <div><strong>Student:</strong> arjun.sharma@student.com</div>
-              <div><strong>Password:</strong> student123</div>
-              <div><strong>Parent:</strong> priya.sharma@parent.com</div>
-              <div><strong>Password:</strong> parent123</div>
-            </div>
-            <div style={{ marginTop: '8px', fontSize: '11px', fontStyle: 'italic' }}>
-              💡 Click on a role above to auto-fill credentials
-            </div>
-          </div>
-
           <form onSubmit={submit}>
             {/* Username Field */}
             <div style={{ marginBottom: '20px', position: 'relative' }}>
