@@ -1,0 +1,25 @@
+# Render Deployment Configuration
+
+# Build Command
+npm install
+
+# Start Command  
+npm start
+
+# Environment Variables
+NODE_ENV=production
+PORT=10000
+
+# Database Configuration (Supabase Session Pooler)
+DATABASE_URL=postgresql://postgres.vjlozlmvvvhcyfdqepuz:f*L8QHa9V7u5dyN@aws-1-ap-south-1.pooler.supabase.com:5432/postgres
+
+# MongoDB Atlas
+MONGO_URI=mongodb+srv://mohankrishna:NZHMXnucP1d2NIqi@schooldb.7fnlndi.mongodb.net/?retryWrites=true&w=majority&appName=schooldb
+
+# JWT Secret (Generate a new one for production)
+JWT_SECRET=73b17c271d2459de44b436713ca47f05
+
+# Cloudinary Configuration  
+CLOUDINARY_CLOUD_NAME=dcgfcbqbv
+CLOUDINARY_API_KEY=144321214898354
+CLOUDINARY_API_SECRET=LGiYlS0a38scylgrNTQ6IKl21bw
