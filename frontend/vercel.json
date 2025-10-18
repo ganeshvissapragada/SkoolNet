@@ -6,5 +6,11 @@
   "devCommand": "npm run dev",
   "env": {
     "VITE_API_URL": "https://skoolnet.onrender.com"
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
