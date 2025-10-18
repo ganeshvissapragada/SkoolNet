@@ -65,28 +65,28 @@ export default function LoginPage() {
     { 
       key: 'admin', 
       label: translations[language].admin, 
-      icon: '/src/assets/logincard/admin.png',
+      icon: '/assets/logincard/admin.png',
       email: 'admin@example.com',
-      password: 'admin123'
+      password: 'Admin@123'
     },
     { 
       key: 'teacher', 
       label: translations[language].teacher, 
-      icon: '/src/assets/logincard/teacher.png',
-      email: 'teacher@example.com',
+      icon: '/assets/logincard/teacher.png',
+      email: 'teacher1@school.com',
       password: 'teacher123'
     },
     { 
       key: 'student', 
       label: translations[language].student, 
-      icon: '/src/assets/logincard/students.png',
+      icon: '/assets/logincard/students.png',
       email: 'arjun.sharma@student.com',
       password: 'student123'
     },
     { 
       key: 'parent', 
       label: translations[language].parent, 
-      icon: '/src/assets/icons/parents.png',
+      icon: '/assets/icons/parents.png',
       email: 'priya.sharma@parent.com',
       password: 'parent123'
     }
@@ -148,7 +148,7 @@ export default function LoginPage() {
         onClick={() => setLanguage(language === 'telugu' ? 'english' : 'telugu')}
       >
         <img 
-          src="/src/assets/icons/translate.png" 
+          src="/assets/icons/translate.png" 
           alt="Translate"
           style={{
             width: '24px',
@@ -270,6 +270,34 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {/* Credentials Helper */}
+          <div style={{
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '24px',
+            fontSize: '12px',
+            color: '#64748B'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '8px', color: '#475569' }}>
+              Demo Credentials:
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+              <div><strong>Admin:</strong> admin@example.com</div>
+              <div><strong>Password:</strong> Admin@123</div>
+              <div><strong>Teacher:</strong> teacher1@school.com</div>
+              <div><strong>Password:</strong> teacher123</div>
+              <div><strong>Student:</strong> arjun.sharma@student.com</div>
+              <div><strong>Password:</strong> student123</div>
+              <div><strong>Parent:</strong> priya.sharma@parent.com</div>
+              <div><strong>Password:</strong> parent123</div>
+            </div>
+            <div style={{ marginTop: '8px', fontSize: '11px', fontStyle: 'italic' }}>
+              💡 Click on a role above to auto-fill credentials
+            </div>
+          </div>
+
           <form onSubmit={submit}>
             {/* Username Field */}
             <div style={{ marginBottom: '20px', position: 'relative' }}>
@@ -282,7 +310,7 @@ export default function LoginPage() {
                 height: '18px'
               }}>
                 <img 
-                  src="/src/assets/logincard/username.png" 
+                  src="/assets/logincard/username.png" 
                   alt="Username"
                   style={{ width: '100%', height: '100%', opacity: 0.6 }}
                 />
@@ -327,7 +355,7 @@ export default function LoginPage() {
                 height: '18px'
               }}>
                 <img 
-                  src="/src/assets/logincard/password.png" 
+                  src="/assets/logincard/password.png" 
                   alt="Password"
                   style={{ width: '100%', height: '100%', opacity: 0.6 }}
                 />
