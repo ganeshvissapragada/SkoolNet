@@ -57,24 +57,47 @@ const PORT = process.env.PORT || 3001;
     app.listen(PORT, '0.0.0.0', () => console.log(`Backend listening on :${PORT} (all interfaces)`));
 
     // Serve static files from React build (for production) only for non-API routes
-    app.use((req, res, next) => {
-      const excluded = ['/api', '/uploads', '/auth', '/admin', '/teacher', '/parent', '/student'];
-      if (excluded.some(prefix => req.path.startsWith(prefix))) {
-        return next();
-      }
-      express.static(path.join(__dirname, '../frontend/dist'))(req, res, next);
-    });
+    // Serve static files from frontend/dist (only if directory exists)
+    const frontendDistPath = path.join(__dirname, '../frontend/dist');
+    const fs = require('fs');
+    
+    if (fs.existsSync(frontendDistPath)) {
+      console.log('Frontend dist directory found, serving static files');
+      app.use((req, res, next) => {
+        const excluded = ['/api', '/uploads', '/auth', '/admin', '/teacher', '/parent', '/student'];
+        if (excluded.some(prefix => req.path.startsWith(prefix))) {
+          return next();
+        }
+        express.static(frontendDistPath)(req, res, next);
+      });
 
-    // Catch-all handler: send back React's index.html file for all non-API/static routes
-    app.get('*', (req, res, next) => {
-      const excluded = [
-        '/api', '/uploads', '/auth', '/admin', '/teacher', '/parent', '/student'
-      ];
-      if (excluded.some(prefix => req.path.startsWith(prefix))) {
-        return next();
-      }
-      res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-    });
+      // Catch-all handler: send back React's index.html file for all non-API/static routes
+      app.get('*', (req, res, next) => {
+        const excluded = [
+          '/api', '/uploads', '/auth', '/admin', '/teacher', '/parent', '/student'
+        ];
+        if (excluded.some(prefix => req.path.startsWith(prefix))) {
+          return next();
+        }
+        res.sendFile(path.join(frontendDistPath, 'index.html'));
+      });
+    } else {
+      console.log('Frontend dist directory not found, running as API-only server');
+      // For API-only deployment, just return a simple message for root
+      app.get('/', (req, res) => {
+        res.json({ 
+          message: 'School Platform API Server', 
+          status: 'running',
+          endpoints: {
+            auth: '/api/auth',
+            admin: '/api/admin', 
+            teacher: '/api/teacher',
+            parent: '/api/parent',
+            student: '/api/student'
+          }
+        });
+      });
+    }
   } catch (err) {
     console.error('Startup error:', err);
     process.exit(1);
