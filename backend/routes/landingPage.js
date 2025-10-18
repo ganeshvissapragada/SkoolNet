@@ -4,30 +4,12 @@ const landingPageDataStore = require('../controllers/landingPageDataStore');
 const landingPageData = landingPageDataStore.data;
 const multer = require('multer');
 const path = require('path');
-const { cloudinary, albumStorage, albumCoverStorage } = require('../config/cloudinary');
+const { cloudinary, albumStorage, albumCoverStorage, carouselStorage, teacherStorage, generalStorage } = require('../config/cloudinary');
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-
-// Configure multer specifically for teacher photos
-const teacherStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/teachers/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-teacher-' + file.originalname);
-  }
-});
-
-const upload = multer({ storage: storage });
+// Configure multer for Cloudinary uploads
+const upload = multer({ storage: generalStorage });
 const uploadTeacher = multer({ storage: teacherStorage });
+const uploadCarousel = multer({ storage: carouselStorage });
 
 // Get all landing page data
 router.get('/landing-page', auth(['admin']), (req, res) => {
@@ -54,12 +36,12 @@ router.post('/school-info', auth(['admin']), upload.fields([
     if (email) landingPageData.schoolInfo.email = email;
     if (phone) landingPageData.schoolInfo.phone = phone;
     
-    // Handle file uploads
+    // Handle file uploads - store Cloudinary URLs
     if (req.files && req.files.logo) {
-      landingPageData.schoolInfo.logo = `/uploads/${req.files.logo[0].filename}`;
+      landingPageData.schoolInfo.logo = req.files.logo[0].path;
     }
     if (req.files && req.files.backgroundImage) {
-      landingPageData.schoolInfo.backgroundImage = `/uploads/${req.files.backgroundImage[0].filename}`;
+      landingPageData.schoolInfo.backgroundImage = req.files.backgroundImage[0].path;
     }
     
     // Save data to file
@@ -110,7 +92,7 @@ router.post('/teachers', auth(['admin']), uploadTeacher.single('photo'), (req, r
       experience,
       email,
       phone,
-      photo: req.file ? req.file.filename : null
+      photo: req.file ? req.file.path : null
     };
     
     landingPageData.teachers.push(newTeacher);
@@ -144,7 +126,7 @@ router.put('/teachers/:id', auth(['admin']), uploadTeacher.single('photo'), (req
     teacher.phone = phone || teacher.phone;
     
     if (req.file) {
-      teacher.photo = req.file.filename;
+      teacher.photo = req.file.path;
     }
     
     // Save data to file
@@ -191,7 +173,7 @@ router.get('/carousel', auth(['admin']), (req, res) => {
   }
 });
 
-router.post('/carousel', auth(['admin']), upload.single('image'), (req, res) => {
+router.post('/carousel', auth(['admin']), uploadCarousel.single('image'), (req, res) => {
   try {
     const { title, subtitle, order } = req.body;
     
@@ -199,7 +181,7 @@ router.post('/carousel', auth(['admin']), upload.single('image'), (req, res) => 
       id: Date.now(),
       title,
       subtitle,
-      image: req.file ? `/uploads/${req.file.filename}` : null,
+      image: req.file ? req.file.path : null,
       order: parseInt(order) || 0
     };
     
@@ -217,7 +199,7 @@ router.post('/carousel', auth(['admin']), upload.single('image'), (req, res) => 
 });
 
 // Update carousel slide
-router.put('/carousel/:id', auth(['admin']), upload.single('image'), (req, res) => {
+router.put('/carousel/:id', auth(['admin']), uploadCarousel.single('image'), (req, res) => {
   try {
     const { id } = req.params;
     const { title, subtitle, order } = req.body;
@@ -233,7 +215,7 @@ router.put('/carousel/:id', auth(['admin']), upload.single('image'), (req, res) 
       ...slide,
       title,
       subtitle,
-      image: req.file ? `/uploads/${req.file.filename}` : slide.image,
+      image: req.file ? req.file.path : slide.image,
       order: parseInt(order) || slide.order
     };
     

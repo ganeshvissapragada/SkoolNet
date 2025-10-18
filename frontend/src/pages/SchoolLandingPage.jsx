@@ -136,7 +136,7 @@ const SchoolLandingPage = () => {
       position: teacher.position,
       qualification: teacher.qualifications,
       experience: teacher.experience || '10+ Years',
-      image: teacher.photo ? `http://localhost:3001/uploads/teachers/${encodeURIComponent(teacher.photo)}` : getDefaultStaffIcon(teacher.position),
+      image: teacher.photo || getDefaultStaffIcon(teacher.position),
       email: teacher.email || `${teacher.name.toLowerCase().replace(/\s+/g, '.')}@excellenceschool.edu`,
       phone: teacher.phone || '+91-9876543210',
       isRealPhoto: !!teacher.photo
@@ -488,11 +488,7 @@ const SchoolLandingPage = () => {
       <section className="hero-section" id="home">
         <div className="carousel-container">
           {carouselSlides.map((slide, index) => {
-            const imageUrl = slide.image 
-              ? (slide.image.startsWith('http') 
-                  ? slide.image 
-                  : `http://localhost:3001${encodeURI(slide.image)}`)
-              : undefined;
+            const imageUrl = slide.image; // Cloudinary URLs are already complete
             
             const slideStyle = {
               backgroundImage: imageUrl ? `url("${imageUrl}")` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

@@ -539,7 +539,7 @@ const AdminLandingPageManager = () => {
               {teachers.map((teacher) => (
                 <div key={teacher.id} className="item-card">
                   {teacher.photo && (
-                    <img src={`/uploads/teachers/${teacher.photo}`} alt={teacher.name} className="item-image" />
+                    <img src={teacher.photo} alt={teacher.name} className="item-image" />
                   )}
                   <div className="item-content">
                     <h4>{teacher.name}</h4>

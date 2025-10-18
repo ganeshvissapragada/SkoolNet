@@ -32,8 +32,47 @@ const albumCoverStorage = new CloudinaryStorage({
   }
 });
 
+// Create storage for carousel images
+const carouselStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'school-platform/carousel',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { width: 1920, height: 1080, crop: 'fill', quality: 'auto' }
+    ]
+  }
+});
+
+// Create storage for teacher photos
+const teacherStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'school-platform/teachers',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { width: 400, height: 400, crop: 'fill', quality: 'auto', gravity: 'face' }
+    ]
+  }
+});
+
+// Create storage for general uploads (school logo, icons, etc.)
+const generalStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'school-platform/general',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
+    transformation: [
+      { quality: 'auto' }
+    ]
+  }
+});
+
 module.exports = {
   cloudinary,
   albumStorage,
-  albumCoverStorage
+  albumCoverStorage,
+  carouselStorage,
+  teacherStorage,
+  generalStorage
 };
