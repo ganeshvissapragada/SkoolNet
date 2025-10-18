@@ -436,7 +436,7 @@ const SchoolLandingPage = () => {
         <div className="nav-container">
           <div className="logo">
             {schoolInfo.logo ? (
-              <img src={`http://localhost:3001${schoolInfo.logo}`} alt="School Logo" className="logo-icon" />
+              <img src={schoolInfo.logo} alt="School Logo" className="logo-icon" />
             ) : (
               <img src="/assets/icons/school_icon.png" alt="School Logo" className="logo-icon" />
             )}
