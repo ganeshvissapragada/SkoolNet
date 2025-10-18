@@ -16,28 +16,28 @@ const SchoolLandingPage = () => {
   const processedStats = useMemo(() => {
     const fallbackStats = [
       {
-        icon: '/src/assets/landingpage/student.png',
+        icon: '/assets/landingpage/student.png',
         number: 2500,
         label: 'Student Strength',
         description: 'Bright minds learning and growing with us',
         gradient: 'linear-gradient(135deg, #667eea, #764ba2)'
       },
       {
-        icon: '/src/assets/landingpage/teacher.png',
+        icon: '/assets/landingpage/teacher.png',
         number: 150,
         label: 'Teacher Strength',
         description: 'Experienced educators dedicated to excellence',
         gradient: 'linear-gradient(135deg, #f093fb, #f5576c)'
       },
       {
-        icon: '/src/assets/landingpage/classroom.png',
+        icon: '/assets/landingpage/classroom.png',
         number: 45,
         label: 'Smart Classrooms',
         description: 'Modern technology-enabled learning spaces',
         gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)'
       },
       {
-        icon: '/src/assets/landingpage/calendar.png',
+        icon: '/assets/landingpage/calendar.png',
         number: 25,
         label: 'Years of Excellence',
         description: 'Serving the community since 1999 with dedication',
@@ -76,7 +76,7 @@ const SchoolLandingPage = () => {
         position: 'Principal',
         qualification: 'Ph.D. in Education, M.Ed., B.Ed.',
         experience: '20+ Years',
-        image: '/src/assets/teachers/PLN_Phanikumar_SA.png',
+        image: '/assets/teachers/PLN_Phanikumar_SA.png',
         email: 'principal@excellenceschool.edu',
         phone: '+91-9876543210',
         isRealPhoto: true
@@ -416,7 +416,7 @@ const SchoolLandingPage = () => {
             {schoolInfo.logo ? (
               <img src={`http://localhost:3001${schoolInfo.logo}`} alt="School Logo" className="logo-icon" />
             ) : (
-              <img src="frontend/src/assets/icons/school_icon.png" alt="School Logo" className="logo-icon" />
+              <img src="/assets/icons/school_icon.png" alt="School Logo" className="logo-icon" />
             )}
             <div>
               <div style={{ fontSize: '24px', fontWeight: 600, color: '#374151' }}>{schoolInfo.name}</div>
@@ -426,11 +426,11 @@ const SchoolLandingPage = () => {
           
           <div className="nav-actions">
             <button className="nav-btn" onClick={toggleSearch}>
-              <img src="frontend/src/assets/icons/search.png" alt="Search" />
+              <img src="/assets/icons/search.png" alt="Search" />
             </button>
             
             <button className="nav-btn" onClick={toggleLanguage}>
-              <img src="frontend/src/assets/icons/translate.png" alt="Translate" />
+              <img src="/assets/icons/translate.png" alt="Translate" />
             </button>
 
             <button 

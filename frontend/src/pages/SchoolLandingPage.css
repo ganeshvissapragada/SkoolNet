@@ -112,27 +112,27 @@
 }
 
 .slide1 {
-  background-image: url('../../assets/carousel/school-classroom.jpg');
+  background-image: url('/assets/carousel/school-classroom.jpg');
 }
 
 .slide2 {
-  background-image: url('../../assets/carousel/community-gathering.jpg');
+  background-image: url('/assets/carousel/community-gathering.jpg');
 }
 
 .slide3 {
-  background-image: url('../../assets/carousel/independence-celebration.jpg');
+  background-image: url('/assets/carousel/independence-celebration.jpg');
 }
 
 .slide4 {
-  background-image: url('../../assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.53.jpeg');
+  background-image: url('/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.53.jpeg');
 }
 
 .slide5 {
-  background-image: url('../../assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.54.jpeg');
+  background-image: url('/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.54.jpeg');
 }
 
 .slide6 {
-  background-image: url('../../assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.55.jpeg');
+  background-image: url('/assets/carousel/WhatsApp%20Image%202025-09-06%20at%2018.44.55.jpeg');
 }
 
 .carousel-content {

@@ -438,7 +438,7 @@ const SchoolLandingPage = () => {
             {schoolInfo.logo ? (
               <img src={`http://localhost:3001${schoolInfo.logo}`} alt="School Logo" className="logo-icon" />
             ) : (
-              <img src="frontend/src/assets/icons/school_icon.png" alt="School Logo" className="logo-icon" />
+              <img src="/assets/icons/school_icon.png" alt="School Logo" className="logo-icon" />
             )}
             <div>
               <div style={{ fontSize: '24px', fontWeight: 600, color: '#374151' }}>{schoolInfo.name}</div>
@@ -448,11 +448,11 @@ const SchoolLandingPage = () => {
           
           <div className="nav-actions">
             <button className="nav-btn" onClick={toggleSearch}>
-              <img src="frontend/src/assets/icons/search.png" alt="Search" />
+              <img src="/assets/icons/search.png" alt="Search" />
             </button>
             
             <button className="nav-btn" onClick={toggleLanguage}>
-              <img src="frontend/src/assets/icons/translate.png" alt="Translate" />
+              <img src="/assets/icons/translate.png" alt="Translate" />
             </button>
 
             <button 
@@ -571,7 +571,7 @@ const SchoolLandingPage = () => {
 
           <div className="teachers-container">
             <button className="teachers-nav prev" onClick={() => scrollTeachers('left')}>
-              <img src="/src/assets/landingpage/left.png" alt="Previous" />
+              <img src="/assets/landingpage/left.png" alt="Previous" />
             </button>
             <div className="teachers-row" id="teachersRow">
               {processedStaffMembers.map((teacher) => (
@@ -588,21 +588,21 @@ const SchoolLandingPage = () => {
                   <div className="teacher-details">
                     <div className="teacher-detail-item">
                       <span className="teacher-detail-icon">
-                        <img src="/src/assets/landingpage/education.png" alt="Education" />
+                        <img src="/assets/landingpage/education.png" alt="Education" />
                       </span>
                       <span>{teacher.qualification || 'Educational Background'}</span>
                     </div>
                     
                     <div className="teacher-detail-item">
                       <span className="teacher-detail-icon">
-                        <img src="/src/assets/landingpage/experience.png" alt="Experience" />
+                        <img src="/assets/landingpage/experience.png" alt="Experience" />
                       </span>
                       <span>{teacher.experience || 'Experience'}</span>
                     </div>
                     
                     <div className="teacher-detail-item">
                       <span className="teacher-detail-icon">
-                        <img src="/src/assets/landingpage/phone.png" alt="Phone" />
+                        <img src="/assets/landingpage/phone.png" alt="Phone" />
                       </span>
                       <span>{teacher.phone || 'Contact'}</span>
                     </div>
@@ -611,7 +611,7 @@ const SchoolLandingPage = () => {
               ))}
             </div>
             <button className="teachers-nav next" onClick={() => scrollTeachers('right')}>
-              <img src="/src/assets/landingpage/right.png" alt="Next" />
+              <img src="/assets/landingpage/right.png" alt="Next" />
             </button>
           </div>
         </div>
