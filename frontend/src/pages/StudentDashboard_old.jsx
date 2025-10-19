@@ -231,24 +231,22 @@ export default function StudentDashboard() {
       ))}
     </div>
   );
-        <button 
-          onClick={() => setActiveTab('meals')}
-          style={{
-            padding: '10px 20px',
-            marginRight: '10px',
-            border: 'none',
-            backgroundColor: activeTab === 'meals' ? '#007bff' : '#f8f9fa',
-            color: activeTab === 'meals' ? 'white' : '#000',
-            cursor: 'pointer',
-            borderRadius: '4px 4px 0 0'
-          }}
-        >
-          Meal System
+
+  return (
+    <div style={mobileStyles.container}>
+      <div style={mobileStyles.header}>
+        <button style={mobileStyles.backButton} onClick={() => {}}>
+          ◀️
         </button>
+        <h1 style={{ margin: 0, fontSize: '1.5em' }}>Student Dashboard</h1>
+        <div style={{ width: 40 }}></div>
       </div>
 
-      {activeTab === 'attendance' && (
-        <div>
+      {currentView === 'dashboard' && renderDashboard()}
+
+      {currentView === 'attendance' && (
+        <div style={mobileStyles.detailsContainer}>
+          <h2>My Attendance</h2>
           <div style={{ marginBottom: 16 }}>
             <button onClick={loadAttendance} style={{
               padding: '10px 20px',
@@ -304,8 +302,9 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      {activeTab === 'marks' && (
-        <div>
+      {currentView === 'marks' && (
+        <div style={mobileStyles.detailsContainer}>
+          <h2>My Marks</h2>
           <div style={{ marginBottom: 16 }}>
             <button onClick={loadMarks} style={{
               padding: '10px 20px',
@@ -379,8 +378,9 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      {activeTab === 'scholarships' && (
-        <div>
+      {currentView === 'scholarships' && (
+        <div style={mobileStyles.detailsContainer}>
+          <h2>Scholarships</h2>
           <div style={{ marginBottom: 16 }}>
             <button onClick={loadScholarships} style={{
               padding: '10px 20px',
@@ -579,8 +579,9 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      {activeTab === 'meals' && (
-        <div>
+      {currentView === 'meals' && (
+        <div style={mobileStyles.detailsContainer}>
+          <h2>Daily Meals</h2>
           <div style={{ marginBottom: 16 }}>
             <button onClick={() => {loadMealPlans(); loadMealConsumption();}} style={{
               padding: '10px 20px',

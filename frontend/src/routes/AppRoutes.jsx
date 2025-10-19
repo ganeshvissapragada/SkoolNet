@@ -8,16 +8,18 @@ import StudentDashboard from '../pages/StudentDashboard.jsx';
 import SchoolLandingPage from '../pages/SchoolLandingPage.jsx';
 import AlbumViewer from '../pages/AlbumViewer.jsx';
 import ProtectedRoute from '../auth/ProtectedRoute.jsx';
+import AppLandingPage from '../pages/AppLandingPage.jsx';
 
 export default function AppRoutes() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<SchoolLandingPage />} />
+      <Route path="/" element={<AppLandingPage />} />
       <Route path="/home" element={<SchoolLandingPage />} />
       <Route path="/landing" element={<SchoolLandingPage />} />
       <Route path="/album/:albumId" element={<AlbumViewer />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/school" element={<SchoolLandingPage />} />
       
       {/* Protected Routes */}
       <Route
