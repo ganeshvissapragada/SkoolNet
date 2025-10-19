@@ -38,12 +38,6 @@ const getDatabaseConfig = () => {
       password: process.env.PG_PASSWORD,
       dialect: 'postgres',
       logging: process.env.NODE_ENV === 'production' ? false : console.log,
-      dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      },
       pool: {
         max: 5,
         min: 0,
