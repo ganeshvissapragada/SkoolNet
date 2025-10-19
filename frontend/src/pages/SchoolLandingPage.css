@@ -480,7 +480,7 @@
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   justify-content: center; /* Center the teacher cards */
-  max-width: 1200px; /* Limit the actual content width */
+  max-width: 1800px; /* Increased width to show more cards */
   margin: 0 auto; /* Center the content within the full-width container */
 }
 
@@ -530,10 +530,10 @@
 }
 
 .teacher-card {
-  flex: 0 0 calc(33.333% - 1.33rem);
+  flex: 0 0 300px;
   background: transparent;
   border-radius: 0;
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1rem;
   text-align: center;
   box-shadow: none;
   transition: all 0.3s ease;

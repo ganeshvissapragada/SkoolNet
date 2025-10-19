@@ -380,7 +380,7 @@ const SchoolLandingPage = () => {
     const cardWidth = teachersRow.children[0]?.offsetWidth || 320; // Get actual card width
     const gap = 32; // 2rem gap between cards
     const totalCardWidth = cardWidth + gap;
-    const visibleCards = 3; // Show 3 teachers at a time
+    const visibleCards = 5; // Show 5 teachers at a time
     const scrollAmount = totalCardWidth * visibleCards;
     
     if (direction === 'left') {
