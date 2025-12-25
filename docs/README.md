@@ -13,6 +13,11 @@ Welcome to **SkoolNet**, a feature-rich platform designed to improve communicati
 - **Customizable Roles**: Fine-grained role management for administrators, teachers, students, and parents.
 - **Secure and Scalable**: Built with cutting-edge technology to handle many users and safeguard sensitive data.
 
+
+
+![Uploading image.png…]()
+
+
 ## Getting Started
 
 1. Clone the repository:
