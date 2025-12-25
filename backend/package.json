@@ -17,7 +17,8 @@
     "seed-students-parents": "node scripts/seedStudentsAndParents.js",
     "create-assignment-tables": "node scripts/createAssignmentTables.js",
     "seed-assignments": "node scripts/seedAssignmentData.js",
-    "test-platform": "node scripts/testPlatform.js"
+    "test-platform": "node scripts/testPlatform.js",
+    "test": "jest"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -38,6 +39,8 @@
     "npm": ">=8.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.1.4"
   }
 }
