@@ -231,21 +231,63 @@ export default function StudentDashboard() {
       ))}
     </div>
   );
-        <button 
-          onClick={() => setActiveTab('meals')}
-          style={{
-            padding: '10px 20px',
-            marginRight: '10px',
-            border: 'none',
-            backgroundColor: activeTab === 'meals' ? '#007bff' : '#f8f9fa',
-            color: activeTab === 'meals' ? 'white' : '#000',
-            cursor: 'pointer',
-            borderRadius: '4px 4px 0 0'
-          }}
-        >
-          Meal System
-        </button>
+
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  const renderTabs = () => (
+    <div style={{ marginBottom: '20px', borderBottom: '1px solid #dee2e6' }}>
+      <button 
+        onClick={() => setActiveTab('dashboard')}
+        style={{
+          padding: '10px 20px',
+          marginRight: '10px',
+          border: 'none',
+          backgroundColor: activeTab === 'dashboard' ? '#007bff' : '#f8f9fa',
+          color: activeTab === 'dashboard' ? 'white' : '#000',
+          cursor: 'pointer',
+          borderRadius: '4px 4px 0 0'
+        }}
+      >
+        Dashboard
+      </button>
+      <button 
+        onClick={() => setActiveTab('meals')}
+        style={{
+          padding: '10px 20px',
+          marginRight: '10px',
+          border: 'none',
+          backgroundColor: activeTab === 'meals' ? '#007bff' : '#f8f9fa',
+          color: activeTab === 'meals' ? 'white' : '#000',
+          cursor: 'pointer',
+          borderRadius: '4px 4px 0 0'
+        }}
+      >
+        Meal System
+      </button>
+    </div>
+  );
+
+  return (
+    <div style={mobileStyles.container}>
+      <div style={mobileStyles.header}>
+        {currentView !== 'dashboard' && (
+          <button 
+            style={mobileStyles.backButton}
+            onClick={() => {
+              setCurrentView('dashboard');
+              setSelectedCard(null);
+            }}
+          >
+            ← Back
+          </button>
+        )}
+        <h1 style={{ margin: 0, fontSize: '24px' }}>Student Dashboard</h1>
+        <div style={{ width: '40px' }}></div>
       </div>
+
+      {renderTabs()}
+
+      {activeTab === 'dashboard' && renderDashboard()}
 
       {activeTab === 'attendance' && (
         <div>
@@ -582,146 +624,97 @@ export default function StudentDashboard() {
       {activeTab === 'meals' && (
         <div>
           <div style={{ marginBottom: 16 }}>
-            <button onClick={() => {loadMealPlans(); loadMealConsumption();}} style={{
-              padding: '10px 20px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer'
-            }}>
-              Refresh Meal Data
+            <button 
+              onClick={() => {
+                loadMealPlans();
+                loadMealConsumption();
+              }} 
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer'
+              }}
+            >
+              Load Meal Plans
             </button>
           </div>
-          
-          <h3>🍽️ Today's Meal Plan</h3>
-          {mealPlans.length === 0 ? (
-            <p>No meal plans available for today.</p>
-          ) : (
-            <div style={{ display: 'grid', gap: '16px' }}>
-              {mealPlans.map(plan => (
-                <div key={plan.id} style={{
-                  border: '1px solid #ddd',
-                  borderRadius: 8,
-                  padding: 16,
-                  backgroundColor: '#f9f9f9'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
-                    <div>
-                      <h4 style={{ margin: 0, color: '#2c3e50' }}>{plan.meal_name}</h4>
-                      <p style={{ margin: 0, color: '#666' }}>{new Date(plan.date).toLocaleDateString()}</p>
-                    </div>
-                    <span style={{
-                      backgroundColor: (plan.status === 'served' || plan.status === 'completed') ? '#28a745' : '#ffc107',
-                      color: 'white',
-                      padding: '4px 8px',
-                      borderRadius: 4,
-                      fontSize: '12px'
+
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1', minWidth: '300px' }}>
+              <h3>Today's Meal Plan</h3>
+              {mealPlans.length === 0 ? (
+                <p style={{ padding: 16, background: '#f8f9fa', borderRadius: 4, color: '#6c757d' }}>
+                  No meal plans available for today.
+                </p>
+              ) : (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  {mealPlans.map((meal, index) => (
+                    <div key={meal.id || index} style={{
+                      border: '1px solid #ddd',
+                      padding: 12,
+                      marginBottom: 8,
+                      borderRadius: 4
                     }}>
-                      {plan.status ? plan.status.charAt(0).toUpperCase() + plan.status.slice(1) : 'Planned'}
-                    </span>
-                  </div>
-                  
-                  <p style={{ marginBottom: 12 }}>{plan.description}</p>
-                  
-                  <div style={{ marginBottom: 12 }}>
-                    <strong>🍽️ Menu Items:</strong>
-                    <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
-                      {plan.items.map((item, idx) => (
-                        <li key={idx}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: 12 }}>
-                    <div>
-                      <strong>📊 Nutritional Info:</strong>
-                      <div style={{ fontSize: '14px', marginTop: 4 }}>
-                        <div>Calories: {plan.nutritional_info.calories}</div>
-                        <div>Protein: {plan.nutritional_info.protein}g</div>
-                        <div>Carbs: {plan.nutritional_info.carbohydrates}g</div>
-                        <div>Fat: {plan.nutritional_info.fat}g</div>
+                      <h4 style={{ margin: '0 0 8px 0' }}>{meal.mealType}</h4>
+                      <p style={{ margin: '0 0 8px 0' }}>{meal.description}</p>
+                      <div style={{ fontSize: '0.9em', color: '#666' }}>
+                        <strong>Nutrition:</strong><br/>
+                        Calories: {meal.nutritionalInfo?.calories || 'N/A'}<br/>
+                        Protein: {meal.nutritionalInfo?.protein || 'N/A'}g
                       </div>
                     </div>
-                    <div>
-                      <strong>⚠️ Allergens:</strong>
-                      <div style={{ fontSize: '14px', marginTop: 4 }}>
-                        {plan.allergens.length > 0 ? plan.allergens.join(', ') : 'None'}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {plan.special_notes && (
-                    <div style={{ backgroundColor: '#fff3cd', padding: 8, borderRadius: 4, marginBottom: 12 }}>
-                      <strong>📝 Special Notes:</strong> {plan.special_notes}
-                    </div>
-                  )}
-                  
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      onClick={() => {
-                        const rating = prompt('Rate this meal (1-5 stars):');
-                        const comments = prompt('Any comments about the meal?');
-                        if (rating && rating >= 1 && rating <= 5) {
-                          submitMealFeedback(plan.id, parseInt(rating), comments || '');
-                        }
-                      }}
-                      style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 4,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      ⭐ Rate Meal
-                    </button>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-          
-          <h3 style={{ marginTop: 24 }}>📈 My Meal Consumption History</h3>
-          {!mealConsumption || !Array.isArray(mealConsumption) || mealConsumption.length === 0 ? (
-            <p>No meal consumption records found.</p>
-          ) : (
-            <div style={{ display: 'grid', gap: '12px' }}>
-              {mealConsumption.map(consumption => (
-                <div key={consumption.id} style={{
-                  border: '1px solid #ddd',
-                  borderRadius: 8,
-                  padding: 12,
-                  backgroundColor: '#f8f9fa'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <strong>{consumption.meal_plan?.meal_name || 'Meal'}</strong>
-                      <div style={{ fontSize: '14px', color: '#666' }}>
-                        {new Date(consumption.consumed_at).toLocaleDateString()} at{' '}
-                        {new Date(consumption.consumed_at).toLocaleTimeString()}
-                      </div>
-                    </div>
-                    <span style={{
-                      backgroundColor: consumption.status === 'consumed' ? '#28a745' : '#6c757d',
-                      color: 'white',
-                      padding: '4px 8px',
-                      borderRadius: 4,
-                      fontSize: '12px'
+
+            <div style={{ flex: '1', minWidth: '300px' }}>
+              <h3>My Meal Consumption</h3>
+              {mealConsumption.length === 0 ? (
+                <p style={{ padding: 16, background: '#f8f9fa', borderRadius: 4, color: '#6c757d' }}>
+                  No meal consumption records found.
+                </p>
+              ) : (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  {mealConsumption.map((record, index) => (
+                    <div key={record.id || index} style={{
+                      border: '1px solid #ddd',
+                      padding: 12,
+                      marginBottom: 8,
+                      borderRadius: 4
                     }}>
-                      {consumption.status ? consumption.status.charAt(0).toUpperCase() + consumption.status.slice(1) : 'Unknown'}
-                    </span>
-                  </div>
-                  {consumption.notes && (
-                    <div style={{ marginTop: 8, fontSize: '14px', color: '#666' }}>
-                      Notes: {consumption.notes}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                          <strong>Date:</strong> {new Date(record.date).toLocaleDateString()}<br/>
+                          <strong>Meal:</strong> {record.mealType}<br/>
+                          <strong>Consumed:</strong> {record.consumed ? '✅' : '❌'}
+                        </div>
+                        {record.consumed && (
+                          <button
+                            onClick={() => submitMealFeedback(record.mealPlanId, 5, 'Delicious!')}
+                            style={{
+                              padding: '5px 10px',
+                              backgroundColor: '#007bff',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: 4,
+                              cursor: 'pointer',
+                              fontSize: '0.9em'
+                            }}
+                          >
+                            Rate Meal
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
 

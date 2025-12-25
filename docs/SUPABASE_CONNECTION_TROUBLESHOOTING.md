@@ -1,0 +1,1 @@
+<!-- SUPABASE_CONNECTION_TROUBLESHOOTING.md migrated to docs -->

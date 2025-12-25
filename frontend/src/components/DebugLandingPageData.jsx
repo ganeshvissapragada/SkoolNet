@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/api.js';
+import api from './api/api.js';
 
 const DebugLandingPageData = () => {
   const [publicData, setPublicData] = useState(null);
