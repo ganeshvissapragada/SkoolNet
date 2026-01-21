@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import AppRoutes from './routes/AppRoutes.jsx';
 
 // Simple loading component
@@ -21,8 +21,7 @@ const Loading = () => (
 
 export default function App() {
   return (
-    <Suspense fallback={<Loading />}>
-      <AppRoutes />
-    </Suspense>
+    // Suspense removed to prevent perpetual Loading screen in production
+    <AppRoutes />
   );
 }
